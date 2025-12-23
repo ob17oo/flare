@@ -1,6 +1,79 @@
 @import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
+@layer base {
+  :root {
+    --bg-primary: #0c0c0c;
+    --bg-secondary: #171717;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b7c3;
+    --accent: #e53935;
+    --success: #4caf50;
+    --warning: #ff9800;
+    --error: #e53935;
+  }
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    width: 95%;
+    margin: 0 auto;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer utilities {
+  .text-accent {
+    color: var(--accent);
+  }
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  .text-success {
+    color: var(--success);
+  }
+  .text-warning {
+    color: var(--warning);
+  }
+  .text-error {
+    color: var(--error);
+  }
+
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  .bg-success {
+    background-color: var(--success);
+  }
+  .bg-warning {
+    background-color: var(--warning);
+  }
+  .bg-error {
+    background-color: var(--error);
+  }
+
+
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  .border-accent {
+    border-color: var(--accent);
+  }
+  .border-success {
+    border-color: var(--success);
+  }
+  .border-warning {
+    border: var(--warning);
+  }
+  .border-error {
+    border: var(--error);
+  }
 }
