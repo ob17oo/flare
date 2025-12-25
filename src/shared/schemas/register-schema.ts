@@ -9,7 +9,7 @@ export const emailSchema = z
 
 export const loginSchema = z
     .string()
-    .min(4, {message: 'Логин должен именить минимум 4 символа'})
+    .min(4, {message: 'Логин должен иметь минимум 4 символа'})
 
 export const passwordSchema = z
     .string()

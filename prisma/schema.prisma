@@ -17,7 +17,13 @@ model User {
   login String
   email String @unique
   password String
-  image_url String?
+  image_url String? @default("/images/default-user.png")
   discount Int @default(1)
   balance Int @default(0)
+  role UserRole @default(USER)
+}
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
 }

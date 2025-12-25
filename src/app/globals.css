@@ -2,8 +2,8 @@
 
 @layer base {
   :root {
-    --bg-primary: #0c0c0c;
-    --bg-secondary: #171717;
+    --bg-primary: #121212;
+    --bg-secondary: #1A1A1A;
     --text-primary: #ffffff;
     --text-secondary: #b0b7c3;
     --accent: #e53935;

@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
                         id: user.id,
                         email: user.email,
                         login: user.login,
-                        image: user.image,
+                        image_url: user.image_url,
                         role: user.role,
                         balance: user.balance,
                         discount: user.discount
@@ -62,8 +62,9 @@ export const authOptions: NextAuthOptions = {
             if(user){
                 token.id = user.id;
                 token.email = user.email;
-                token.name = user.name;
-                token.image = user.image;
+                token.login = user.login;
+                token.image_url = user.image_url;
+                token.role = user.role;
                 token.balance = user.balance;
                 token.discount = user.discount;
             }
@@ -71,20 +72,22 @@ export const authOptions: NextAuthOptions = {
             if(trigger === 'update'){
                 const updateUser = await prisma.user.findUnique({
                     where: {
-                        id: parseInt(token.id as string)
+                        id: token.id as string
                     },
                     select: {
                         balance: true,
                         discount: true,
-                        image: true,
-                        login: true
+                        image_url: true,
+                        login: true,
+                        role: true
                     }
                 })
                 if(updateUser){
                     token.balance = updateUser.balance
                     token.discount = updateUser.discount
                     token.login = updateUser.login
-                    token.image = updateUser.image
+                    token.image_url = updateUser.image_url
+                    token.role = updateUser.role
                 }
             }
 
@@ -94,10 +97,11 @@ export const authOptions: NextAuthOptions = {
             if(token && session.user){
                 session.user.id = token.id as string
                 session.user.email = token.email as string
-                session.user.name = token.login as string
-                session.user.image = token.image as string
+                session.user.login = token.login as string
+                session.user.image_url = token.image_url
                 session.user.balance = token.balance as number
                 session.user.discount = token.discount as number
+                session.user.role = token.role as string
             }
             return session
         }

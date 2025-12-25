@@ -1,11 +1,16 @@
 'use client'
 import { InputComponent, MenuComponent } from "@/shared/components"
 import { Navigaiton } from "@/widgets/NavigationBar"
+import { Session } from "next-auth"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-export function Header(){
+interface HeaderProps{
+    session: Session | null
+}
+
+export function Header({session}: HeaderProps){
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
     const router = useRouter()
     return ( 
@@ -15,18 +20,18 @@ export function Header(){
                     <button onClick={() => router.push('/')} className="text-4xl font-bold text-accent">FLARE</button>
                 </section>
                 <section className="w-[70%]">
-                    <InputComponent type="text" placeholder="Поиск"/>
+                    <InputComponent sizeVariant="default" type="text" placeholder="Поиск"/>
                 </section>
                 <section className="flex items-center py-2 px-3 gap-2 border border-accent rounded-2xl">
                     <div className="flex items-center gap-1">
-                        <p className="text-lg ">{100}</p>
+                        <p className="text-lg ">{session?.user.balance}</p>
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
                             <Image src="/static/ruble.svg" width={18} height={18} alt="Ruble"/>
                         </span>
                     </div>
                     <div className="text-lg text-accent">|</div>
                     <div className="flex items-center gap-1">
-                        <p className="text-lg ">{5}</p>
+                        <p className="text-lg ">{session?.user.discount}</p>
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
                             <Image src="/static/percent.svg" width={18} height={18} alt="Percent"/>
                         </span>

@@ -1,6 +1,22 @@
+type InputSize = 'default' | 'medium'
 
-export function InputComponent(props:React.InputHTMLAttributes<HTMLInputElement>){
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>{
+    sizeVariant: InputSize,
+}
+export function InputComponent({
+    sizeVariant = 'default',
+    ...props
+}: InputProps){
+
+    const sizeVariantConfig = {
+        default: 'py-2 px-3',
+        medium: 'py-3 px-4',
+    }
+
     return (
-        <input {...props} className="w-full py-2 px-3 border border-accent rounded-2xl outline-0 opacity-70 transition-all duraiton-300 ease-in-out focus:scale-101 focus:opacity-100"/>
+        <input 
+        {...props}
+        className={`w-full text-lg border border-accent rounded-2xl outline-0 opacity-70 transition-all duration-300 ease-in-out focus:scale-102 focus:opacity-100 ${sizeVariantConfig[sizeVariant]}`}
+        />
     )
 }

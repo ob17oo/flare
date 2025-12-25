@@ -4,7 +4,7 @@ export interface User {
     id: string,
     email: string,
     password: string,
-    image?: string,
+    image_url?: string,
     role: UserRole,
     balance: number,
     discount: number
