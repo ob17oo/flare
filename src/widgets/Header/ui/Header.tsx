@@ -17,7 +17,7 @@ export function Header({session}: HeaderProps){
         <section className="mb-4">
             <section className="py-4 flex items-center justify-between">
                 <section>
-                    <button onClick={() => router.push('/')} className="text-4xl font-bold text-accent">FLARE</button>
+                    <button onClick={() => router.push('/')} className="text-4xl font-bold text-accent cursor-pointer">FLARE</button>
                 </section>
                 <section className="w-[70%]">
                     <InputComponent sizeVariant="default" type="text" placeholder="Поиск"/>
