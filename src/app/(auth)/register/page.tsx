@@ -1,4 +1,4 @@
-import { RegisterPage } from "@/views/register";
+import { RegisterPage } from "@/views";
 
 export default function Register(){
     return (

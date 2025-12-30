@@ -1,4 +1,4 @@
-import { LoginPage } from "@/views/login";
+import { LoginPage } from "@/views";
 
 export default function Auth(){
     return ( 

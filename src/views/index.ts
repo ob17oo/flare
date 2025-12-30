@@ -1,0 +1,5 @@
+export { ProfilePage } from './profile/ui/profile-page'
+export { HomePage } from './home/ui/home-page'
+export { GamesPage } from './games/ui/games-page'
+export { LoginPage } from './login/ui/login-page'
+export { RegisterPage } from './register/ui/register-page'

@@ -13,6 +13,7 @@ interface HeaderProps{
 export function Header({session}: HeaderProps){
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
     const router = useRouter()
+    console.log(session)
     return ( 
         <section className="mb-4">
             <section className="py-4 flex items-center justify-between">

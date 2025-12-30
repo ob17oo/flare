@@ -1,4 +1,4 @@
-import { GamesPage } from "@/views/games";
+import { GamesPage } from "@/views";
 
 export default function Games(){
     return (

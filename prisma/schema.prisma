@@ -27,3 +27,15 @@ enum UserRole {
   ADMIN
   MODERATOR
 }
+
+model Product {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  price Int
+  image_url String
+  launcher String
+  launcher_url String
+  genre String
+  gameEdition String @default("Standart")
+}
