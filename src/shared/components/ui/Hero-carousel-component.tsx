@@ -4,8 +4,6 @@ import {
   CarouselApi,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { ProductsTypes } from "@/shared/types/product.types";
 import Autoplay from "embla-carousel-autoplay";
@@ -51,7 +49,7 @@ export function HeroCarouselComponent({
                 {limitedItems.map((item) => (
                     <CarouselItem key={item.id} className="h-160 basis-full">
                         <div className="p-4 h-full w-full rounded-3xl relative overflow-hidden">
-                            <Image className="opacity-60" src={item.image_url} fill alt={item.title}/>
+                            <Image className="opacity-60 object-cover" src={item.image_url} fill alt={item.title}/>
                             <div className="absolute inset-35 left-30">
                                 <div className="flex flex-col gap-8">
                                     <div className="flex flex-col gap-4">

@@ -4,6 +4,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { ProductsTypes } from "@/shared/types/product.types"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { CardComponent } from "./CardComponent"
 
 type SizeVariant = 'default' | 'medium' | 'large'
 
@@ -57,26 +58,7 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
                 <CarouselContent className="flex gap-2">
                     { limitItem.map((item) => (
                         <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/games/${item.id}`)} >
-                            <div className={`relative ${sizeConfig[sizeVariant].height} overflow-hidden rounded-2xl`}>
-                                <Image className="object-cover" fill src={item.image_url} alt={item.title || 'CarouselItem'} />
-                                {sizeVariant === 'default' && (
-                                    <div className="absolute bottom-3 left-3 bg-[#6D6D6D]/60 rounded-2xl px-2 py-1">
-                                        <div className="flex items-center gap-2">
-                                                <Image src={item.launcher_url} width={24} height={24} alt={item.launcher || 'LauncherLogo'}/>
-                                                <p className="text-lg">{item.launcher}</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                                { sizeVariant === 'default' && (
-                                    <span className="text-lg text-green-400 font-semibold">{item.price} руб</span>
-                                )}
-                                <p className={`text-lg ${sizeVariant !== 'medium' ? 'text-left' : 'text-center'}`}>{item.title}</p>
-                                {
-                                    sizeVariant === 'large' && (
-                                        <p className="">{item.description}</p>
-                                    )
-                                }
+                           <CardComponent item={item} sizeVariant={sizeVariant} />
                         </CarouselItem>
                     ))}
                 </CarouselContent>

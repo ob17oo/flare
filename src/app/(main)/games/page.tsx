@@ -1,7 +1,9 @@
+import { getAllGames } from "@/shared/actions";
 import { GamesPage } from "@/views";
 
-export default function Games(){
+export default async function Games(){
+    const games = await getAllGames()
     return (
-        <GamesPage />
+        <GamesPage games={games!} />
     )
 }
