@@ -53,7 +53,7 @@ export function HeroCarouselComponent({
                             <div className="absolute inset-35 left-30">
                                 <div className="flex flex-col gap-8">
                                     <div className="flex flex-col gap-4">
-                                        <h1 className="text-accent font-bold text-4xl">{item.title.toUpperCase()}</h1>
+                                        <h1 className="font-bold text-4xl">{item.title.toUpperCase()}</h1>
                                         <p className="text-lg text-justify w-[50%]">{item.description}</p>
                                     </div>
                                     <button className="text-lg px-4 py-2 border border-accent w-fit" onClick={() => router.push('/games')}>Подробнее</button>
