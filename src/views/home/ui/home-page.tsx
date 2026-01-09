@@ -3,7 +3,7 @@ import { CarouselComponent, HeroCarouselComponent } from "@/shared/components";
 
 export async function HomePage(){
     const games = await getAllGames()
-
+    console.log(games)
     return ( 
         <>
             <HeroCarouselComponent carouselItem={games!} />

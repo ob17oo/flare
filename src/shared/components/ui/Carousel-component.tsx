@@ -1,15 +1,15 @@
 'use client'
 
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { ProductsTypes } from "@/shared/types/product.types"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { CardComponent } from "./CardComponent"
+import { TBaseProduct } from "@/shared/types/product.types"
 
 type SizeVariant = 'default' | 'medium' | 'large'
 
 interface CarouselProps{
-    carouselItem: ProductsTypes[],
+    carouselItem: TBaseProduct[],
     carouselHeader: string,
     carouselImage?: string,
     sizeVariant: SizeVariant

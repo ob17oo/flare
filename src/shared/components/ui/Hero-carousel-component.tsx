@@ -5,13 +5,13 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { ProductsTypes } from "@/shared/types/product.types";
+import { TBaseProduct } from "@/shared/types/product.types";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface CarouselComponenentProps {
-  carouselItem: ProductsTypes[];
+  carouselItem: TBaseProduct[];
 }
 
 export function HeroCarouselComponent({

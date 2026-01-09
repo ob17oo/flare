@@ -1,8 +1,21 @@
 import { prisma } from "@/shared/lib/prisma";
+import { PRODUCT_TYPE } from "@prisma/client";
 
 export async function getAllGames(){
     try {
-        const games = await prisma.product.findMany()
+        const games = await prisma.product.findMany({
+            where: {
+                productType: PRODUCT_TYPE.GAME,
+                isActive: true
+            },
+            include: {
+                game: {
+                    include: {
+                        launcher: true
+                    }
+                }
+            }
+        })
         if(!games) return null
 
         return games
@@ -17,8 +30,17 @@ export async function getGameById(id: string){
         const gameId = parseInt(id)
         const gamesById = await prisma.product.findUnique({
             where: {
-                id: gameId 
+                id: gameId,
+                productType: PRODUCT_TYPE.GAME,
+            },
+            include: {
+                game: {
+                    include: {
+                        launcher: true
+                    }
+                }
             }
+            
         })
 
         if(!gamesById){

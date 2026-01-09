@@ -1,10 +1,10 @@
 'use client'
-import { ProductsTypes } from "@/shared/types/product.types";
+import { TBaseProduct } from "@/shared/types/product.types";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface GameContentProps {
-    game: ProductsTypes
+    game: TBaseProduct
 }
 
 export default function GameContent({game}: GameContentProps){
