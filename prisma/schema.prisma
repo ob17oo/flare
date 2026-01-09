@@ -12,6 +12,31 @@ datasource db {
   provider = "postgresql"
 }
 
+enum USER_ROLE {
+  USER
+  ADMIN
+  MODERATOR
+}
+enum STATUS {
+  PENDING
+  CANCELLED
+  SUCCESS
+  PROCESSING
+}
+
+enum PRODUCT_EDITION {
+  Lite
+  Standart
+  Deluxe
+}
+
+enum PRODUCT_TYPE {
+  GAME
+  WALLET
+  SERVICE_PLANS
+  BANNER
+}
+
 model User {
   id String @id @default(cuid())
   login String
@@ -20,22 +45,62 @@ model User {
   image_url String? @default("/images/default-user.png")
   discount Int @default(1)
   balance Int @default(0)
-  role UserRole @default(USER)
-}
-enum UserRole {
-  USER
-  ADMIN
-  MODERATOR
+  role USER_ROLE? @default(USER)
 }
 
 model Product {
   id Int @id @default(autoincrement())
   title String
-  description String
-  price Int
-  image_url String
-  launcher String
-  launcher_url String
+  description String?
+  image_url String @default("/images/default-non-image.png")
+  productType PRODUCT_TYPE @default(GAME)
+  productEdition PRODUCT_EDITION @default(Standart)
+  price Int @default(0)
+
+  stock Int? @default(0)
+  rating Float @default(0.0)
+  isActive Boolean @default(true) 
+
+  game Game?
+  servicePlans ServicePlans?
+}
+
+model Launcher {
+  id Int @id @default(autoincrement())
+  title String 
+  image_url String @default("/images/default-launcher.png")
+  games Game[]
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+  productId Int @unique
+  product Product @relation(fields: [productId], references: [id])
+  launcherId Int
+  launcher Launcher @relation(fields: [launcherId], references: [id])
+
   genre String
-  gameEdition String @default("Standart")
+  
+}
+
+model ServicePlatform {
+  id Int @id @default(autoincrement())
+  title String @unique
+  description String
+  image_url String @default("images/default-servicePlatform.png")
+  category String @default("Gaming")
+
+  servicePlans ServicePlans[]
+}
+
+model ServicePlans {
+  id Int @id @default(autoincrement())
+  productId Int @unique
+  product Product @relation(fields: [productId], references: [id])
+  subTitle String
+  duration Int
+  subImage_url String @default("/images/default-subImage.png")
+
+  serviceId Int
+  servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])
 }
