@@ -56,7 +56,7 @@ export function HeroCarouselComponent({
                                         <h1 className="font-bold text-4xl">{item.title.toUpperCase()}</h1>
                                         <p className="text-lg text-justify w-[50%]">{item.description}</p>
                                     </div>
-                                    <button className="text-lg px-4 py-2 border border-accent w-fit" onClick={() => router.push('/games')}>Подробнее</button>
+                                    <button className="text-lg px-4 py-2 border border-accent w-fit" onClick={() => router.push(`/games/${item.id}`)}>Подробнее</button>
                                 </div>
                             </div>
                         </div>

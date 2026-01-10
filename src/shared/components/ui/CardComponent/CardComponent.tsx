@@ -1,11 +1,11 @@
-import { ProductsTypes } from "@/shared/types/product.types";
+import { Product } from "@/shared/types/product.types";
 import Image from "next/image";
 
 type SizeVariant = 'default' | 'medium' | 'large'
 
 
 interface CardProps {
-    item: ProductsTypes
+    item: Product
     sizeVariant: SizeVariant
 }
     const sizeConfig = {
@@ -42,12 +42,12 @@ export function CardComponent({item, sizeVariant, }: CardProps) {
           <div className="absolute bottom-3 left-3 bg-[#6D6D6D]/60 rounded-2xl px-2 py-1">
             <div className="flex items-center gap-2">
               <Image
-                src={item.launcher_url}
+                src={item.game?.launcher.image_url || 'defaultUrl'}
                 width={24}
                 height={24}
-                alt={item.launcher || "LauncherLogo"}
+                alt={item.game?.launcher.title || "LauncherLogo"}
               />
-              <p className="text-lg">{item.launcher}</p>
+              <p className="text-lg">{item.game?.launcher.title}</p>
             </div>
           </div>
         )}

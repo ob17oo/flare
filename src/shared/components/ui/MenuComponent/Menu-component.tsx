@@ -14,7 +14,7 @@ export function MenuComponent({isOpen,onClose}: MenuProps){
             <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={onClose}>
                 <div className="w-[20%] h-full bg-primary absolute top-0 right-0 transition-all duration-300 ease-in-out p-4">
                     <div className="flex justify-end">
-                        <button className="cursor-pointer" onClick={onClose}>
+                        <button className="cursor-pointer" onClick={(e) => {e.stopPropagation();onClose() }} >
                             <Image src="/static/close.svg" width={32} height={32} alt="close"/>
                         </button>
                     </div>
