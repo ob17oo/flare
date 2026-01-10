@@ -7,9 +7,9 @@ interface GamePageProps {
 }
 export default async function GamePage({params}: GamePageProps){
     const { id } = await params
-    const game = await getGameById(id)
+    const game =  getGameById(id)
 
     return (
-        <GameContent game={game!}/>
+        <GameContent game={game!} />
     )
 }

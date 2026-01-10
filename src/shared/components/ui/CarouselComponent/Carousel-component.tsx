@@ -3,13 +3,13 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Product } from "@/shared/types/product.types"
 import { CardComponent } from "../CardComponent/CardComponent"
+import { Product } from "@/shared/types/product.types"
 
 type SizeVariant = 'default' | 'medium' | 'large'
 
 interface CarouselProps{
-    carouselItem: Product[],
+    carouselItem?: Product[],
     carouselHeader: string,
     carouselImage?: string,
     sizeVariant: SizeVariant
@@ -17,7 +17,8 @@ interface CarouselProps{
 
 export function CarouselComponent({carouselItem, carouselHeader, carouselImage, sizeVariant = 'default'}: CarouselProps){
     const router = useRouter()
-    const limitItem = carouselItem.slice(0,12)
+    const safeCarouselItem = carouselItem || []
+    const limitItem = safeCarouselItem.slice(0,12)
     const sizeConfig = {
         default: {
             height: 'h-76',
@@ -56,6 +57,9 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
                     </div>
                 </div>
                 <CarouselContent className="flex gap-2">
+                    { (!carouselItem || carouselItem.length === 0) && (
+                        <div className="text-accent text-xl pl-4">Произошла ошибка</div>
+                    )}
                     { limitItem.map((item) => (
                         <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/games/${item.id}`)} >
                            <CardComponent item={item} sizeVariant={sizeVariant} />

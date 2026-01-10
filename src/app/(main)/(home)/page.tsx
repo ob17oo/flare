@@ -1,7 +1,9 @@
+import { getAllGames } from "@/shared/actions";
 import { HomePage } from "@/views";
 
-export default function Home() {
+export default async function Home() {
+  const initialGames = await getAllGames()
   return (
-      <HomePage />
+      <HomePage initialGames={initialGames} />
   );
 }

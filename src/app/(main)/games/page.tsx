@@ -4,6 +4,6 @@ import { GamesPage } from "@/views";
 export default async function Games(){
     const games = await getAllGames()
     return (
-        <GamesPage games={games!} />
+        <GamesPage initialgames={games!} />
     )
 }

@@ -1,4 +1,6 @@
+'use server'
 import { prisma } from "@/shared/lib/prisma";
+import { GameProduct } from "@/shared/types/product.types";
 import { PRODUCT_TYPE } from "@prisma/client";
 
 export async function getAllGames(){
@@ -16,13 +18,19 @@ export async function getAllGames(){
                 }
             }
         })
-        if(!games) return null
 
-        return games
+        return games.map((game) => ({
+            ...game,
+            productType: 'GAME' as const,
+            game: game.game ? {
+                ...game.game,
+                launcher: game.game.launcher
+            } : null
+        })) as GameProduct[]
 
     } catch(error: unknown){
         console.log(`Произошла ошибка ${error}`)
-        return null   
+        return []   
     }
 }
 export async function getGameById(id: string){
@@ -31,7 +39,7 @@ export async function getGameById(id: string){
         const gamesById = await prisma.product.findUnique({
             where: {
                 id: gameId,
-                productType: PRODUCT_TYPE.GAME,
+                productType: 'GAME' as const,
             },
             include: {
                 game: {
@@ -43,13 +51,9 @@ export async function getGameById(id: string){
             
         })
 
-        if(!gamesById){
-            return null
-        }
-
-        return gamesById
+        return gamesById || []
     } catch(error: unknown){
         console.log(`Произошла ошибка ${error}`)
-        return null
+        return []
     }
 }

@@ -1,4 +1,5 @@
-import { useLockScroll } from "@/shared/hooks/useLockScroll"
+
+import { useLockScroll } from "@/shared/hooks"
 import Image from "next/image"
 import Link from "next/link"
 

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { MenuComponent } from "./Menu-component";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useLockScroll } from "@/shared/hooks/useLockScroll";
+import { useLockScroll } from "@/shared/hooks";
 
 jest.mock('next/image', () => {
   const mockImage = ({

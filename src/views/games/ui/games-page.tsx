@@ -1,15 +1,26 @@
 'use client'
 import { CardComponent } from "@/shared/components"
-import { ProductsTypes } from "@/shared/types/product.types"
 import GamesFilter from "./games-filter"
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import { GameProduct, Product } from "@/shared/types/product.types"
+import { useGames } from "@/shared/hooks"
 
 interface GameProps{
-    games: ProductsTypes[]
+    initialgames: GameProduct[]
 }
 
-export function GamesPage({games}: GameProps){
+export function GamesPage({initialgames}: GameProps){
+
+    const { 
+        data: games = [],
+        isLoading,
+        isError,
+        error
+     } = useGames({
+        initialData: initialgames
+    })
+
     const [priceFromFilter, setPriceFromFilter] = useState<number | null>(null)
     const [priceToFilter, setPriceToFilter] = useState<number | null>(null)
     const [launcherFilter, setLauncherFilter] = useState('Все')
@@ -27,8 +38,8 @@ export function GamesPage({games}: GameProps){
 
     const filteredGame = useMemo(() => {
         return games.filter((elem) => {
-            const matchesLauncher = launcherFilter === 'Все' || elem.launcher === launcherFilter
-            const matchesGenre = genreFilter === 'Все' || elem.genre === genreFilter
+            const matchesLauncher = launcherFilter === 'Все' || elem.game?.launcher.title === launcherFilter
+            const matchesGenre = genreFilter === 'Все' || elem.game?.genre === genreFilter
             const matchesMinPrice = priceFromFilter === null || elem.price >= priceFromFilter
             const matchesMaxPrice = priceToFilter === null || elem.price <= priceToFilter
 
@@ -37,16 +48,14 @@ export function GamesPage({games}: GameProps){
     }, [priceFromFilter, priceToFilter, launcherFilter, genreFilter, games])
 
     const gameLaunchers = useMemo(() => {
-        const launchers = games.map((elem) => elem.launcher)
-        const addAll = ['Все', ...launchers]
-        return new Set(addAll)
+        const launchers = games.map((elem) => elem.game?.launcher.title).filter((title) => !!title)
+        return ['Все', ...new Set(launchers)] as string[]
     },[games])
 
 
     const gameGenre = useMemo(() => {
-        const launchers = games.map((elem) => elem.genre)
-        const addAll = ['Все', ...launchers]
-        return new Set(addAll)
+        const genres = games.map((elem) => elem.game?.genre).filter((genre) => !!genre)
+        return ['Все', ...new Set(genres)] as string[]
     },[games])
 
     return ( 
