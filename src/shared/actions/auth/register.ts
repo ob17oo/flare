@@ -1,6 +1,7 @@
 'use server'
 import { prisma } from "@/shared/lib/prisma"
-import { hashSync } from "bcrypt"
+import { Prisma } from "@prisma/client"
+import { hash } from "bcrypt"
 import { redirect } from "next/navigation"
 
 export async function registerAction(data: {
@@ -27,15 +28,23 @@ export async function registerAction(data: {
             data: {
                 email: email,
                 login: login,
-                password: hashSync(password, 12),
-                image_url: ''
+                password:await hash(password, 12),
             }
         })
     } catch(error: unknown){
-        if(error instanceof Error){
-            throw new Error('Произошла ошибка сервера')
+        if(error instanceof Prisma.PrismaClientKnownRequestError){
+            if(error.code === 'P2002'){
+                throw new Error(`Пользователь с таким Email уже существует`)
+            }
         }
+
+        console.log('Registration error', error)
+
+        if(error instanceof Error && error.message.includes('уже существует')){
+            throw new Error
+        }
+        throw new Error('Произошла ошибка при регистрации. Повторите позже')
     }
 
-    redirect('/')
+    redirect('/login')
 }

@@ -6,7 +6,7 @@ declare module 'next-auth' {
             id: string,
             email: string,
             login: string,
-            image_url: string | null,
+            image_url: string,
             discount: number,
             role: string,
             balance: number
@@ -17,7 +17,7 @@ declare module 'next-auth' {
         id: string,
         email: string,
         login: string,
-        image_url: string | null,
+        image_url: string,
         discount: number,
         role: string,
         balance: number

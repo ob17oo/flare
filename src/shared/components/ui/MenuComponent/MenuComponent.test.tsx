@@ -59,7 +59,7 @@ jest.mock('next/link', () => {
     }
 })
 
-jest.mock('@/shared/hooks/useLockScroll', () => {
+jest.mock('@/shared/hooks', () => {
     return {
         useLockScroll: jest.fn()
     }

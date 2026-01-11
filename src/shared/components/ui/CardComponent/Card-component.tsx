@@ -42,7 +42,7 @@ export function CardComponent({item, sizeVariant, }: CardProps) {
           <div className="absolute bottom-3 left-3 bg-[#6D6D6D]/60 rounded-2xl px-2 py-1">
             <div className="flex items-center gap-2">
               <Image
-                src={item.game?.launcher.image_url || 'defaultUrl'}
+                src={item.game?.launcher.image_url || 'defaultImage'}
                 width={24}
                 height={24}
                 alt={item.game?.launcher.title || "LauncherLogo"}

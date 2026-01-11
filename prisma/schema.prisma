@@ -42,17 +42,17 @@ model User {
   login String
   email String @unique
   password String
-  image_url String? @default("/images/default-user.png")
+  image_url String @default("/static/default/default-user.svg")
   discount Int @default(1)
   balance Int @default(0)
-  role USER_ROLE? @default(USER)
+  role USER_ROLE @default(USER)
 }
 
 model Product {
   id Int @id @default(autoincrement())
   title String
   description String?
-  image_url String @default("/images/default-non-image.png")
+  image_url String @default("/static/default/default-product.png")
   productType PRODUCT_TYPE @default(GAME)
   productEdition PRODUCT_EDITION @default(Standard)
   price Int @default(0)
@@ -63,12 +63,16 @@ model Product {
 
   game Game?
   servicePlans ServicePlans?
+
+  @@index([productType, isActive])
+  @@index([price])
+  @@index([rating])
 }
 
 model Launcher {
   id Int @id @default(autoincrement())
-  title String 
-  image_url String @default("/images/default-launcher.png")
+  title String @default("Flare")
+  image_url String @default("/static/default/default-launcher.svg")
   games Game[]
 }
 
@@ -87,7 +91,7 @@ model ServicePlatform {
   id Int @id @default(autoincrement())
   title String @unique
   description String
-  image_url String @default("images/default-servicePlatform.png")
+  image_url String @default("/static/default/default-service.svg")
   category String @default("Gaming")
 
   servicePlans ServicePlans[]
@@ -99,7 +103,7 @@ model ServicePlans {
   product Product @relation(fields: [productId], references: [id])
   subTitle String
   duration Int
-  subImage_url String @default("/images/default-subImage.png")
+  subImage_url String @default("/static/default/default-subService.png")
 
   serviceId Int
   servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])

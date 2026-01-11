@@ -51,7 +51,7 @@ jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
 }))
 
-jest.mock('../CardComponent/CardComponent', () => {
+jest.mock('../CardComponent/Card-component', () => {
     const mockCardComponent = ({item, sizeVariant}: {item: Product, sizeVariant: string}) => (
         <div data-testid="card-component">
             {item.title} - {sizeVariant}
@@ -66,7 +66,8 @@ jest.mock('../CardComponent/CardComponent', () => {
 
 let mockApi: unknown = null
 let onSelectCallback: (() => void) | null = null
-jest.mock('@/components/ui/carousel', () => {
+
+jest.mock('@/shared/components/ui/shadCN/carousel', () => {
 
     const MockCarousel = ({ children, className, plugins, setApi } : {children: React.ReactNode, className?: string, plugins?: unknown[], setApi?: (api:unknown) => void}) => {
         React.useEffect(() => {

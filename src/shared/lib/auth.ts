@@ -6,7 +6,7 @@ import { compare } from "bcrypt";
 export const authOptions: NextAuthOptions = {
     session: {
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60
+        maxAge: 7 * 24 * 60 * 60
     },
     pages: {
         signIn: '/login',
@@ -49,8 +49,8 @@ export const authOptions: NextAuthOptions = {
                         id: user.id,
                         email: user.email,
                         login: user.login,
-                        image_url: user.image_url,
-                        role: user.role,
+                        image_url: user.image_url ?? '',
+                        role: user.role ?? 'USER',
                         balance: user.balance,
                         discount: user.discount
                     }
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string
                 session.user.email = token.email as string
                 session.user.login = token.login as string
-                session.user.image_url = token.image_url
+                session.user.image_url = token.image_url as string
                 session.user.balance = token.balance as number
                 session.user.discount = token.discount as number
                 session.user.role = token.role as string

@@ -4,7 +4,7 @@ import { InputComponent } from "@/shared/components";
 import { RegisterFormData, registerSchema } from "@/shared/schemas/register-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -39,6 +39,10 @@ export function RegisterPage(){
             reset()
         } catch(error: unknown){
             if(error instanceof Error){
+                if(error.message.includes('NEXT_REDIRECT')){
+                    router.push('/login')
+                    return
+                }
                 setServerError(error.message)
             }
         }

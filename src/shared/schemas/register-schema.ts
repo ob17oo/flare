@@ -1,9 +1,9 @@
 import * as z from "zod";
 
 export const emailSchema = z
-    .string()
+    .email({message: 'Введите корректный email адрес'})
+    // .string()
     .min(1, {message: 'Обязательное поле'})
-    .includes('@', {message: 'Должен содерать @'})
     .toLowerCase()
     .trim()
 
@@ -13,7 +13,7 @@ export const loginSchema = z
 
 export const passwordSchema = z
     .string()
-    .min(6, {message: 'Пароль должен быть больше 6 символов'})
+    .min(8, {message: 'Пароль должен быть больше 8 символов'})
 
 
 export const registerSchema = z.object({

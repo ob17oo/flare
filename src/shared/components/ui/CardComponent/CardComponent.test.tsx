@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { CardComponent } from './CardComponent';
+import { CardComponent } from './Card-component';
 import '@testing-library/jest-dom';
 import Image from 'next/image';
 import { GameProduct, Product } from '@/shared/types/product.types';

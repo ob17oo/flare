@@ -3,7 +3,7 @@ import { CardComponent } from "@/shared/components"
 import GamesFilter from "./games-filter"
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { GameProduct, Product } from "@/shared/types/product.types"
+import { GameProduct } from "@/shared/types/product.types"
 import { useGames } from "@/shared/hooks"
 
 interface GameProps{

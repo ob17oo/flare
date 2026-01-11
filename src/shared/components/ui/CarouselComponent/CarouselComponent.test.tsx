@@ -50,7 +50,7 @@ jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
 }))
 
-jest.mock('../CardComponent/CardComponent', () => {
+jest.mock('../CardComponent/Card-component', () => {
     const mockCardComponent = ({item, sizeVariant}: {item: Product, sizeVariant: string}) => (
         <div data-testid="card-component">
             {item.title} - {sizeVariant}
@@ -63,7 +63,7 @@ jest.mock('../CardComponent/CardComponent', () => {
     }
 })
 
-jest.mock('@/components/ui/carousel', () => {
+jest.mock('@/shared/components/ui/shadCN/carousel', () => {
     const mockCarousel = ({ children, className, opts } : {children: React.ReactNode, className?: string, opts?: unknown}) => (
         <div data-testid="carousel" className={className} data-opts={JSON.stringify(opts)}>
             {children}

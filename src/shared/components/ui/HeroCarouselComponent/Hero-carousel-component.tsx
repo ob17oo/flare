@@ -4,7 +4,7 @@ import {
   CarouselApi,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel";
+} from "@/shared/components/ui/shadCN/carousel";
 import { TBaseProduct } from "@/shared/types/product.types";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";

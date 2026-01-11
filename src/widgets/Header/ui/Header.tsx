@@ -27,22 +27,22 @@ export function Header({session}: HeaderProps){
                     <div className="flex items-center gap-1">
                         <p className="text-lg ">{session?.user.balance}</p>
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
-                            <Image src="/static/ruble.svg" width={18} height={18} alt="Ruble"/>
+                            <Image src="/static/icons/ruble.svg" width={18} height={18} alt="Ruble"/>
                         </span>
                     </div>
                     <div className="text-lg text-accent">|</div>
                     <div className="flex items-center gap-1">
                         <p className="text-lg ">{session?.user.discount}</p>
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
-                            <Image src="/static/percent.svg" width={18} height={18} alt="Percent"/>
+                            <Image src="/static/icons/percent.svg" width={18} height={18} alt="Percent"/>
                         </span>
                     </div>
                 </section>
                 <section className="">
                     <button type="button" className="cursor-pointer" onClick={() => setDialogIsOpen(true)}>
-                        <Image src="/static/menu.svg" width={28} height={28} alt="Menu"/>
+                        <Image src="/static/icons/menu.svg" width={28} height={28} alt="Menu"/>
                     </button>
-                    <MenuComponent isOpen={dialogIsOpen} onClose={() => setDialogIsOpen(false)}/>
+                    <MenuComponent isOpen={dialogIsOpen} onClose={() => setDialogIsOpen(false)} session={session}/>
                 </section>
             </section>
             <Navigaiton />

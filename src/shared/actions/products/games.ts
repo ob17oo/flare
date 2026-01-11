@@ -29,8 +29,8 @@ export async function getAllGames(){
         })) as GameProduct[]
 
     } catch(error: unknown){
-        console.log(`Произошла ошибка ${error}`)
-        return []   
+        console.log(`Error fetching games ${error}`)
+        throw new Error('Не удалось загрузить игры')
     }
 }
 export async function getGameById(id: string){
@@ -53,7 +53,7 @@ export async function getGameById(id: string){
 
         return gamesById || []
     } catch(error: unknown){
-        console.log(`Произошла ошибка ${error}`)
-        return []
+        console.log(`Error fetching games ${error}`)
+        throw new Error('Не удалось загрузить игры')
     }
 }
