@@ -27,7 +27,15 @@ enum STATUS {
 enum PRODUCT_EDITION {
   Lite
   Standard
+  Essentials
   Deluxe
+  Extra
+  Premium
+  Core
+  Ultimate
+  Arcade
+  Nitro
+  DLC
 }
 
 enum PRODUCT_TYPE {
@@ -103,7 +111,6 @@ model ServicePlans {
   product Product @relation(fields: [productId], references: [id])
   subTitle String
   duration Int
-  subImage_url String @default("/static/default/default-subService.png")
 
   serviceId Int
   servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])

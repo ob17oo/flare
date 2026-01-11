@@ -30,7 +30,7 @@ export async function getAllGames(){
 
     } catch(error: unknown){
         console.log(`Error fetching games ${error}`)
-        throw new Error('Не удалось загрузить игры')
+        throw new Error(`Не удалось загрузить игры ${error}`)
     }
 }
 export async function getGameById(id: string){
@@ -51,7 +51,7 @@ export async function getGameById(id: string){
             
         })
 
-        return gamesById || []
+        return gamesById
     } catch(error: unknown){
         console.log(`Error fetching games ${error}`)
         throw new Error('Не удалось загрузить игры')

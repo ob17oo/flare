@@ -10,6 +10,6 @@ export default async function GamePage({params}: GamePageProps){
     const game =  getGameById(id)
 
     return (
-        <GameContent game={game!} />
+        <GameContent game={game} />
     )
 }

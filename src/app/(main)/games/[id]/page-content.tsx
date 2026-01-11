@@ -1,10 +1,10 @@
 'use client'
-import { TBaseProduct } from "@/shared/types/product.types";
+import { Product } from "@/shared/types/product.types";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface GameContentProps {
-    game: TBaseProduct
+    game: Product
 }
 
 export default function GameContent({game}: GameContentProps){
@@ -16,7 +16,7 @@ export default function GameContent({game}: GameContentProps){
                     <ArrowLeft size={18} color="white"/>
                 </button>
             </div>
-            <h2 className="text-2xl font-bold">{game?.title}</h2>
+            <h2 className="text-2xl font-bold">{game.game?.launcher.title}</h2>
         </section>
     )
 }
