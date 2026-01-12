@@ -51,7 +51,20 @@ export async function getGameById(id: string){
             
         })
 
-        return gamesById
+        if(!gamesById || gamesById.productType !== 'GAME'){
+            return null
+        }
+
+        const gameProduct: GameProduct = {
+            ...gamesById,
+            productType: 'GAME' as const,
+            game: gamesById.game ? {
+                ...gamesById.game,
+                launcher: gamesById.game.launcher
+            } : null
+        } 
+        
+        return gameProduct
     } catch(error: unknown){
         console.log(`Error fetching games ${error}`)
         throw new Error('Не удалось загрузить игры')

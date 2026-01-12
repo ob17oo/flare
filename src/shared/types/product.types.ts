@@ -1,6 +1,6 @@
 import { PRODUCT_EDITION, PRODUCT_TYPE } from "@prisma/client"
-import { TGame } from "./game.types"
-import { TServicePlan } from "./service.types"
+import { TGame, TLauncher } from "./game.types"
+import { TServicePlan, TServicePlatform } from "./service.types"
 
 export interface TBaseProduct {
     id: number,
@@ -11,7 +11,7 @@ export interface TBaseProduct {
     productEdition: PRODUCT_EDITION
     price: number
 
-    stock: number | null
+    stock: number
     rating: number
     isActive: boolean
 }
@@ -29,3 +29,4 @@ export interface ServicePlanProduct extends TBaseProduct {
 }
 
 export type Product = GameProduct | ServicePlanProduct
+export type TCarouselItem = Product | TLauncher | TServicePlatform

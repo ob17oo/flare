@@ -17,9 +17,9 @@ export async function getAllServices(){
                         servicePlatform: true
                     }
                 }
-            }
+            },
         })
-
+        
         return services.map((service) => ({
             ...service,
             productType: 'SERVICE_PLANS' as const,
@@ -29,7 +29,20 @@ export async function getAllServices(){
             } : null
         })) as ServicePlanProduct[]
     } catch(error: unknown){
-        console.log(`Error fetching games ${error}`)
+        console.log(`Error fetching services ${error}`)
         throw new Error('Не удалось загрузить сервисы')
+    }
+}
+export async function getAllServicesPlatform(){
+    try {
+        const servicePlatform = await prisma.servicePlatform.findMany({
+            include: {
+                servicePlans: true
+            }
+        })
+        return servicePlatform || []
+    } catch(error: unknown){
+        console.log(`Error fetching services platform ${error}`)
+        throw new Error('Не удалось загрузить платформы сервисов')
     }
 }

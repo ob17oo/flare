@@ -6,4 +6,5 @@ export { HeroCarouselComponent } from './ui/HeroCarouselComponent/Hero-carousel-
 export { CardComponent } from './ui/CardComponent/Card-component'
 
 export { Button } from './ui/shadCN/button'
-export { Carousel } from './ui/shadCN/carousel'
+export { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/shadCN/carousel'
+export { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/shadCN/accordion'

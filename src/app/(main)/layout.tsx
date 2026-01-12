@@ -1,5 +1,5 @@
 import { authOptions } from "@/shared/lib/auth";
-import { Header } from "@/widgets/Header";
+import { Footer, Header } from "@/widgets";
 import { getServerSession } from "next-auth";
 
 
@@ -13,6 +13,7 @@ export default async function RootLayout({
     <>
     <Header session={session} />
     {children}
+    <Footer />
     </>
   );
 }

@@ -11,7 +11,6 @@ export interface TServicePlan {
     subTitle: string,
     duration: number,
     subImage_url: string
-
     serviceId: number,
     servicePlatform: TServicePlatform
 }

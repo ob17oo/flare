@@ -1,20 +1,20 @@
 'use client'
 
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/shared/components/ui/shadCN/carousel"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Product } from "@/shared/types/product.types"
 import { CardComponent } from "../CardComponent/Card-component"
+import { TCarouselItem } from "@/shared/types/product.types"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../shadCN/carousel"
+
 
 type SizeVariant = 'default' | 'medium' | 'large'
 
 interface CarouselProps{
-    carouselItem?: Product[],
+    carouselItem?: TCarouselItem[],
     carouselHeader: string,
     carouselImage?: string,
     sizeVariant: SizeVariant
 }
-
 export function CarouselComponent({carouselItem, carouselHeader, carouselImage, sizeVariant = 'default'}: CarouselProps){
     const router = useRouter()
     const safeCarouselItem = carouselItem || []
@@ -34,8 +34,7 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
             cardBasis: 'basis-1/3'
         }
 
-    }
-
+    } 
     return ( 
         <Carousel className="bg-secondary rounded-2xl p-4 mb-4" opts={{
             align: 'start',
@@ -61,8 +60,9 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
                         <div className="text-accent text-xl pl-4">Произошла ошибка</div>
                     )}
                     { limitItem.map((item) => (
+                    
                         <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/games/${item.id}`)} >
-                           <CardComponent item={item} sizeVariant={sizeVariant} />
+                           <CardComponent item={item} sizeVariant={sizeVariant}/>
                         </CarouselItem>
                     ))}
                 </CarouselContent>

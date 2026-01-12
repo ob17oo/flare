@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Exo_2 } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/shared/providers";
 import { QueryProvider } from "@/shared/providers/Query-Provider/Query-Provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const Exo = Exo_2({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500' , '600' , '700' , '800' , '900']
+})
 
 export const metadata: Metadata = {
   title: "Flare",
@@ -27,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${Exo.className} antialiased`}
       > 
         <QueryProvider>
           <SessionProvider>

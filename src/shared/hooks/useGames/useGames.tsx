@@ -1,7 +1,7 @@
 'use client'
 import { getAllGames } from "@/shared/actions"
 import { getGameById } from "@/shared/actions/products/games"
-import { GameProduct } from "@/shared/types/product.types"
+import { GameProduct, Product } from "@/shared/types/product.types"
 import { useQuery } from "@tanstack/react-query"
 
 export const gameKeys = {
@@ -25,10 +25,13 @@ export function useGames(options?: {
     })
 }
 
-export function useGame(id: string){
+export function useGame(id: string, options?: {
+    initialData?: GameProduct
+}){
     return useQuery({
         queryKey: gameKeys.detail(id),
         queryFn: () => getGameById(id),
+        initialData: options?.initialData,
         enabled: !!id,
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000
