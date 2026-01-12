@@ -68,21 +68,32 @@ jest.mock('@/shared/hooks', () => {
 describe('MenuComponent', () => {
     const mockOnClose = jest.fn()
     const mockUseLockScroll = useLockScroll as jest.MockedFunction<typeof useLockScroll>
-
+    const mockSession = {
+        user: {
+            id: '1',
+            login: 'LoginTestSession',
+            role: 'User',
+            email: 'EmailTestSession',
+            image_url: 'ImageTestSession',
+            balance: 0,
+            discount: 1,
+        },
+        expires: '2024-12-31T23:59:59.999Z'
+    }
     beforeEach(() => {
         mockOnClose.mockClear()
         mockUseLockScroll.mockClear()
     })
 
     test('does not render when false', () => { 
-        const { container } = render(<MenuComponent isOpen={false} onClose={mockOnClose}/>)
+        const { container } = render(<MenuComponent session={mockSession} isOpen={false} onClose={mockOnClose}/>)
 
         expect(container.firstChild).toBeNull()
         expect(mockUseLockScroll).toHaveBeenCalledWith({isOpen: false})
     })
 
     test('render when isOpen', () => {
-        render(<MenuComponent isOpen={true} onClose={mockOnClose}/>)
+        render(<MenuComponent session={mockSession} isOpen={true} onClose={mockOnClose}/>)
 
         const profileLink = screen.getByText('Профиль')
         const close = screen.getByAltText('close')
@@ -92,7 +103,7 @@ describe('MenuComponent', () => {
     })
 
     test('close on click', async () => { 
-        render(<MenuComponent isOpen={true} onClose={mockOnClose}/>)
+        render(<MenuComponent session={mockSession} isOpen={true} onClose={mockOnClose}/>)
 
         const user = userEvent.setup()
         const closeButton = screen.getByAltText('close').closest('button')
