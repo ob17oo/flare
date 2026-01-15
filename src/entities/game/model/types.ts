@@ -1,3 +1,5 @@
+import { TBaseProduct } from "@/entities/product/model/types"
+
 export interface TLauncher {
     id: number,
     title: string,
@@ -10,4 +12,9 @@ export interface TGame {
     launcherId: number,
     launcher: TLauncher
     genre: string
+}
+export interface GameProduct extends TBaseProduct {
+    productType: 'GAME',
+    game: TGame | null,
+    servicePlans?: never
 }

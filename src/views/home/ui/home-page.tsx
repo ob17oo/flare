@@ -1,9 +1,9 @@
 'use client'
+import { useGames } from "@/entities/game/hooks/useGames";
+import { GameProduct } from "@/entities/game/model/types";
+import { useServicesPlatforms } from "@/entities/service/hooks/useServices";
+import { TServicePlatform } from "@/entities/service/model/types";
 import { CarouselComponent, HeroCarouselComponent } from "@/shared/components";
-import { useGames } from "@/shared/hooks";
-import { useServicesPlatforms } from "@/shared/hooks/useServices/useServices";
-import { GameProduct } from "@/shared/types/product.types";
-import { TServicePlatform } from "@/shared/types/service.types";
 
 interface HomePageProps {
     initialGames: GameProduct[]

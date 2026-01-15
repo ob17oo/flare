@@ -1,5 +1,6 @@
-import { getAllGames } from "@/shared/actions";
-import { getAllServicesPlatform } from "@/shared/actions/products/service";
+
+import { getAllGames } from "@/entities/game/api";
+import { getAllServicesPlatform } from "@/entities/service/api";
 import { HomePage } from "@/views";
 
 export default async function Home() {

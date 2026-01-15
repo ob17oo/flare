@@ -3,8 +3,8 @@
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { CardComponent } from "../CardComponent/Card-component"
-import { TCarouselItem } from "@/shared/types/product.types"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../shadCN/carousel"
+import { TCarouselItem } from "@/entities/product/model/types"
 
 
 type SizeVariant = 'default' | 'medium' | 'large'

@@ -1,1 +1,0 @@
-export { getAllGames } from './products/games'

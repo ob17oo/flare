@@ -1,6 +1,6 @@
+import { GameProduct, TLauncher } from "@/entities/game/model/types"
+import { ServicePlanProduct, TServicePlatform } from "@/entities/service/model/types"
 import { PRODUCT_EDITION, PRODUCT_TYPE } from "@prisma/client"
-import { TGame, TLauncher } from "./game.types"
-import { TServicePlan, TServicePlatform } from "./service.types"
 
 export interface TBaseProduct {
     id: number,
@@ -14,18 +14,6 @@ export interface TBaseProduct {
     stock: number
     rating: number
     isActive: boolean
-}
-
-export interface GameProduct extends TBaseProduct {
-    productType: 'GAME'
-    game: TGame | null
-    servicePlans?: never
-}
-
-export interface ServicePlanProduct extends TBaseProduct {
-    productType: 'SERVICE_PLANS'
-    servicePlans: TServicePlan | null
-    game?: never
 }
 
 export type Product = GameProduct | ServicePlanProduct

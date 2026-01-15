@@ -1,8 +1,7 @@
 'use server'
-
 import { prisma } from "@/shared/lib/prisma"
-import { ServicePlanProduct } from "@/shared/types/product.types"
 import { PRODUCT_TYPE } from "@prisma/client"
+import { ServicePlanProduct } from "../model/types"
 
 export async function getAllServices(){
     try {
@@ -31,18 +30,5 @@ export async function getAllServices(){
     } catch(error: unknown){
         console.log(`Error fetching services ${error}`)
         throw new Error('Не удалось загрузить сервисы')
-    }
-}
-export async function getAllServicesPlatform(){
-    try {
-        const servicePlatform = await prisma.servicePlatform.findMany({
-            include: {
-                servicePlans: true
-            }
-        })
-        return servicePlatform || []
-    } catch(error: unknown){
-        console.log(`Error fetching services platform ${error}`)
-        throw new Error('Не удалось загрузить платформы сервисов')
     }
 }

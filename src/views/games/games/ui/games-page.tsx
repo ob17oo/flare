@@ -3,8 +3,9 @@ import { CardComponent } from "@/shared/components"
 import GamesFilter from "./games-filter"
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { GameProduct } from "@/shared/types/product.types"
-import { useGames } from "@/shared/hooks"
+import { GameProduct } from "@/entities/game/model/types"
+import { useGames } from "@/entities/game/hooks/useGames"
+
 
 interface GamesProps{
     initialgames: GameProduct[]

@@ -1,4 +1,4 @@
-import { getGameById } from "@/shared/actions/products/games"
+import { getGameById } from "@/entities/game/api"
 import { GamePage } from "@/views"
 import { notFound } from "next/navigation"
 interface GamePageProps {

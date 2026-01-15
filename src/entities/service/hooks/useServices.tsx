@@ -1,7 +1,8 @@
-import { ServicePlanProduct } from "@/shared/types/product.types"
 import { useQuery } from "@tanstack/react-query"
-import { getAllServices, getAllServicesPlatform } from "@/shared/actions/products/service"
-import { TServicePlatform } from "@/shared/types/service.types"
+import { ServicePlanProduct, TServicePlatform } from "../model/types"
+import { getAllServices, getAllServicesPlatform } from "../api"
+
+
 
 export const serviceKeys = {
     all: ['services'] as const,

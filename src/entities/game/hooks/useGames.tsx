@@ -1,8 +1,7 @@
 'use client'
-import { getAllGames } from "@/shared/actions"
-import { getGameById } from "@/shared/actions/products/games"
-import { GameProduct, Product } from "@/shared/types/product.types"
 import { useQuery } from "@tanstack/react-query"
+import { GameProduct } from "../model/types"
+import { getAllGames, getGameById } from "../api"
 
 export const gameKeys = {
     all: ['games'] as const,

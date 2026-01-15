@@ -1,8 +1,9 @@
 'use client'
+import { useGame } from "@/entities/game/hooks/useGames";
+import { GameProduct } from "@/entities/game/model/types";
+import { Product } from "@/entities/product/model/types";
 import { PaymentComponent } from "@/features/Payment";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components";
-import { useGame } from "@/shared/hooks";
-import { GameProduct, Product } from "@/shared/types/product.types";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { notFound, useRouter } from "next/navigation";
