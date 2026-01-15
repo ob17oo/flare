@@ -6,11 +6,11 @@ import Link from "next/link"
 import { GameProduct } from "@/shared/types/product.types"
 import { useGames } from "@/shared/hooks"
 
-interface GameProps{
+interface GamesProps{
     initialgames: GameProduct[]
 }
 
-export function GamesPage({initialgames}: GameProps){
+export function GamesPage({initialgames}: GamesProps){
 
     const { 
         data: games = [],

@@ -49,6 +49,9 @@
   .bg-primary {
     background-color: var(--bg-primary);
   }
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
   .bg-secondary {
     background-color: var(--bg-secondary);
   }
@@ -64,10 +67,10 @@
   .bg-error {
     background-color: var(--error);
   }
-
   .bg-secondary {
     background-color: var(--bg-secondary);
   }
+
   .border-accent {
     border-color: var(--accent);
   }
@@ -79,6 +82,10 @@
   }
   .border-error {
     border: var(--error);
+  }
+
+  .rign-accent {
+    border: var(--accent)
   }
 }
 

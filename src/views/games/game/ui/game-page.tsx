@@ -1,4 +1,5 @@
 'use client'
+import { PaymentComponent } from "@/features/Payment";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components";
 import { useGame } from "@/shared/hooks";
 import { GameProduct, Product } from "@/shared/types/product.types";
@@ -6,12 +7,12 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { notFound, useRouter } from "next/navigation";
 
-interface GameContentProps {
+interface GameProps {
     initialGame: Product,
     gameId: string
 }
 
-export default function GameContent({initialGame, gameId}: GameContentProps){
+export function GamePage({initialGame, gameId}: GameProps){
     const router = useRouter()
     const initialGameProduct: GameProduct = initialGame as GameProduct
     const { data: game} = useGame(gameId, {
@@ -64,7 +65,7 @@ export default function GameContent({initialGame, gameId}: GameContentProps){
                     </div>
                 </div>
                 <div className="">
-                    <div className="bg-secondary rounded-2xl h-112.5"></div>
+                    <PaymentComponent game={game}/>
                 </div>
             </div>
         </section>
