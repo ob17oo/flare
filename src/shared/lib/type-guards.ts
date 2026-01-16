@@ -1,6 +1,7 @@
-import { TLauncher } from "../types/game.types";
-import { GameProduct, Product, TCarouselItem } from "../types/product.types";
-import { TServicePlatform } from "../types/service.types";
+import { GameProduct, TLauncher } from "@/entities/game/model/types";
+import { Product, TCarouselItem } from "@/entities/product/model/types";
+import { TServicePlatform } from "@/entities/service/model/types";
+
 
 export function isProduct(item: TCarouselItem): item is Product {
     return 'productType' in item && 'price' in item;

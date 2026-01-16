@@ -15,7 +15,7 @@ export async function getAllServices(){
                     include: {
                         servicePlatform: true
                     }
-                }
+                },
             },
         })
         

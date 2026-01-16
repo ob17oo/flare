@@ -62,7 +62,7 @@ export function GamesPage({initialgames}: GamesProps){
     return ( 
         <section className="flex flex-col gap-3">
             <div>
-                <h2 className="text-2xl text-accent font-bold">Популярные игры</h2>
+                <h2 className="text-2xl font-bold">Популярные игры</h2>
             </div>
             <div className="flex justify-between gap-3">
                 <div className="w-[20%] h-100">

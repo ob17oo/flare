@@ -35,7 +35,9 @@ export async function getGameById(id: string){
         
         return gameProduct
     } catch(error: unknown){
-        console.log(`Error fetching games ${error}`)
+        if(process.env.NODE_ENV === 'development'){
+            console.log(`Error fetching game ${error}`)
+        }
         throw new Error('Не удалось загрузить игры')
     }
 }

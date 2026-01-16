@@ -1,5 +1,5 @@
+import { TCarouselItem } from "@/entities/product/model/types";
 import { isGameProduct, isProduct } from "@/shared/lib/type-guards";
-import { TCarouselItem } from "@/shared/types/product.types";
 import Image from "next/image";
 
 type SizeVariant = 'default' | 'medium' | 'large'
@@ -8,7 +8,6 @@ type SizeVariant = 'default' | 'medium' | 'large'
 interface CardProps {
   item: TCarouselItem
   sizeVariant: SizeVariant,
-  // productType: string
 }
 const sizeConfig = {
   default: {

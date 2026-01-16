@@ -10,7 +10,7 @@ export function Navigaiton(){
             <NavigationButton href='/launchers' pathName={pathName} placeholder="Лаунчеры" />
             <NavigationButton href='/Steam' pathName={pathName} placeholder="Steam" />
             <NavigationButton href='/Wallets' pathName={pathName} placeholder="Пополнение кошельков" />
-            <NavigationButton href='/Subscriptions' pathName={pathName} placeholder="Подписки" />
+            <NavigationButton href='/subscriptions' pathName={pathName} placeholder="Подписки" />
             <NavigationButton href='/Sales' pathName={pathName} placeholder="Скидки" />
         </section>
     )

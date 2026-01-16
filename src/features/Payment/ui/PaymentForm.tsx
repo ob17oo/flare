@@ -4,11 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import Image from "next/image"
 import { InputComponent } from "@/shared/components"
 import { useState } from "react"
-import { Product } from "@/entities/product/model/types"
 import { paymentAction } from "../actions/payment.action"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { SuccessModal } from "./SuccessModal"
+import { Product } from "@/entities/product/model/types"
 
 interface PaymentComponentProps {
     game: Product,

@@ -6,10 +6,6 @@ import { HomePage } from "@/views";
 export default async function Home() {
   const initialGames = await getAllGames()
   const initialServicesPlatform = await getAllServicesPlatform()
-  return (
-      <HomePage 
-        initialGames={initialGames} 
-        initialServicesPlatform={initialServicesPlatform}
-      />
-  );
+  return <HomePage initialGames={initialGames} initialServicesPlatform={initialServicesPlatform} />
+
 }

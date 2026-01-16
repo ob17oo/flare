@@ -8,7 +8,5 @@ export default async function Profile(){
     if(!session){
         return <div>Авторизируйтесь</div>
     }
-    return ( 
-        <ProfilePage session={session} />
-    )
+    return <ProfilePage session={session} />
 }

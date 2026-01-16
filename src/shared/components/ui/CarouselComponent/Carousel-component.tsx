@@ -13,9 +13,10 @@ interface CarouselProps{
     carouselItem?: TCarouselItem[],
     carouselHeader: string,
     carouselImage?: string,
-    sizeVariant: SizeVariant
+    sizeVariant: SizeVariant,
+    carouselValue: string
 }
-export function CarouselComponent({carouselItem, carouselHeader, carouselImage, sizeVariant = 'default'}: CarouselProps){
+export function CarouselComponent({carouselItem, carouselHeader, carouselImage, sizeVariant = 'default', carouselValue}: CarouselProps){
     const router = useRouter()
     const safeCarouselItem = carouselItem || []
     const limitItem = safeCarouselItem.slice(0,12)
@@ -61,7 +62,7 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
                     )}
                     { limitItem.map((item) => (
                     
-                        <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/games/${item.id}`)} >
+                        <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/${carouselValue}/${item.id}`)} >
                            <CardComponent item={item} sizeVariant={sizeVariant}/>
                         </CarouselItem>
                     ))}

@@ -12,7 +12,5 @@ export default async function Game({params}: GamePageProps){
     if(!game) {
         notFound()
     }
-    return (
-        <GamePage initialGame={game} gameId={id} />
-    )
+    return <GamePage initialGame={game} gameId={id} />
 }
