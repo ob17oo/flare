@@ -8,10 +8,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions)
+  const serverSession = await getServerSession(authOptions)
   return (
     <>
-    <Header session={session} />
+    <Header serverSession={serverSession} />
     {children}
     <Footer />
     </>

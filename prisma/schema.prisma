@@ -6,15 +6,52 @@ datasource db {
   provider = "postgresql"
 }
 
+enum USER_ROLE {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum STATUS {
+  PENDING
+  CANCELLED
+  SUCCESS
+  PROCESSING
+}
+
+enum PRODUCT_EDITION {
+  Lite
+  Standard
+  Deluxe
+  Essentials
+  Extra
+  Premium
+  Core
+  Ultimate
+  Arcade
+  Nitro
+  DLC
+  NSO
+  PLUS
+}
+
+enum PRODUCT_TYPE {
+  GAME
+  WALLET
+  SERVICE_PLANS
+  BANNER
+}
+
 model User {
   id        String    @id @default(cuid())
   login     String
   email     String    @unique
   password  String
   image_url String    @default("/static/default/default-user.svg")
-  discount  Int       @default(1)
+  discount  Int       @default(1) @db.SmallInt
   balance   Int       @default(0)
   role      USER_ROLE @default(USER)
+  orders Order[]
 }
 
 model Product {
@@ -26,14 +63,44 @@ model Product {
   isActive       Boolean         @default(true)
   productEdition PRODUCT_EDITION @default(Standard)
   rating         Float           @default(0.0)
-  stock          Int             @default(0)
+  stock          Int             @default(100)
   productType    PRODUCT_TYPE    @default(GAME)
   game           Game?
   servicePlans   ServicePlans?
+  orders Order[]
 
   @@index([productType, isActive])
   @@index([price])
   @@index([rating])
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  email String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status STATUS @default(PENDING)
+  promo String?
+  promoCode Promocode? @relation(fields: [promo], references: [code])
+
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@index([productId])
+  @@index([promo])
+}
+
+model Promocode {
+  id Int @id @default(autoincrement())
+  code String @unique
+  discount Int @default(5) @db.SmallInt
+  isActive Boolean @default(true)
+  maxUses Int @default(150)
+  orders Order[]
 }
 
 model Launcher {
@@ -71,38 +138,3 @@ model ServicePlans {
   servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])
 }
 
-enum USER_ROLE {
-  USER
-  ADMIN
-  MODERATOR
-}
-
-enum STATUS {
-  PENDING
-  CANCELLED
-  SUCCESS
-  PROCESSING
-}
-
-enum PRODUCT_EDITION {
-  Lite
-  Standard
-  Deluxe
-  Essentials
-  Extra
-  Premium
-  Core
-  Ultimate
-  Arcade
-  Nitro
-  DLC
-  NSO
-  PLUS
-}
-
-enum PRODUCT_TYPE {
-  GAME
-  WALLET
-  SERVICE_PLANS
-  BANNER
-}

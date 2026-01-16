@@ -2,18 +2,20 @@
 import { InputComponent, MenuComponent } from "@/shared/components"
 import { Navigaiton } from "@/widgets/NavigationBar/ui/Navigation"
 import { Session } from "next-auth"
+import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-interface HeaderProps{
-    session: Session | null
+interface HeaderProps {
+    serverSession: Session | null
 }
 
-export function Header({session}: HeaderProps){
+export function Header({serverSession}: HeaderProps){
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
+    const { data: clientSession } = useSession()
+    const session = clientSession || serverSession
     const router = useRouter()
-
     return ( 
         <section className="mb-4">
             <section className="py-4 flex items-center justify-between">
