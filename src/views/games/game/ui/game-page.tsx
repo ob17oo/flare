@@ -23,7 +23,7 @@ export function GamePage({initialGame, gameId}: GameProps){
     if(!game){
         notFound()
     }
-    console.log(game)
+
     return (
         <section className="flex flex-col gap-3">
             <div>
@@ -66,7 +66,7 @@ export function GamePage({initialGame, gameId}: GameProps){
                     </div>
                 </div>
                 <div className="">
-                    <PaymentComponent game={game}/>
+                    <PaymentComponent item={game}/>
                 </div>
             </div>
         </section>

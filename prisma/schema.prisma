@@ -81,6 +81,8 @@ model Order {
   user User @relation(fields: [userId], references: [id])
   productId Int
   product Product @relation(fields: [productId], references: [id])
+  servicePlanId Int?
+  servicePlan ServicePlans? @relation(fields: [servicePlanId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   status STATUS @default(PENDING)
@@ -91,6 +93,7 @@ model Order {
   @@index([userId])
   @@index([status, createdAt])
   @@index([productId])
+  @@index([servicePlanId])
   @@index([promo])
 }
 
@@ -136,5 +139,6 @@ model ServicePlans {
   productId       Int             @unique
   product         Product         @relation(fields: [productId], references: [id])
   servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])
+  orders          Order[]
 }
 

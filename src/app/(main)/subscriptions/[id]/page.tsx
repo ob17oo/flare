@@ -1,4 +1,5 @@
-import { getServiceById } from "@/entities/service/api";
+import { getAllServicesPlatform } from "@/entities/service/api";
+import { getServicePlansByPlatformId } from "@/entities/service/api/getServicePlantsByPlatformId.api";
 import { SubscriptionPage } from "@/views";
 import { notFound } from "next/navigation";
 
@@ -10,9 +11,13 @@ interface SubscriptionProps{
 
 export default async function Service({params}: SubscriptionProps){
     const { id } = await params
-    const service = await getServiceById(id) 
-    if(!service){
+    const platforms = await getAllServicesPlatform()
+    const platform = platforms.find((platform) => platform.id === parseInt(id))
+
+    if(!platform){
         notFound()
     }
-    return <SubscriptionPage initialService={service} />
+
+    const servicePlans = await getServicePlansByPlatformId(id)
+    return <SubscriptionPage platform={platform} initialPlans={servicePlans} />
 }

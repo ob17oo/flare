@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache"
 
 interface PaymentActionProps{
     productId: number,
+    servicePlanId?: number,
     promocode?: string,
     email: string
 }
@@ -88,6 +89,7 @@ export async function paymentAction(data: PaymentActionProps){
                 data: {
                     userId: userId,
                     productId: data.productId,
+                    servicePlanId: data.servicePlanId,
                     email: data.email,
                     promo: data.promocode || null,
                     status: 'PROCESSING'

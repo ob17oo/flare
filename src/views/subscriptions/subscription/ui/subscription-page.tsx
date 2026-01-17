@@ -1,19 +1,29 @@
 'use client'
 
-import { TServicePlatformWithPlans } from "@/entities/service/model/types"
+import { useServicePlansByPlatform } from "@/entities/service/hooks/useServices"
+import { ServicePlanProduct, TServicePlatform } from "@/entities/service/model/types"
 import { PaymentComponent } from "@/features/Payment"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
 import { ArrowLeft } from "lucide-react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
+import { useState } from "react"
 
 interface SubscriptionPageProps{
-    initialService: TServicePlatformWithPlans
+    platform: TServicePlatform,
+    initialPlans: ServicePlanProduct[]
 }
-export function SubscriptionPage({initialService}: SubscriptionPageProps){
+export function SubscriptionPage({platform, initialPlans}: SubscriptionPageProps){
+    const [selectedPlan, setSelectedPlan] = useState<ServicePlanProduct | null>(initialPlans[0] || null)
     const router = useRouter()
-    const service = initialService
-    console.log(service)
+    const { data: plans} = useServicePlansByPlatform(platform.id, {
+        initialData: initialPlans
+    })
+
+    if(!plans){
+        notFound()
+    }
+    
     return (
         <div className="flex flex-col gap-3">
             <div>
@@ -27,20 +37,20 @@ export function SubscriptionPage({initialService}: SubscriptionPageProps){
                     <div className="flex flex-col gap-3 bg-secondary rounded-2xl p-3">
                         <h2>Виды подписок:</h2>
                         <div className="grid grid-cols-5 gap-3 w-full">
-                            {service.servicePlans.map((plan) => (
-                                <div key={plan.id} className="flex flex-col gap-1">
-                                    <div className="relative overflow-hidden rounded-2xl w-40 h-40">
-                                        <Image className="object-cover" fill src={plan.product.image_url} alt={plan.product.title} />
+                            {plans.map((plan) => (
+                                <button onClick={() => setSelectedPlan(plan)} type="button" key={plan.id} className={`flex flex-col gap-1 transition-all duration-300 ease-in-out ${plan === selectedPlan ? 'scale-105 opacity-100' : 'opacity-70'}`}>
+                                    <div className={`relative overflow-hidden rounded-2xl w-40 h-40 border ${plan === selectedPlan ? 'border-accent' : 'border-transparent'}`}>
+                                        <Image className="object-cover" fill src={plan.image_url} alt={plan.title} />
                                     </div>
                                     <div>
-                                        <span className="text-sm">{plan.duration} мес | {plan.product.productEdition}</span>
-                                        <p className="text-lg text-green-400 font-semibold">{plan.product.price}₽</p>
+                                        <span className="text-sm">{plan.servicePlans?.duration} мес | {plan.productEdition}</span>
+                                        <p className="text-lg text-green-400 font-semibold">{plan.price}₽</p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
-                    <p className="text-lg ">{service.description}</p>
+                    <p className="text-lg ">{platform.description}</p>
                     <div>
                         <Accordion type="single" collapsible className="flex flex-col gap-3">
                             <AccordionItem value="Способ получения">
@@ -65,7 +75,9 @@ export function SubscriptionPage({initialService}: SubscriptionPageProps){
                     </div>
                 </div>
                 <div>
-                    <PaymentComponent game={service}/>
+                    {selectedPlan && (
+                        <PaymentComponent item={selectedPlan}/>
+                    )}
                 </div>
             </div>
         </div>

@@ -8,13 +8,13 @@ import { paymentAction } from "../actions/payment.action"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { SuccessModal } from "./SuccessModal"
-import { Product } from "@/entities/product/model/types"
+import { TPaymentItem } from "../model/types"
 
 interface PaymentComponentProps {
-    game: Product,
+    item: TPaymentItem,
 }
 
-export function PaymentComponent({game}: PaymentComponentProps){
+export function PaymentComponent({item}: PaymentComponentProps){
     const [havePromo, setHavePromo] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [serverError, setServerError] = useState('')
@@ -25,7 +25,7 @@ export function PaymentComponent({game}: PaymentComponentProps){
         reset,
         register,
         handleSubmit,
-        formState: { isValid, errors, isSubmitting }
+        formState: { errors, isSubmitting }
     } = useForm<PaymentFormData>({
         resolver: zodResolver(paymentSchema),
         mode: 'onChange',
@@ -42,7 +42,7 @@ export function PaymentComponent({game}: PaymentComponentProps){
     if(status === 'unauthenticated' || !session?.user.id ){
         return <div>Необходима авторизация</div>
     }
-    const canBuy = session.user.balance >= game.price
+    const canBuy = session.user.balance >= item.price
 
     const onSubmit = async (data: PaymentFormData) => {
         try{
@@ -54,7 +54,8 @@ export function PaymentComponent({game}: PaymentComponentProps){
             setServerError('')
             
             const result = await paymentAction({
-                productId: game.id,
+                productId: item.id,
+                servicePlanId: item.productType === 'SERVICE_PLANS' ? item.servicePlans?.id : undefined,
                 email: data.email,
                 promocode: data.promocode?.trim() || undefined
             })
@@ -84,9 +85,9 @@ export function PaymentComponent({game}: PaymentComponentProps){
         <div className="bg-secondary rounded-2xl p-4 flex flex-col gap-3">
             <div className="flex items-center gap-3 pb-4 border-b border-accent">
                 <div className="w-15 h-15 rounded-2xl overflow-hidden relative">
-                    <Image className="object-cover" fill src={game.image_url} alt={game.title}/>
+                    <Image className="object-cover" fill src={item.image_url} alt={item.title}/>
                 </div>
-                <h2 className="text-xl ">{game.title}</h2>
+                <h2 className="text-xl ">{item.title}</h2>
             </div>
             <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col gap-1">
@@ -109,7 +110,7 @@ export function PaymentComponent({game}: PaymentComponentProps){
                 </div>
                 <div className="bg-primary rounded-2xl p-4 flex justify-between">
                     <p className="text-lg">Итого: </p>
-                    <p className="text-lg text-green-400">{game.price} руб</p>
+                    <p className="text-lg text-green-400">{item.price} руб</p>
                 </div>
                 <div className="flex justify-between gap-3">
                     <button 
@@ -117,7 +118,7 @@ export function PaymentComponent({game}: PaymentComponentProps){
                         type="submit" 
                         disabled={isSubmitting || !canBuy}
                     >
-                        {isSubmitting ? 'Обработка...' : `Купить ${game.price} руб`}
+                        {isSubmitting ? 'Обработка...' : `Купить ${item.price} руб`}
                     </button>
                     <button className="bg-primary rounded-2xl w-full h-15" type="button">В избранное</button>
                 </div>
