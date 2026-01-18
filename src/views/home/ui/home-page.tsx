@@ -26,8 +26,8 @@ export function HomePage({initialGames, initialServicesPlatform}: HomePageProps)
         <>
             <HeroCarouselComponent carouselItem={games} />
             <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/Games.svg" />
-            <CarouselComponent carouselValue="games" sizeVariant="medium" carouselItem={games} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
-            <CarouselComponent carouselValue="subscriptions" sizeVariant="large" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />
+            <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />
+            <CarouselComponent carouselValue="games" sizeVariant="large" carouselItem={games} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
         </>
     )
 }
