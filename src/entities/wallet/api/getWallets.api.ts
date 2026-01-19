@@ -30,5 +30,6 @@ export async function getWallets(){
         if(process.env.NODE_ENV === 'development'){
             console.log(`Error fetching wallets: `, error)
         }
+        throw new Error(`Произошла ошибка при загрузке кошельков`)
     }
 }

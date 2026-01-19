@@ -7,7 +7,6 @@ import { revalidatePath } from "next/cache"
 
 interface PaymentActionProps{
     productId: number,
-    servicePlanId?: number,
     promocode?: string,
     email: string
 }
@@ -82,14 +81,13 @@ export async function paymentAction(data: PaymentActionProps){
                     balance: {
                         decrement: finalPrice
                     }
-                }
+                },
             })
             
             const order = await prisma.order.create({
                 data: {
                     userId: userId,
                     productId: data.productId,
-                    servicePlanId: data.servicePlanId,
                     email: data.email,
                     promo: data.promocode || null,
                     status: 'PROCESSING'
@@ -140,6 +138,10 @@ export async function paymentAction(data: PaymentActionProps){
 
             return order
 
+        },{
+            timeout: 10000,
+            maxWait: 2000,
+            isolationLevel: 'Serializable'
         })
         
         revalidatePath('/orders')

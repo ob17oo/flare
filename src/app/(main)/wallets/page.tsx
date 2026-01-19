@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 export default async function Wallet(){
     const providers = await getAllWalletProvider()
     const wallets = await getWallets()
-    if(!providers || !wallets){
+    if(!providers.length || !wallets.length){
         notFound()
     }
     return <WalletsPage initialProviders={providers} initialWallets={wallets}/>

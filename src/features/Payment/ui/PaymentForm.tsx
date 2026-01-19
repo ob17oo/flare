@@ -7,7 +7,6 @@ import { InputComponent } from "@/shared/components"
 import { useState } from "react"
 import { paymentAction } from "../actions/payment.action"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import { SuccessModal } from "./SuccessModal"
 import { TPaymentItem } from "../model/types"
 
@@ -20,8 +19,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
     const [showModal, setShowModal] = useState(false)
     const [serverError, setServerError] = useState('')
     const { data: session, status, update } = useSession()
-    const router = useRouter()
-
+    
     const {
         reset,
         register,
@@ -35,15 +33,31 @@ export function PaymentComponent({item}: PaymentComponentProps){
             promocode: ''
         }
     })
+
+    if(!item){
+        return (
+           <div className="bg-secondary rounded-2xl p-4 flex items-center justify-center h-40">
+                <p className="text-error">Товар недоступен</p>
+            </div> 
+        )
+    }
     
     if(status === 'loading'){
-        return <div>Загрузка...</div>
+        return (
+            <div className="bg-secondary rounded-2xl p-4 flex items-center justify-center h-40">
+                <p>Загрузка...</p>
+            </div>
+        )
     }
 
     if(status === 'unauthenticated' || !session?.user.id ){
-        return <div>Необходима авторизация</div>
+        return (
+            <div className="bg-secondary rounded-2xl p-4 flex items-center justify-center h-40">
+                <p className="text-error">Необходима авторизация</p>
+            </div>
+        )
     }
-    const canBuy = session.user.balance >= item.price
+    const canBuy = item && session.user.balance >= item.price
 
     const onSubmit = async (data: PaymentFormData) => {
         try{
@@ -56,15 +70,17 @@ export function PaymentComponent({item}: PaymentComponentProps){
             
             const result = await paymentAction({
                 productId: item.id,
-                servicePlanId: item.productType === 'SERVICE_PLANS' ? item.servicePlans?.id : undefined,
                 email: data.email,
                 promocode: data.promocode?.trim() || undefined
             })
             
             if(result.success){
-                await update()
+                try {
+                    await update()
+                } catch(error: unknown){
+                    console.error(`Session update failed: ${error}`)
+                }
                 reset()
-                router.refresh()
                 setShowModal(true)
             } else {
                 setServerError(result.message)

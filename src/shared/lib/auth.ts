@@ -150,6 +150,7 @@ export const authOptions: NextAuthOptions = {
                     }
                 } catch(error: unknown){
                     console.log(`Error updation JWT:`, error)
+                    return token
                 }
             }
 

@@ -36,6 +36,8 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
         }
 
     } 
+
+
     return ( 
         <Carousel className="bg-secondary rounded-2xl p-4 mb-4" opts={{
             align: 'start',
@@ -62,7 +64,9 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
                     )}
                     { limitItem.map((item) => (
                     
-                        <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} onClick={() => router.push(`/${carouselValue}/${item.id}`)} >
+                        <CarouselItem className={`cursor-pointer ${sizeConfig[sizeVariant].cardBasis}`} key={item.title} 
+                        onClick={() => router.push(`${carouselValue === 'wallets' ? `/${carouselValue}?walletId=${item.id}` : `/${carouselValue}/${item.id}`}`)} 
+                        >
                            <CardComponent item={item} sizeVariant={sizeVariant}/>
                         </CarouselItem>
                     ))}
