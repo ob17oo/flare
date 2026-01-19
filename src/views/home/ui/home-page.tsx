@@ -3,14 +3,16 @@ import { useGames } from "@/entities/game/hooks/useGames";
 import { GameProduct } from "@/entities/game/model/types";
 import { useServicesPlatforms } from "@/entities/service/hooks/useServices";
 import { TServicePlatform } from "@/entities/service/model/types";
+import { TWalletProvider } from "@/entities/wallet/model/types";
 import { CarouselComponent, HeroCarouselComponent } from "@/shared/components";
 
 interface HomePageProps {
     initialGames: GameProduct[]
     initialServicesPlatform: TServicePlatform[]
+    initialWalletProvider: TWalletProvider[]
 }
 
-export function HomePage({initialGames, initialServicesPlatform}: HomePageProps){
+export function HomePage({initialGames, initialServicesPlatform,initialWalletProvider}: HomePageProps){
     const {
         data: games = [],
 } = useGames({
@@ -22,12 +24,13 @@ export function HomePage({initialGames, initialServicesPlatform}: HomePageProps)
     } = useServicesPlatforms({
         initialData: initialServicesPlatform
     })
+    const wallet = initialWalletProvider
     return ( 
         <>
             <HeroCarouselComponent carouselItem={games} />
             <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/Games.svg" />
             <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />
-            <CarouselComponent carouselValue="games" sizeVariant="large" carouselItem={games} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
+            <CarouselComponent carouselValue="wallets" sizeVariant="large" carouselItem={wallet} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
         </>
     )
 }

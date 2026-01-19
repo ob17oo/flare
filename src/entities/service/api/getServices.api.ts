@@ -18,6 +18,10 @@ export async function getAllServices(){
                 },
             },
         })
+
+        if(!services){
+            return null
+        }
         
         return services.map((service) => ({
             ...service,
