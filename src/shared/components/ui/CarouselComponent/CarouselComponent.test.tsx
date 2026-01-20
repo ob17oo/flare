@@ -1,9 +1,10 @@
-import { GameProduct, Product } from "@/shared/types/product.types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CarouselComponent } from "./Carousel-component";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Product } from "@/entities/product/model/types";
+import { GameProduct } from "@/entities/game/model/types";
 
 jest.mock('next/image', () => {
   const mockImage = ({
@@ -161,7 +162,7 @@ describe('CarouselComponent', () => {
 
 
     test('render carousel with header and items', () => {
-        render(<CarouselComponent carouselItem={mockProduct} carouselHeader="Популярные игры" carouselImage="/game-icon.png" sizeVariant="default"/>)
+        render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Популярные игры" carouselImage="/game-icon.png" sizeVariant="default"/>)
 
 
         const header = screen.getByText('Популярные игры')
@@ -181,7 +182,7 @@ describe('CarouselComponent', () => {
     }) 
 
     test('render without image when CarouselImage is missed', () => {
-        render(<CarouselComponent carouselItem={mockProduct} carouselHeader="Новые игры" sizeVariant="default"/>)
+        render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Новые игры" sizeVariant="default"/>)
 
         const header = screen.getByText('Новые игры')
         const icon = screen.queryByAltText('Новые игры')
@@ -191,7 +192,7 @@ describe('CarouselComponent', () => {
     })
 
     test('navigation on click', async () => {
-        render(<CarouselComponent carouselItem={mockProduct} carouselHeader="Navigation Test" sizeVariant="default"/>)
+        render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Navigation Test" sizeVariant="default"/>)
 
         const user = userEvent.setup()
         const items = screen.getAllByTestId('carousel-item')
@@ -206,14 +207,14 @@ describe('CarouselComponent', () => {
     })
 
     test('applies medium size classes', () => {
-        render(<CarouselComponent carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="medium"/>)
+        render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="medium"/>)
 
         const items = screen.getAllByTestId('carousel-item')
         expect(items[0]).toHaveClass('basis-1/4')
     })
 
     test('applies lagre size classes', () => {
-        render(<CarouselComponent carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="large"/>)
+        render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="large"/>)
 
         const items = screen.getAllByTestId('carousel-item')
         expect(items[0]).toHaveClass('basis-1/3')
