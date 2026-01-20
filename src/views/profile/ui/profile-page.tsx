@@ -7,7 +7,7 @@ interface ProfileProps {
     session: Session
 }
 export function ProfilePage({session}: ProfileProps){
-    
+    console.log(session)
     return (
         <section>
             <div className="bg-black w-62.5 h-62.5 rounded-full relative overflow-clip">

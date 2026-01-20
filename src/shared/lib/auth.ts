@@ -68,7 +68,8 @@ export const authOptions: NextAuthOptions = {
                                 image_url: true,
                                 role: true,
                                 balance: true,
-                                discount: true
+                                discount: true,
+                                spent: true
                             }
                         })
 
@@ -92,7 +93,8 @@ export const authOptions: NextAuthOptions = {
                             image_url: user.image_url,
                             role: user.role,
                             balance: user.balance,
-                            discount: user.discount
+                            discount: user.discount,
+                            spent: user.spent
                         }
 
                     } catch(error: unknown){
@@ -125,6 +127,7 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.balance = user.balance;
                 token.discount = user.discount;
+                token.spent = user.spent
             }
 
             if(trigger === 'update'){
@@ -138,7 +141,8 @@ export const authOptions: NextAuthOptions = {
                         discount: true,
                         image_url: true,
                         login: true,
-                        role: true
+                        role: true,
+                        spent: true
                     }
                     })
                     if(updateUser){
@@ -147,6 +151,7 @@ export const authOptions: NextAuthOptions = {
                         token.login = updateUser.login
                         token.image_url = updateUser.image_url
                         token.role = updateUser.role
+                        token.spent = updateUser.spent
                     }
                 } catch(error: unknown){
                     console.log(`Error updation JWT:`, error)
@@ -159,6 +164,7 @@ export const authOptions: NextAuthOptions = {
                 token.discount = session.user.discount
                 token.login = session.user.login
                 token.image_url = session.user.image_url
+                token.spent = session.user.spent
             }
 
             return token
@@ -172,6 +178,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.balance = token.balance as number
                 session.user.discount = token.discount as number
                 session.user.role = token.role as string
+                session.user.spent = token.spent as number
             }
             return session
         }

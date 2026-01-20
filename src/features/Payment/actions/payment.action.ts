@@ -80,6 +80,9 @@ export async function paymentAction(data: PaymentActionProps){
                 data: {
                     balance: {
                         decrement: finalPrice
+                    },
+                    spent: {
+                        increment: finalPrice
                     }
                 },
             })

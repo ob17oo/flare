@@ -5,6 +5,7 @@ import { useServicesPlatforms } from "@/entities/service/hooks/useServices";
 import { TServicePlatform } from "@/entities/service/model/types";
 import { TWalletProvider } from "@/entities/wallet/model/types";
 import { CarouselComponent, HeroCarouselComponent } from "@/shared/components";
+import { AdvantagesComponent } from "./advantages-component";
 
 interface HomePageProps {
     initialGames: GameProduct[]
@@ -30,6 +31,7 @@ export function HomePage({initialGames, initialServicesPlatform,initialWalletPro
             <HeroCarouselComponent carouselItem={games} />
             <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/Games.svg" />
             <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />
+            <AdvantagesComponent />
             <CarouselComponent carouselValue="wallets" sizeVariant="large" carouselItem={wallet} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
         </>
     )

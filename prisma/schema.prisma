@@ -50,6 +50,7 @@ model User {
   image_url String    @default("/static/default/default-user.svg")
   discount  Int       @default(1) @db.SmallInt
   balance   Int       @default(0)
+  spent Int @default(0)
   role      USER_ROLE @default(USER)
   orders    Order[]
 
