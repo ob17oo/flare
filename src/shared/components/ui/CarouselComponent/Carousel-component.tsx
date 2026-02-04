@@ -27,7 +27,7 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
 
         },
         medium: {
-            height: 'h-76',
+            height: 'aspect-square',
             cardBasis: 'basis-1/4'
         },
         large: {
