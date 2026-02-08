@@ -1,6 +1,7 @@
 'use client'
 import Image from "next/image"
 import Link from "next/link"
+import { FOOTER_HELP, FOOTER_INFORMATION, FOOTER_SOCIAL } from "../model/footer.constants"
 export function Footer(){
     
     const SmoothScroll = () => {
@@ -10,36 +11,50 @@ export function Footer(){
         })
     }
 
+    // <h3 className="text-[18px]">Наши социальные сети</h3>
+    // <h3 className="text-[18px]">Помощь</h3>
+    // <h3 className="text-[18px]">Информация</h3>
     return( 
-        <footer className="flex justify-between py-7.5 border-b border-t border-[#1E1E1E] mb-15 mt-125 h-[30vh]">
-            <section className="flex flex-col gap-3">
-                <button onClick={SmoothScroll} className="text-left text-4xl font-bold text-accent bg-clip-text text-transparent cursor-pointer">FLARE</button>
-                <span className="text-[14px]">Находи выгодные предложения каждый день</span>
-            </section>
-            <section className="flex items-center flex-col gap-3">
-                <h3 className="text-[18px]">Наши социальные сети</h3>
-                <ul className="flex gap-3">
-                    <li className="opacity-70"><Link href="#"><Image width={32} height={32} src="/static/icons/SocialIcons/Vkontakte.svg" alt="Vkontakte"/></Link></li>
-                    <li className="opacity-70"><Link href="#"><Image width={32} height={32} src="/static/icons/SocialIcons/Telegram.svg" alt="Telegram"/></Link></li>
-                    <li className="opacity-70"><Link href="#"><Image width={32} height={32} src="/static/icons/SocialIcons/Discord.svg" alt="Discord"/></Link></li>
-                </ul>
-            </section>
-            <section className="flex flex-col items-center gap-3">
-                <h3 className="text-[18px]">Помощь</h3>
-                <ul className="flex flex-col items-gap-3]">
-                    <li className="opacity-70"><Link href="">Техническая поддержка</Link></li>
-                    <li className="opacity-70"><Link href="">FAQ</Link></li>
-                    <li className="opacity-70"><Link href="">Контакты</Link></li>
-                </ul>
-            </section>
-            <section className="flex flex-col gap-3 items-center">
-                <h3 className="text-[18px]">Информация</h3>
-                <ul className="flex flex-col items-center gap-3">
-                    <li className="opacity-70"><Link href="#">О нас</Link></li>
-                    <li className="opacity-70"><Link href="#">Пользовательское соглашение</Link></li>
-                    <li className="opacity-70"><Link href="#">Партнерская программа</Link></li>
-                </ul>
-            </section>
+        <footer className="py-7 flex flex-col justify-between border-b-2 border-t-2 border-secondary mb-15 mt-125 h-[30vh]">
+            <div className="grid grid-cols-4 gap-6">
+                <div className="flex flex-col gap-3">
+                    <div className="relative w-full h-12 max-w-40 overflow-hidden cursor-pointer">
+                        <Image className="object-contain" fill src='/static/icons/Flare-logotype.svg' alt="FooterFlareLogotype"/>
+                    </div>
+                    <p className="text-h5 opacity-70">Находи выгодные предложения каждый день</p>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                    <h4 className="text-h4">Наши социальные сети</h4>
+                    <div className="flex gap-6">
+                        { FOOTER_SOCIAL.map((social) => (
+                            <Link href={social.path} key={social.title}>
+                                <Image width={40} height={40} src={social.imageUrl} alt={social.title}/>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                    <h4 className="text-h4">Помощь</h4>
+                    <div className="flex flex-col items-center gap-6">
+                        { FOOTER_HELP.map((help) => (
+                            <Link className="text-h5 opacity-70" key={help.title} href={help.path}>
+                                {help.title}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                    <h4 className="text-h4">Информация</h4>
+                    <div className="flex flex-col items-center gap-6">
+                        { FOOTER_INFORMATION.map((info) => (
+                            <Link className="text-h5 opacity-80" href={info.path} key={info.title}>
+                                {info.title}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+            <p className="text-h5 text-center opacity-50">© 2025-2026 Flare. All rights reserved.</p>
         </footer>
     )
 }

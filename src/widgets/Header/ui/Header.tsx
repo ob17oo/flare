@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { BalanceComponent } from "../BalanceComponent/ui/balance-component"
 
 interface HeaderProps {
     serverSession: Session | null
@@ -13,41 +14,39 @@ interface HeaderProps {
 
 export function Header({serverSession}: HeaderProps){
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
+    const router = useRouter()
     const { data: clientSession } = useSession()
     const session = clientSession || serverSession
-    const router = useRouter()
+    if( !session ) {
+        return 
+    }
     return ( 
-        <section className="mb-4">
-            <section className="py-4 flex items-center justify-between">
-                <section>
-                    <button onClick={() => router.push('/')} className="text-4xl font-bold text-accent cursor-pointer">FLARE</button>
-                </section>
-                <section className="w-[70%]">
-                    <InputComponent sizeVariant="default" type="text" placeholder="Поиск"/>
-                </section>
-                <section className="flex items-center py-2 px-3 gap-2 border border-accent rounded-2xl">
-                    <div className="flex items-center gap-1">
-                        <p className="text-lg ">{session?.user.balance}</p>
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
-                            <Image src="/static/icons/ruble.svg" width={18} height={18} alt="Ruble"/>
-                        </span>
-                    </div>
-                    <div className="text-lg text-accent">|</div>
-                    <div className="flex items-center gap-1">
-                        <p className="text-lg ">{session?.user.discount}</p>
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent">
-                            <Image src="/static/icons/percent.svg" width={18} height={18} alt="Percent"/>
-                        </span>
-                    </div>
-                </section>
-                <section className="">
-                    <button type="button" className="cursor-pointer" onClick={() => setDialogIsOpen(true)}>
-                        <Image src="/static/icons/menu.svg" width={28} height={28} alt="Menu"/>
+        <section className="my-4 flex flex-col gap-6">
+            <div className="grid grid-cols-[calc(20%-8px)_calc(60%-8px)_calc(20%-8px)] justify-between w-full h-12">
+                <div className="h-full w-full max-w-[50%] flex items-center shrink-0">
+                    <button onClick={() => router.push('/')} type="button" className="w-full h-full max-w-40 relative overflow-hidden cursor-pointer">
+                        <Image className="object-contain" fill src={'/static/icons/Flare-logotype.svg'} alt="HeaderFlareLogotype"/>
                     </button>
-                    <MenuComponent isOpen={dialogIsOpen} onClose={() => setDialogIsOpen(false)} session={session}/>
-                </section>
-            </section>
+                </div>
+                <div>
+                    <InputComponent sizeVariant="medium" placeholder="Поиск"/>
+                </div>
+                <div className="w-full h-full flex items-center justify-end gap-6">
+                    <div className="h-full">
+                        <button type="button" className="h-full cursor-pointer">
+                            <BalanceComponent balance={session.user.balance}/>
+                        </button>
+                    </div>
+                    <div className="h-full shrink-0">
+                        <button onClick={() => setDialogIsOpen(true)} type="button" className="cursor-pointer">
+                            <Image width={48} height={48} src={'/static/icons/burgerMenu.svg'} alt="HeaderBurgerMenu"/>
+                        </button>
+                        <MenuComponent isOpen={dialogIsOpen} onClose={() => setDialogIsOpen(false)} session={session}/>
+                    </div>
+                </div>
+            </div>
             <Navigaiton />
         </section>
     )
 }
+

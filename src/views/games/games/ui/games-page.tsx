@@ -62,10 +62,10 @@ export function GamesPage({initialgames}: GamesProps){
     return ( 
         <section className="flex flex-col gap-3">
             <div>
-                <h2 className="text-2xl font-bold">Популярные игры</h2>
+                <h2 className="text-h2 font-bold">Популярные игры</h2>
             </div>
-            <div className="flex justify-between gap-3">
-                <div className="w-[20%] h-100">
+            <div className="grid grid-cols-[calc(20%-12px)_calc(80%-12px)] gap-6">
+                <div className="">
                     <GamesFilter 
                     priceFromFilter={priceFromFilter} 
                     setPriceFromFilter={setPriceFromFilter} 
@@ -82,7 +82,7 @@ export function GamesPage({initialgames}: GamesProps){
                     genres={Array.from(gameGenre)}
                     />
                 </div>
-                <div className="w-[80%] grid grid-cols-5 gap-3">
+                <div className="grid gird-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                     { filteredGame.map((item) => (
                         <div key={item.id}>
                             <Link href={`/games/${item.id}`}>

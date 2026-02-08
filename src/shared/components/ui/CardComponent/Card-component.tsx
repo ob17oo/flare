@@ -3,37 +3,48 @@ import { isGameProduct, isProduct } from "@/shared/lib/type-guards";
 import Image from "next/image";
 
 type SizeVariant = 'default' | 'medium' | 'large'
+type SizeConfig = {
+  default: sizeConfigItem,
+  medium: sizeConfigItem,
+  large: sizeConfigItem
+}
 
+interface sizeConfigItem {
+  height: string,
+  cardBasis: string
+}
 
 interface CardProps {
   item: TCarouselItem
   sizeVariant: SizeVariant,
-}
-const sizeConfig = {
-  default: {
-    height: 'h-76',
-    cardBasis: 'basis-1/7'
-    
-  },
-  medium: {
-    height: 'h-76',
-    cardBasis: 'basis-1/4'
-  },
-  large: {
-    height: 'h-96',
-    cardBasis: 'basis-1/3'
-  }
-  
+  sizeConfig?: SizeConfig
 }
 
-export function CardComponent({item, sizeVariant, }: CardProps) {
+export const SIZE_CONFIG = {
+    default: {
+            height: 'h-90',
+            cardBasis: 'basis-1/6'
+
+        },
+        medium: {
+            height: 'aspect-square',
+            cardBasis: 'basis-1/4'
+        },
+        large: {
+            height: 'h-100',
+            cardBasis: 'basis-1/3'
+        }
+
+}
+
+export function CardComponent({item, sizeVariant }: CardProps) {
   const price = isProduct(item) ? item.price : undefined
   const description = 'description' in item ? item.description : null
   const launcherInfo = isGameProduct(item) && item.game?.launcher ? item.game.launcher : null
   return (
     <section>
       <div
-        className={`relative ${sizeConfig[sizeVariant].height} overflow-hidden rounded-2xl`}
+        className={`relative ${SIZE_CONFIG[sizeVariant].height} overflow-hidden rounded-2xl`}
       >
         <Image
           className="object-cover"
@@ -58,19 +69,19 @@ export function CardComponent({item, sizeVariant, }: CardProps) {
       <div>
         { sizeVariant === 'default' && price !== undefined ? (
             <div className="flex flex-col gap-1 mt-1">
-              <span className="text-lg text-green-400 font-semibold">
+              <span className="text-h4 text-green-400 font-semibold">
                 {price} руб
               </span>
-              <h3 className="text-lg text-left">{item.title}</h3>
+              <h3 className="text-h4 text-left">{item.title}</h3>
             </div>
         ) : sizeVariant === 'medium' ? (
             <div className="mt-1">
-              <h3 className="text-lg text-center">{item.title}</h3>
+              <h3 className="text-h4 text-center">{item.title}</h3>
             </div>
         ) : (
             <div className="flex flex-col gap-1 mt-1">
-              <h3 className="text-lg text-left">{item.title}</h3>
-              <p className="text-sm">{description}</p>
+              <h3 className="text-h4 text-left">{item.title}</h3>
+              <p className="text-lg">{description}</p>
             </div>
         )
         }

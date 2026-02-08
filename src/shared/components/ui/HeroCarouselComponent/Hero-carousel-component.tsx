@@ -42,7 +42,7 @@ export function HeroCarouselComponent({
             { (!limitedItems || limitedItems.length === 0) && (
                     <div className="text-accent text-xl">Произошла ошибка</div>
             )}
-        <div className="relative mb-4">
+        <div className="relative">
             <Carousel setApi={setApi} className="w-full"
                 plugins={[
                     Autoplay({
@@ -52,16 +52,16 @@ export function HeroCarouselComponent({
                 >
                 <CarouselContent>
                     {limitedItems.map((item) => (
-                        <CarouselItem key={item.id} className="h-160 basis-full">
-                            <div className="p-4 h-full w-full rounded-3xl relative overflow-hidden">
+                        <CarouselItem key={item.id} className="h-200 basis-full">
+                            <div className="h-full w-full rounded-3xl relative overflow-hidden">
                                 <Image className="opacity-60 object-cover" src={item.image_url} fill alt={item.title}/>
-                                <div className="absolute inset-35 left-30">
+                                <div className="absolute top-[50%] translate-y-[-50%] left-30">
                                     <div className="flex flex-col gap-8">
                                         <div className="flex flex-col gap-4">
-                                            <h1 className="font-bold text-4xl">{item.title.toUpperCase()}</h1>
-                                            <p className="text-lg text-justify w-[50%]">{item.description}</p>
+                                            <h1 className="font-bold text-h1">{item.title.toUpperCase()}</h1>
+                                            <p className="text-h4 text-justify w-[50%]">{item.description}</p>
                                         </div>
-                                        <button className="text-lg px-4 py-2 border border-accent w-fit" onClick={() => router.push(`/games/${item.id}`)}>Подробнее</button>
+                                        <button className="text-h4 px-4 py-2 border-2 border-accent w-fit" onClick={() => router.push(`/games/${item.id}`)}>Подробнее</button>
                                     </div>
                                 </div>
                             </div>
