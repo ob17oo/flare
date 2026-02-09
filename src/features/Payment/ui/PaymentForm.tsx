@@ -104,18 +104,18 @@ export function PaymentComponent({item}: PaymentComponentProps){
                 <div className="w-15 h-15 rounded-2xl overflow-hidden relative">
                     <Image className="object-cover" fill src={item.image_url} alt={item.title}/>
                 </div>
-                <h2 className="text-xl ">{item.title}</h2>
+                <h3 className="text-h3">{item.title}</h3>
             </div>
             <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm opacity-50">Аккаунт для получения</label>
+                    <label className="text-paragraph opacity-50">Аккаунт для получения</label>
                     <InputComponent {...register('email')} type="email" sizeVariant="default" placeholder="Введите email"/>
                     {errors.email && (
                         <p className="text-sm text-error" role="alert">{errors.email.message}</p>
                     )}
                 </div>
                 <div className="flex flex-col gap-1">
-                    <button className={`text-sm w-fit ${havePromo ? 'opacity-100' : 'opacity-50'}`} onClick={() => setHavePromo(!havePromo)} type="button">Eсть промокод</button>
+                    <button className={`text-paragraph w-fit ${havePromo ? 'opacity-100' : 'opacity-50'}`} onClick={() => setHavePromo(!havePromo)} type="button">Eсть промокод</button>
                     { havePromo && (
                         <div className="flex flex-col gap-1">
                             <InputComponent {...register('promocode')} type="text" sizeVariant="default" placeholder="Введите промокод"/>
@@ -125,27 +125,27 @@ export function PaymentComponent({item}: PaymentComponentProps){
                         </div>
                     )}
                 </div>
-                <div className="bg-primary rounded-2xl p-4 flex justify-between">
-                    <p className="text-lg">Итого: </p>
-                    <p className="text-lg text-green-400">{item.price} руб</p>
+                <div className="bg-primary rounded-2xl p-4 flex justify-between items-center">
+                    <h3 className="text-h3">Итого: </h3>
+                    <h3 className="text-h3 text-green-400">{item.price} руб</h3>
                 </div>
                 <div className="flex justify-between gap-3">
                     <button 
-                        className="bg-primary rounded-2xl w-full h-15" 
+                        className="bg-primary rounded-2xl w-full h-15 text-h5" 
                         type="submit" 
                         disabled={isSubmitting || !canBuy}
                     >
                         {isSubmitting ? 'Обработка...' : `Купить ${item.price} руб`}
                     </button>
-                    <button className="bg-primary rounded-2xl w-full h-15" type="button">В избранное</button>
+                    <button className="bg-primary rounded-2xl w-full h-15 text-h5" type="button">В избранное</button>
                 </div>
             </form>
-            <div className="p-4 border-accent">
+            <div className="">
                 { serverError && (
-                    <p className="text-error text-sm">{serverError}</p>
+                    <p className="text-error text-paragraph">{serverError}</p>
                 ) }
                 { !canBuy && (
-                    <p className="text-error text-sm">Недостаточно средств</p>
+                    <p className="text-error text-paragraph">Недостаточно средств</p>
                 )
 
                 }

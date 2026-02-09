@@ -68,7 +68,7 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
 
     return (
         <div className="flex flex-col gap-3">
-            <h2 className="text-2xl font-bold">Пополнение кошельков</h2>
+            <h2 className="text-h2 font-bold">Пополнение кошельков</h2>
             <div className="grid grid-cols-[calc(20%-8px)_calc(55%-8px)_calc(25%-8px)] gap-6">
                 <div>
                     <WalletFilter walletProvider={providers} pick={pickProvider} setPick={setPickProvider}/>
@@ -78,35 +78,35 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
                         <div className="relative overflow-hidden rounded-2xl w-15 h-15">
                             <Image fill className="object-cover" src={currentWallet.wallet?.walletProvider.image_url || ''} alt={currentWallet.wallet?.walletProvider.title || ''}/>
                         </div>
-                        <h2 className="text-lg text-semibold">{currentWallet.wallet?.walletProvider.title}</h2>
+                        <h4 className="text-h4 text-semibold">{currentWallet.wallet?.walletProvider.title}</h4>
                     </div>
                     <div className="bg-secondary p-3 rounded-2xl flex flex-col gap-3">
-                        <h2>Выберите кол-вол монет:</h2>
+                        <h5 className="text-h5">Выберите кол-вол монет:</h5>
                         <div className="grid grid-cols-5 gap-3">
                             { pickedWallet.map((wallet) => (
                                 <button onClick={() => setPickedProduct(wallet)} key={wallet.id} className={`flex flex-col transition-all duration-300 ease-in-out ${wallet.id === currentWallet.id ? 'scale-105' : 'scale-100'}`}>
                                     <div className={`relative w-35 h-35 overflow-hidden rounded-2xl border ${wallet.id === currentWallet.id ? ' border-accent' : 'border-transparent'}`}>
                                         <Image className="object-cover" fill src={wallet.image_url} alt={wallet.title}/>
-                                        <div className="absolute p-3 w-35 h-35">
+                                        <div className="absolute p-2 w-35 h-35">
                                             <div className="flex flex-col justify-between items-start w-full h-full">
-                                                <p className="text-sm">{wallet.wallet?.walletProvider.title.replace('Пополнение', '')}</p>
-                                                <span className="text-sm">{wallet.wallet?.amountOfCoins} монет</span>
+                                                <h5 className="text-h5">{wallet.wallet?.walletProvider.title.replace('Пополнение', '')}</h5>
+                                                <h5 className="text-h5">{wallet.wallet?.amountOfCoins} монет</h5>
                                             </div>
                                         </div>
                                     </div>
-                                    <p className="text-lg text-green-400 font-semibold self-start ml-2">{wallet.price} руб</p>
+                                    <h4 className="text-h4 text-green-400 font-semibold self-start ml-2">{wallet.price} руб</h4>
                                 </button>
                             ))}
                         </div>
                     </div>
                     <div className="bg-secondary p-3 rounded-2xl">
-                        <p className="text-lg">{currentWallet.description}</p>
+                        <h4 className="text-h4">{currentWallet.description}</h4>
                     </div>
                     <div>
                         <Accordion type="single" collapsible className="flex flex-col gap-3">
                             <AccordionItem value="Способ получения">
                                 <AccordionTrigger>Способ получения</AccordionTrigger>
-                                <AccordionContent>
+                                <AccordionContent className="text-h5">
                                     На ваш аккаунт по почте будет отправлена подписка продолжительностью, которую вы выбрали
                                 </AccordionContent>
                             </AccordionItem>

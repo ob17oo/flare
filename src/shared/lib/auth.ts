@@ -69,7 +69,8 @@ export const authOptions: NextAuthOptions = {
                                 role: true,
                                 balance: true,
                                 discount: true,
-                                spent: true
+                                spent: true,
+                                maxUserDiscount: true,
                             }
                         })
 
@@ -94,7 +95,8 @@ export const authOptions: NextAuthOptions = {
                             role: user.role,
                             balance: user.balance,
                             discount: user.discount,
-                            spent: user.spent
+                            spent: user.spent,
+                            maxUserDiscount: user.maxUserDiscount
                         }
 
                     } catch(error: unknown){
@@ -127,7 +129,8 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.balance = user.balance;
                 token.discount = user.discount;
-                token.spent = user.spent
+                token.spent = user.spent;
+                token.maxUserDiscount = user.maxUserDiscount;
             }
 
             if(trigger === 'update'){
@@ -165,20 +168,22 @@ export const authOptions: NextAuthOptions = {
                 token.login = session.user.login
                 token.image_url = session.user.image_url
                 token.spent = session.user.spent
+                token.maxUserDiscount = session.user.maxUserDiscount
             }
 
             return token
         },
         async session({session, token}){
             if(token && session.user){
-                session.user.id = token.id as string
-                session.user.email = token.email as string
-                session.user.login = token.login as string
-                session.user.image_url = token.image_url as string
-                session.user.balance = token.balance as number
-                session.user.discount = token.discount as number
-                session.user.role = token.role as string
-                session.user.spent = token.spent as number
+                session.user.id = token.id
+                session.user.email = token.email
+                session.user.login = token.login
+                session.user.image_url = token.image_url
+                session.user.balance = token.balance
+                session.user.discount = token.discount
+                session.user.role = token.role
+                session.user.spent = token.spent
+                session.user.maxUserDiscount = token.maxUserDiscount
             }
             return session
         }

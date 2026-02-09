@@ -1,9 +1,12 @@
 import Image from "next/image";
 
 interface BalanceComponentProps {
-    balance: number,
+    balance: number | undefined,
 }
 export function BalanceComponent({ balance }: BalanceComponentProps){
+    if( balance === undefined){
+        return 
+    }
     return (
         <div className="flex items-center gap-3 border-2 border-accent rounded-2xl h-full px-3">
             <div className="flex items-center gap-3">

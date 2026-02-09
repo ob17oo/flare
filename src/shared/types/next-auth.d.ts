@@ -10,7 +10,8 @@ declare module 'next-auth' {
             discount: number,
             role: string,
             balance: number,
-            spent: number
+            spent: number,
+            maxUserDiscount: number,
         } & DefaultSession['user']
     }
 
@@ -22,7 +23,8 @@ declare module 'next-auth' {
         discount: number,
         role: string,
         balance: number,
-        spent: number
+        spent: number,
+        maxUserDiscount: number,
     }
 }
 
@@ -31,10 +33,11 @@ declare module 'next-auth/jwt' {
         id: string,
         email: string,
         login: string,
-        image_url: string | null,
+        image_url: string,
         discount: number,
         role: string,
         balance: number,
-        spent: number
+        spent: number,
+        maxUserDiscount: number,
     }
 }

@@ -10,7 +10,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function ButtonComponent({children, isFilled, color, px = '4', py = '3', onClick}:ButtonProps) {
     return <button
             onClick={onClick}
-            className={`py-${py} px-${px} rounded-2xl ${isFilled ? `bg-${color}` : `border border-${color}`}`} 
+            className={`text-h5 py-${py} px-${px} rounded-2xl ${isFilled ? `bg-${color}` : `border border-${color}`}`} 
         >
             {children}
         </button>

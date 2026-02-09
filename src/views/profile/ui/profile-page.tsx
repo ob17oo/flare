@@ -5,27 +5,25 @@ import { signOut } from "next-auth/react"
 
 import Image from "next/image"
 
-const maxUserDiscount = 30
-
 interface ProfileProps {
     session: Session
 }
 export function ProfilePage({session}: ProfileProps){
     const { user } = session
     return (
-        <section className="grid grid-cols-[calc(25%-12px)_calc(75%-12px)] gap-6">
-            <div className="border border-accent rounded-3xl flex flex-col items-center gap-4 py-4">
-                <div className="w-50 h-50 relative overflow-hidden">
-                    <Image fill src={user.image_url} alt={`User Image ${user.login}`}/>
+        <section className="grid grid-cols-[calc(25%-12px)_calc(75%-12px)] gap-6 mt-6">
+            <div className="border border-accent rounded-3xl flex flex-col items-center gap-4 p-3">
+                <div className=" w-full max-w-87.5 aspect-square relative overflow-hidden">
+                    <Image className=" object-contain" fill src={user.image_url} alt={`User Image ${user.login}`}/>
                 </div>
                 <div>
                     <div>
-                        <span className="text-[14px] opacity-50 font-semibold">Логин</span>
-                        <p className="text-bold text-[24px]">{user.login}</p>
+                        <span className="text-h5 opacity-50 font-semibold">Логин</span>
+                        <p className="text-bold text-h4">{user.login}</p>
                     </div>
                     <div>
-                        <span className="text-[14px] opacity-50 font-semibold">Эл.почта</span>
-                        <p className="text-bold text-[24px]">{user.email}</p>
+                        <span className="text-h5 opacity-50 font-semibold">Эл.почта</span>
+                        <p className="text-bold text-h4">{user.email}</p>
                     </div>
                 </div>
                 <div className="flex gap-3 itemsc-center">
@@ -35,36 +33,36 @@ export function ProfilePage({session}: ProfileProps){
             </div>
             <div className="border border-accent rounded-3xl flex flex-col gap-4 p-4">
                 <div className="flex flex-col gap-1">
-                    <span className="text-[14px] opacity-50 font-semibold">Ваш баланс</span>
+                    <span className="text-h5 opacity-50 font-semibold">Ваш баланс</span>
                     <div className="flex items-center gap-3">
-                        <p className="text-bold text-[22px] bg-secondary rounded-2xl py-2.5 px-3.5">{user.balance} руб</p>
+                        <p className="text-bold text-h4 bg-secondary rounded-2xl py-2.5 px-3.5">{user.balance} руб</p>
                         <ButtonComponent color="green-400">Пополнить</ButtonComponent>
                     </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <span>Ваша скидка</span>
+                    <span className="text-h5 opacity-50 font-semibold">Ваша скидка</span>
                     <div className="flex flex-col">
-                        <div className={`w-full h-10 rounded-2xl bg-secondary`}>
-                            <div className="h-10 bg-accent rounded-2xl transition-transform duration-300 ease-in-out" style={ { width: `${Math.min(user.discount, maxUserDiscount)}%` } }></div>
+                        <div className={`w-full h-12.5 rounded-2xl bg-secondary`}>
+                            <div className="h-12.5 bg-accent rounded-2xl transition-transform duration-300 ease-in-out" style={ { width: `${Math.min((user.discount / user.maxUserDiscount) * 100, 100)}%` } }></div>
                         </div>
-                        <p>{user.discount}% / {maxUserDiscount}%</p>
+                        <p className="text-h4">{user.discount}% / {user.maxUserDiscount}%</p>
                     </div>
                 </div>
                 <div className="grid grid-cols-[calc(50%-12px)_calc(50%-12px)] gap-6">
                     <div className="border border-accent rounded-2xl p-3 flex flex-col gap-3">
-                        <span className="">Cтатистика аккаунта</span>
+                        <span className="text-h4">Cтатистика аккаунта</span>
                         <div className="flex flex-col gap-1">  
-                            <span className="opacity-50 text-[14px] font-semibold">Потраченное рублей</span>
+                            <span className="opacity-50 text-h5 font-semibold">Потраченное рублей</span>
                             <p className="text-[24px] text-accent">{user.spent} рублей</p>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <span className="text-[14px] opacity-50 font-semibold">Совершенно заказов</span>
+                            <span className="text-h5 opacity-50 font-semibold">Совершенно заказов</span>
                             <p className="text-[24px] text-accent">Будущее кол-во товаров</p>
                         </div>
                     </div>
-                    <div className="border border-accent rounded-2xl p-3 flex flex-col justify-around">
+                    <div className="border border-accent rounded-2xl p-3 flex flex-col gap-6">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-[24px]">Блок с поддержкой авторов Flare</h2>
+                            <h2 className="text-h4">Блок с поддержкой авторов Flare</h2>
                             <button className="flex items-center justify-center w-5 h-5 rounded-full bg-accent" type="button">?</button>
                         </div>
 

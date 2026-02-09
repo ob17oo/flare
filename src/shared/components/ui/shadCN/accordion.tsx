@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown, CircleQuestionMark } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/shared/lib/tailwind-cn"
 
@@ -33,7 +33,7 @@ const AccordionTrigger = React.forwardRef<
       )}
       {...props}
     >
-      <p className="text-lg">
+      <p className="text-h5">
         {children}
       </p>
       <ChevronDown color="white" size={12}  className="w-5 h-5 shrink-0 text-muted-foreground transition-transform duration-200" />

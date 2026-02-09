@@ -18,7 +18,7 @@ export function Header({serverSession}: HeaderProps){
     const { data: clientSession } = useSession()
     const session = clientSession || serverSession
     if( !session ) {
-        return 
+        // return 
     }
     return ( 
         <section className="my-4 flex flex-col gap-6">
@@ -34,7 +34,7 @@ export function Header({serverSession}: HeaderProps){
                 <div className="w-full h-full flex items-center justify-end gap-6">
                     <div className="h-full">
                         <button type="button" className="h-full cursor-pointer">
-                            <BalanceComponent balance={session.user.balance}/>
+                            <BalanceComponent balance={session?.user.balance}/>
                         </button>
                     </div>
                     <div className="h-full shrink-0">

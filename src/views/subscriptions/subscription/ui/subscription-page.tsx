@@ -35,22 +35,22 @@ export function SubscriptionPage({platform, initialPlans}: SubscriptionPageProps
             <div className="grid grid-cols-[calc(70%-12px)_calc(30%-12px)] gap-6">
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-3 bg-secondary rounded-2xl p-3">
-                        <h2>Виды подписок:</h2>
-                        <div className="grid grid-cols-5 gap-3 w-full">
+                        <h4 className="text-h4">Виды подписок:</h4>
+                        <div className="grid grid-cols-6 gap-3 w-full">
                             {plans.map((plan) => (
-                                <button onClick={() => setSelectedPlan(plan)} type="button" key={plan.id} className={`flex flex-col gap-1 transition-all duration-300 ease-in-out ${plan === selectedPlan ? 'scale-105 opacity-100' : 'opacity-70'}`}>
-                                    <div className={`relative overflow-hidden rounded-2xl w-40 h-40 border ${plan === selectedPlan ? 'border-accent' : 'border-transparent'}`}>
-                                        <Image className="object-cover" fill src={plan.image_url} alt={plan.title} />
+                                <button onClick={() => setSelectedPlan(plan)} type="button" key={plan.id} className={`flex flex-col gap-1 transition-transform duration-300 ease-in-out ${plan === selectedPlan ? 'opacity-100' : 'opacity-70'}`}>
+                                    <div className={`relative overflow-hidden rounded-2xl w-full aspect-square border-2 transition-transform duration-300 ease-in-out ${plan === selectedPlan ? 'border-accent' : 'border-transparent'}`}>
+                                        <Image className={`object-cover transition-transform duration-500 ease-in-out ${plan === selectedPlan ? 'scale-115' : 'scale-100'}`} fill src={plan.image_url} alt={plan.title} />
                                     </div>
-                                    <div>
-                                        <span className="text-sm">{plan.servicePlans?.duration} мес | {plan.productEdition}</span>
-                                        <p className="text-lg text-green-400 font-semibold">{plan.price}₽</p>
+                                    <div className="w-full flex flex-col items-start">
+                                        <span className="text-paragraph">{plan.servicePlans?.duration} мес | {plan.productEdition}</span>
+                                        <h4 className="text-h4 text-green-400 font-semibold">{plan.price}₽</h4>
                                     </div>
                                 </button>
                             ))}
                         </div>
                     </div>
-                    <p className="text-lg ">{platform.description}</p>
+                    <h5 className="text-h5 ">{platform.description}</h5>
                     <div>
                         <Accordion type="single" collapsible className="flex flex-col gap-3">
                             <AccordionItem value="Способ получения">

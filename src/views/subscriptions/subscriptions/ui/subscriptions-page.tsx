@@ -25,23 +25,23 @@ export function SubscriptionsPage({servicesInitialData}: SubscriptionsPageProps)
     },[servicePlatform])
 
     return (
-        <div className="flex flex-col gap-3">
-            <div>
-                <h2 className="text-2xl font-bold">Популярные сервисы</h2>
-            </div>
-            <div className="flex items-center gap-3">
-                { serviceGenre.map((genre, index) => (
-                    <button onClick={() => setGenreFilter(serviceGenre[index])} key={genre} className={`px-4 py-2 rounded-2xl transition-all duration-300 ease-in-out ${genreFilter === genre ? 'bg-accent scale-105' : 'bg-secondary'}`}>
-                        <p className="text-lg">{genre}</p>
-                    </button>
-                ))}
+        <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+                <h2 className="text-h2 font-bold">Популярные сервисы</h2>
+                <div className="flex items-center gap-3">
+                    { serviceGenre.map((genre, index) => (
+                        <button onClick={() => setGenreFilter(serviceGenre[index])} key={genre} className={`px-4 py-2.5 rounded-2xl transition-all duration-300 ease-in-out ${genreFilter === genre ? 'bg-accent scale-105' : 'bg-secondary'}`}>
+                            <p className="text-lg">{genre}</p>
+                        </button>
+                    ))}
+                </div>
             </div>
             <div className="grid grid-cols-6 gap-3">
                 { filterServices.map((service) => (
                     <div key={service.id} className="">
                         <Link href={`/subscriptions/${service.id}`}>
                             <div className="flex flex-col items-center gap-1 w-full h-full">
-                                <div className="relative overflow-hidden rounded-2xl w-full h-55">
+                                <div className="relative overflow-hidden rounded-2xl w-full aspect-square">
                                     <Image className="object-cover" fill src={service.image_url} alt={service.title}/>
                                 </div>
                                 <h3 className="text-lg ">{service.title}</h3>

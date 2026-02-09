@@ -54,7 +54,7 @@ export function HeroCarouselComponent({
                     {limitedItems.map((item) => (
                         <CarouselItem key={item.id} className="h-200 basis-full">
                             <div className="h-full w-full rounded-3xl relative overflow-hidden">
-                                <Image className="opacity-60 object-cover" src={item.image_url} fill alt={item.title}/>
+                                <Image className="opacity-50 object-cover" src={item.image_url} fill alt={item.title}/>
                                 <div className="absolute top-[50%] translate-y-[-50%] left-30">
                                     <div className="flex flex-col gap-8">
                                         <div className="flex flex-col gap-4">
