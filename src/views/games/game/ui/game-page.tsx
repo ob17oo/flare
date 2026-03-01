@@ -24,6 +24,12 @@ export function GamePage({initialGame, gameId}: GameProps){
         notFound()
     }
 
+    const imagesStack = [
+        '1',
+        '2',
+        '3',
+    ]
+
     return (
         <section className="flex flex-col gap-3">
             <div>
@@ -31,17 +37,32 @@ export function GamePage({initialGame, gameId}: GameProps){
                     <ArrowLeft size={18} color="white"/>
                 </button>
             </div>
-            <h1 className="text-2xl font-bold">{game.title}</h1>
+            <h1 className="text-h2 font-bold">{game.title}</h1>
             <div className="grid grid-cols-[calc(70%-12px)_calc(30%-12px)] gap-6">
                 <div className="flex flex-col gap-3">
-                    <div className="relative rounded-2xl w-full h-112.5 bg-secondary">
-                        <Image className="object-contain py-2" src={game.image_url} alt={game.title} fill/>
+                    <div className="w-full h-150 grid grid-cols-[calc(20%-12px)_calc(80%-12px)] justify-between">
+                        <div className="rounded-2xl w-full h-full flex flex-col gap-3">
+                            {imagesStack.map((image) => (
+                                <div key={image} className="rounded-2xl w-full h-full overflow-hidden">
+                                    <div className="bg-accent w-full h-full flex justify-center items-center">
+                                        <p className="text-white">
+                                            {image}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="bg-secondary rounded-2xl w-full h-full p-3">
+                            <div className="relative overflow-hidden rounded-2xl w-full h-full">
+                                <Image className="object-contain" fill src={game.image_url} alt={game.title}/>
+                            </div>
+                        </div>
                     </div>
                     <div className="flex gap-3">
-                        <p className="px-3 py-2 rounded-full flex items-center justify-center bg-accent">{game.game?.genre}</p>
-                        <p className="px-3 py-2 rounded-full flex items-center justify-center bg-accent">{game.game?.launcher.title}</p>
+                        <p className="text-h5 px-3 py-2 rounded-full flex items-center justify-center bg-accent">{game.game?.genre}</p>
+                        <p className="text-h5 px-3 py-2 rounded-full flex items-center justify-center bg-accent">{game.game?.launcher.title}</p>
                     </div>
-                    <p className="text-lg">{game.description}</p>
+                    <p className="text-h5">{game.description}</p>
                     <div>
                         <Accordion type="single" collapsible className="flex flex-col gap-3">
                             <AccordionItem value="Способ получения">

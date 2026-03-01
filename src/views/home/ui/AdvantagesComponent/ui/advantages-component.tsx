@@ -4,10 +4,12 @@ import Image from "next/image";
 export function AdvantagesComponent(){
     return (
         <div className="w-full p-3 flex flex-col gap-6 my-10">
-            <h1 className="text-h2 font-bold text-center">
-                 <span className="text-h2 font-bold text-accent">FLARE </span>
-                гарантирует
-            </h1>
+            <div className="w-full h-20 flex items-center justify-center gap-3">
+                <div className="relative overflow-hidden w-full max-w-40 h-full">
+                    <Image className="object-contain" fill src={'/static/Flare-logotype.svg'} alt="AdvantagesFlareLogotype"/>
+                </div>
+                <h1 className=" text-h2 font-bold">гарантирует</h1>
+            </div>
             <div className="grid grid-cols-3 gap-6">
                 { ADVATAGES.map((adv) => (
                     <div key={adv.title} className="bg-secondary w-full py-20 rounded-2xl flex flex-col items-center justify-center gap-6">

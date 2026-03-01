@@ -1,17 +1,15 @@
 'use client'
 import { NavigationButton } from "@/shared/components";
 import { usePathname } from "next/navigation";
+import { NAV_LINKS } from "../model/navigation.constants";
 
 export function Navigaiton(){
     const pathName = usePathname()
     return (
         <section className="flex items-center gap-4">
-            <NavigationButton href='/games' pathName={pathName} placeholder="Игры" />
-            <NavigationButton href='/launchers' pathName={pathName} placeholder="Лаунчеры" />
-            <NavigationButton href='/steam' pathName={pathName} placeholder="Steam" />
-            <NavigationButton href='/wallets' pathName={pathName} placeholder="Пополнение кошельков" />
-            <NavigationButton href='/subscriptions' pathName={pathName} placeholder="Подписки" />
-            <NavigationButton href='/sales' pathName={pathName} placeholder="Скидки" />
+            { NAV_LINKS.map((link) => (
+                <NavigationButton key={link.value} href={link.path} pathName={pathName} placeholder={link.value}/>
+            )) }
         </section>
     )
 }

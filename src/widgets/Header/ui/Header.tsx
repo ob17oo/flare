@@ -25,7 +25,7 @@ export function Header({serverSession}: HeaderProps){
             <div className="grid grid-cols-[calc(20%-8px)_calc(60%-8px)_calc(20%-8px)] justify-between w-full h-12">
                 <div className="h-full w-full max-w-[50%] flex items-center shrink-0">
                     <button onClick={() => router.push('/')} type="button" className="w-full h-full max-w-40 relative overflow-hidden cursor-pointer">
-                        <Image className="object-contain" fill src={'/static/icons/Flare-logotype.svg'} alt="HeaderFlareLogotype"/>
+                        <Image className="object-contain" fill src={'/static/Flare-logotype.svg'} alt="HeaderFlareLogotype"/>
                     </button>
                 </div>
                 <div>

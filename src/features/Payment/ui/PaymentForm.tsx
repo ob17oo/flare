@@ -9,12 +9,14 @@ import { paymentAction } from "../actions/payment.action"
 import { useSession } from "next-auth/react"
 import { SuccessModal } from "./SuccessModal"
 import { TPaymentItem } from "../model/types"
+import { useRouter } from "next/navigation"
 
 interface PaymentComponentProps {
     item: TPaymentItem,
 }
 
 export function PaymentComponent({item}: PaymentComponentProps){
+    const router = useRouter()
     const [havePromo, setHavePromo] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [serverError, setServerError] = useState('')
@@ -45,15 +47,16 @@ export function PaymentComponent({item}: PaymentComponentProps){
     if(status === 'loading'){
         return (
             <div className="bg-secondary rounded-2xl p-4 flex items-center justify-center h-40">
-                <p>Загрузка...</p>
+                <p className="text-lg">Загрузка...</p>
             </div>
         )
     }
 
     if(status === 'unauthenticated' || !session?.user.id ){
         return (
-            <div className="bg-secondary rounded-2xl p-4 flex items-center justify-center h-40">
-                <p className="text-error">Необходима авторизация</p>
+            <div className="bg-secondary rounded-2xl p-4 flex flex-col items-center justify-center gap-6 h-40">
+                <p className="text-error text-h4">Необходимо авторизироваться</p>
+                <button onClick={() => router.push('/login')} className="cursor-pointer px-6 py-3 text-h5 rounded-2xl bg-primary" type="button">Авторизироваться</button>
             </div>
         )
     }
@@ -146,9 +149,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
                 ) }
                 { !canBuy && (
                     <p className="text-error text-paragraph">Недостаточно средств</p>
-                )
-
-                }
+                ) }
             </div>
             <SuccessModal showModal={showModal} setShowModal={setShowModal}/>
         </div>

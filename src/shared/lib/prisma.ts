@@ -15,8 +15,9 @@ if (!connectionString) {
 const pool = new Pool({
     connectionString,
     max: 30,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 2000,
+    maxUses: 750
 })
 
 const adapter = new PrismaPg(pool)

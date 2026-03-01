@@ -19,7 +19,7 @@ export function Footer(){
             <div className="grid grid-cols-4 gap-6">
                 <div className="flex flex-col gap-3">
                     <div className="relative w-full h-12 max-w-40 overflow-hidden cursor-pointer">
-                        <Image className="object-contain" fill src='/static/icons/Flare-logotype.svg' alt="FooterFlareLogotype"/>
+                        <Image className="object-contain" fill src='/static/Flare-logotype.svg' alt="FooterFlareLogotype"/>
                     </div>
                     <p className="text-h5 opacity-70">Находи выгодные предложения каждый день</p>
                 </div>
