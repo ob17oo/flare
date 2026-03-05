@@ -1,0 +1,8 @@
+model Promocode {
+  id       Int     @id @default(autoincrement())
+  code     String  @unique
+  discount Int     @default(5) @db.SmallInt
+  isActive Boolean @default(true)
+  maxUses  Int     @default(150)
+  orders   Order[]
+}

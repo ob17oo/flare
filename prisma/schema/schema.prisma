@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum USER_ROLE {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum STATUS {
+  PENDING
+  CANCELLED
+  SUCCESS
+  PROCESSING
+}
+
+enum PRODUCT_EDITION {
+  Lite
+  Standard
+  Deluxe
+  Essentials
+  Extra
+  Premium
+  Core
+  Ultimate
+  Arcade
+  Nitro
+  DLC
+  NSO
+  PLUS
+}
+
+enum PRODUCT_TYPE {
+  GAME
+  WALLET
+  SERVICE_PLANS
+  BANNER
+}
+
+// model User {
+//   id        String    @id @default(cuid())
+//   login     String
+//   email     String    @unique
+//   password  String
+//   image_url String    @default("/static/default/default-user.svg")
+//   discount  Int       @default(1) @db.SmallInt
+//   maxUserDiscount Int @default(20) 
+//   balance   Int       @default(0)
+//   spent Int @default(0)
+//   role      USER_ROLE @default(USER)
+//   orders    Order[]
+
+//   @@index([email])
+// }
+
+// model Product {
+//   id             Int             @id @default(autoincrement())
+//   title          String
+//   description    String?
+//   price          Int             @default(0)
+//   image_url      String          @default("/static/default/default-product.png")
+//   isActive       Boolean         @default(true)
+//   productEdition PRODUCT_EDITION @default(Standard)
+//   rating         Float           @default(0.0)
+//   stock          Int             @default(100)
+//   productType    PRODUCT_TYPE    @default(GAME)
+//   game           Game?
+//   orders         Order[]
+//   servicePlans   ServicePlans?
+//   wallet Wallet?
+
+//   @@index([productType, isActive])
+//   @@index([price])
+//   @@index([rating])
+// }
+
+// model Order {
+//   id            Int           @id @default(autoincrement())
+//   userId        String
+//   productId     Int
+//   createdAt     DateTime      @default(now())
+//   updatedAt     DateTime      @updatedAt
+//   status        STATUS        @default(PENDING)
+//   promo         String?
+//   email         String
+//   product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   promoCode     Promocode?    @relation(fields: [promo], references: [code], onDelete: Cascade)
+//   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@index([userId])
+//   @@index([status, createdAt])
+//   @@index([productId])
+//   @@index([promo])
+// }
+
+// model Promocode {
+//   id       Int     @id @default(autoincrement())
+//   code     String  @unique
+//   discount Int     @default(5) @db.SmallInt
+//   isActive Boolean @default(true)
+//   maxUses  Int     @default(150)
+//   orders   Order[]
+// }
+
+// model Launcher {
+//   id        Int    @id @default(autoincrement())
+//   title     String @default("Flare")
+//   image_url String @default("/static/default/default-launcher.svg")
+//   games     Game[]
+// }
+
+// model Game {
+//   id         Int      @id @default(autoincrement())
+//   productId  Int      @unique
+//   launcherId Int
+//   genre      String
+//   launcher   Launcher @relation(fields: [launcherId], references: [id])
+//   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+// }
+
+// model ServicePlatform {
+//   id           Int            @id @default(autoincrement())
+//   title        String         @unique
+//   description  String
+//   image_url    String         @default("/static/default/default-service.svg")
+//   category     String         @default("Gaming")
+//   servicePlans ServicePlans[]
+// }
+
+// model ServicePlans {
+//   id              Int             @id @default(autoincrement())
+//   subTitle        String
+//   duration        Int
+//   serviceId       Int
+//   productId       Int             @unique
+//   product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])
+// }
+
+// model Wallet {
+//   id Int @id @default(autoincrement())
+//   productId Int @unique
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   launcherId Int
+//   walletProvider WalletProvider @relation(fields: [launcherId], references: [id])
+//   amountOfCoins Int
+// }
+
+// model WalletProvider {
+//   id Int @id @default(autoincrement())
+//   title String
+//   description String
+//   image_url String @default("/static/default/default-launcher.svg")
+//   wallet Wallet[]
+// }

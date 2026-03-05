@@ -1,0 +1,20 @@
+model Product {
+  id             Int             @id @default(autoincrement())
+  title          String
+  description    String?
+  price          Int             @default(0)
+  image_url      String          @default("/static/default/default-product.png")
+  isActive       Boolean         @default(true)
+  productEdition PRODUCT_EDITION @default(Standard)
+  rating         Float           @default(0.0)
+  stock          Int             @default(100)
+  productType    PRODUCT_TYPE    @default(GAME)
+  game           Game?
+  orders         Order[]
+  servicePlans   ServicePlans?
+  wallet Wallet?
+
+  @@index([productType, isActive])
+  @@index([price])
+  @@index([rating])
+}

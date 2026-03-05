@@ -1,0 +1,8 @@
+model Wallet {
+  id Int @id @default(autoincrement())
+  productId Int @unique
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  launcherId Int
+  walletProvider WalletProvider @relation(fields: [launcherId], references: [id])
+  amountOfCoins Int
+}

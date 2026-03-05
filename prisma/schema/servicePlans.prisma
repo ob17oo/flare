@@ -1,0 +1,9 @@
+model ServicePlans {
+  id              Int             @id @default(autoincrement())
+  subTitle        String
+  duration        Int
+  serviceId       Int
+  productId       Int             @unique
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  servicePlatform ServicePlatform @relation(fields: [serviceId], references: [id])
+}

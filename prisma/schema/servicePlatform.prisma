@@ -1,0 +1,8 @@
+model ServicePlatform {
+  id           Int            @id @default(autoincrement())
+  title        String         @unique
+  description  String
+  image_url    String         @default("/static/default/default-service.svg")
+  category     String         @default("Gaming")
+  servicePlans ServicePlans[]
+}

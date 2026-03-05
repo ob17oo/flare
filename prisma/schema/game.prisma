@@ -1,0 +1,8 @@
+model Game {
+  id         Int      @id @default(autoincrement())
+  productId  Int      @unique
+  launcherId Int
+  genre      String
+  launcher   Launcher @relation(fields: [launcherId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}

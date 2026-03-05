@@ -1,0 +1,7 @@
+model WalletProvider {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  image_url String @default("/static/default/default-launcher.svg")
+  wallet Wallet[]
+}

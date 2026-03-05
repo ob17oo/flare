@@ -1,0 +1,6 @@
+model Launcher {
+  id        Int    @id @default(autoincrement())
+  title     String @default("Flare")
+  image_url String @default("/static/default/default-launcher.svg")
+  games     Game[]
+}
