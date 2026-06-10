@@ -67,65 +67,99 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
 
 
     return (
-        <div className="flex flex-col gap-3">
-            <h2 className="text-h2 font-bold">Пополнение кошельков</h2>
-            <div className="grid grid-cols-[calc(20%-8px)_calc(55%-8px)_calc(25%-8px)] gap-6">
+        <div className="flex flex-col gap-6 py-4">
+            <div>
+                <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--text-primary)]">Пополнение баланса кошельков</h1>
+                <p className="text-[14px] text-[var(--text-secondary)] mt-1">Быстрое пополнение баланса Steam, PSN, Xbox и других платформ</p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_340px] gap-8">
+                {/* Filter Sidebar */}
                 <div>
                     <WalletFilter walletProvider={providers} pick={pickProvider} setPick={setPickProvider}/>
                 </div>
-                <div className="flex flex-col gap-3">
-                    <div className="bg-secondary p-3 rounded-2xl flex gap-3 items-center">  
-                        <div className="relative overflow-hidden rounded-2xl w-15 h-15">
+                
+                {/* Main Content Area */}
+                <div className="flex flex-col gap-6">
+                    {/* Active Provider Info Banner */}
+                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-4 rounded-2xl flex gap-3.5 items-center shadow-[var(--card-shadow)]">  
+                        <div className="relative overflow-hidden rounded-xl w-12 h-12 border border-[var(--border-muted)] bg-[var(--bg-layer-0)] shrink-0">
                             <Image fill className="object-cover" src={currentWallet.wallet?.walletProvider.image_url || ''} alt={currentWallet.wallet?.walletProvider.title || ''}/>
                         </div>
-                        <h4 className="text-h4 text-semibold">{currentWallet.wallet?.walletProvider.title}</h4>
+                        <h3 className="text-[16px] font-bold text-[var(--text-primary)]">{currentWallet.wallet?.walletProvider.title}</h3>
                     </div>
-                    <div className="bg-secondary p-3 rounded-2xl flex flex-col gap-3">
-                        <h5 className="text-h5">Выберите кол-вол монет:</h5>
-                        <div className="grid grid-cols-5 gap-3">
-                            { pickedWallet.map((wallet) => (
-                                <button onClick={() => setPickedProduct(wallet)} key={wallet.id} className={`flex flex-col transition-all duration-300 ease-in-out ${wallet.id === currentWallet.id ? 'scale-105' : 'scale-100'}`}>
-                                    <div className={`relative w-35 h-35 overflow-hidden rounded-2xl border ${wallet.id === currentWallet.id ? ' border-accent' : 'border-transparent'}`}>
-                                        <Image className="object-cover" fill src={wallet.image_url} alt={wallet.title}/>
-                                        <div className="absolute p-2 w-35 h-35">
-                                            <div className="flex flex-col justify-between items-start w-full h-full">
-                                                <h5 className="text-h5">{wallet.wallet?.walletProvider.title.replace('Пополнение', '')}</h5>
-                                                <h5 className="text-h5">{wallet.wallet?.amountOfCoins} монет</h5>
+                    
+                    {/* Coin Pack Grid */}
+                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl flex flex-col gap-4 shadow-[var(--card-shadow)]">
+                        <h4 className="text-[13px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Выберите сумму пополнения:</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                            { pickedWallet.map((wallet) => {
+                                const isCurrent = wallet.id === currentWallet.id;
+                                return (
+                                    <button 
+                                        onClick={() => setPickedProduct(wallet)} 
+                                        key={wallet.id} 
+                                        className={`group flex flex-col gap-2 p-3 rounded-xl border transition-all duration-300 text-left cursor-pointer ${
+                                            isCurrent 
+                                                ? 'bg-[var(--bg-layer-3)] border-[var(--accent)] shadow-[var(--card-shadow)] scale-[1.02]' 
+                                                : 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] hover:border-[var(--text-secondary)]'
+                                        }`}
+                                    >
+                                        <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-[var(--bg-layer-0)]">
+                                            <Image className="object-cover transition-transform duration-500 group-hover:scale-105" fill src={wallet.image_url} alt={wallet.title} sizes="120px" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-2.5">
+                                                <span className="text-[10px] font-semibold tracking-wider text-white/70 uppercase">
+                                                    {wallet.wallet?.walletProvider.title.replace('Пополнение', '').trim()}
+                                                </span>
+                                                <span className="text-[14px] font-extrabold text-white leading-tight">
+                                                    {wallet.wallet?.amountOfCoins} монет
+                                                </span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <h4 className="text-h4 text-green-400 font-semibold self-start ml-2">{wallet.price} руб</h4>
-                                </button>
-                            ))}
+                                        <div className="px-1 flex flex-col">
+                                            <span className="text-[14px] font-extrabold text-[var(--text-primary)]">
+                                                {wallet.price.toLocaleString('ru-RU')} ₽
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
-                    <div className="bg-secondary p-3 rounded-2xl">
-                        <h4 className="text-h4">{currentWallet.description}</h4>
+                    
+                    {/* Description */}
+                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl shadow-[var(--card-shadow)]">
+                        <h4 className="text-[14px] font-bold text-[var(--text-primary)] mb-2">Детали услуги</h4>
+                        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{currentWallet.description}</p>
                     </div>
-                    <div>
-                        <Accordion type="single" collapsible className="flex flex-col gap-3">
-                            <AccordionItem value="Способ получения">
-                                <AccordionTrigger>Способ получения</AccordionTrigger>
-                                <AccordionContent className="text-h5">
+                    
+                    {/* Accordions */}
+                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl shadow-[var(--card-shadow)]">
+                        <Accordion type="single" collapsible className="flex flex-col gap-1">
+                            <AccordionItem value="Способ получения" className="border-b border-[var(--border-muted)] py-1">
+                                <AccordionTrigger className="text-[14px] font-semibold text-[var(--text-primary)] hover:no-underline">Способ получения</AccordionTrigger>
+                                <AccordionContent className="text-[13px] text-[var(--text-secondary)] leading-relaxed pt-2">
                                     На ваш аккаунт по почте будет отправлена подписка продолжительностью, которую вы выбрали
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="Как активировать">
-                                <AccordionTrigger>Как активировать</AccordionTrigger>
-                                <AccordionContent>
+                            <AccordionItem value="Как активировать" className="border-b border-[var(--border-muted)] py-1">
+                                <AccordionTrigger className="text-[14px] font-semibold text-[var(--text-primary)] hover:no-underline">Как активировать</AccordionTrigger>
+                                <AccordionContent className="text-[13px] text-[var(--text-secondary)] leading-relaxed pt-2">
                                     Что бы активировать переайдите в лаунчер игры которую вы купили, перейдите во вкладку активации промокода и вставьте его
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="FAQ">
-                                <AccordionTrigger>FAQ</AccordionTrigger>
-                                <AccordionContent>
+                            <AccordionItem value="FAQ" className="border-none py-1">
+                                <AccordionTrigger className="text-[14px] font-semibold text-[var(--text-primary)] hover:no-underline">FAQ</AccordionTrigger>
+                                <AccordionContent className="text-[13px] text-[var(--text-secondary)] leading-relaxed pt-2">
                                     Что бы активировать переайдите в лаунчер игры которую вы купили, перейдите во вкладку активации промокода и вставьте его
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
                      </div>
                 </div>
-                <div>
+                
+                {/* Checkout Column */}
+                <div className="h-fit">
                     <PaymentComponent item={currentWallet}/>
                 </div>
             </div>

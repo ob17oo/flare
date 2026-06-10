@@ -5,15 +5,14 @@ interface BalanceComponentProps {
 }
 export function BalanceComponent({ balance }: BalanceComponentProps){
     if( balance === undefined){
-        return 
+        return null
     }
     return (
-        <div className="flex items-center gap-3 border-2 border-accent rounded-2xl h-full px-3">
-            <div className="flex items-center gap-3">
-                <p className="text-h4">{balance}</p>
-                <div className="flex items-center justify-center w-8 h-8 bg-accent rounded-full">
-                    <Image width={24} height={24} src={'/static/icons/ruble.svg'} alt="HeaderRubleIcon" />
-                </div>
+        <div className="flex items-center gap-3 bg-[var(--secondary)] border border-[var(--border-muted)] hover:border-[var(--accent)] rounded-xl h-full px-4 py-2 transition-all duration-300">
+            <span className="text-[14px] font-medium text-[var(--text-secondary)]">Баланс</span>
+            <div className="flex items-center gap-1.5">
+                <span className="font-bold text-[15px] text-[var(--text-primary)]">{balance}</span>
+                <span className="text-[15px] text-[var(--accent)] font-bold">₽</span>
             </div>
         </div>
     )

@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { Exo_2 } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "@/shared/providers";
+import { SessionProvider, ThemeProvider } from "@/shared/providers";
 import { QueryProvider } from "@/shared/providers/Query-Provider/Query-Provider";
 
-const Exo = Exo_2({
+const inter = Inter({
   subsets: ['latin', 'cyrillic'],
-  weight: ['400', '500' , '600' , '700' , '800' , '900']
-})
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700']
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-outfit',
+  weight: ['400', '500', '600', '700', '800']
+});
 
 export const metadata: Metadata = {
   title: "Flare",
@@ -20,15 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${Exo.className} antialiased`}
-      > 
-        <QueryProvider>
-          <SessionProvider>
-            {children}
-          </SessionProvider>
-        </QueryProvider>
+    <html lang="ru" className={`${inter.variable} ${outfit.variable}`}>
+      <body className="antialiased"> 
+        <ThemeProvider>
+          <QueryProvider>
+            <SessionProvider>
+              {children}
+            </SessionProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

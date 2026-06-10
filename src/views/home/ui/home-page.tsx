@@ -27,7 +27,7 @@ export function HomePage({initialGames, initialServicesPlatform,initialWalletPro
     })
     const wallet = initialWalletProvider
     return ( 
-        <section className="flex flex-col gap-6">
+        <section className="flex flex-col gap-10">
             <HeroCarouselComponent carouselItem={games} />
             <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/Games.svg" />
             <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />

@@ -24,21 +24,23 @@ export function CarouselComponent({carouselItem, carouselHeader, carouselImage, 
     const limitItem = safeCarouselItem.slice(0,12)
 
     return ( 
-        <Carousel className="bg-secondary rounded-2xl p-6" opts={{
+        <Carousel className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-6 shadow-[var(--card-shadow)]" opts={{
             align: 'start',
             dragFree: true
         }}>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
-                     <div className="flex items-center gap-2">
-                        <div className="flex items-center justify-center w-12 h-12 bg-accent rounded-full">
-                            <Image src={carouselImage} width={28} height={28} alt={carouselHeader}/>
-                        </div>
-                        <h2 className="text-h3 ">{carouselHeader}</h2>
+                     <div className="flex items-center gap-3">
+                        {carouselImage && (
+                            <div className="flex items-center justify-center w-11 h-11 bg-[var(--bg-layer-3)] border border-[var(--border-muted)] rounded-xl relative overflow-hidden">
+                                <Image src={carouselImage} width={22} height={22} alt={carouselHeader} className="object-contain" />
+                            </div>
+                        )}
+                        <h2 className="text-[18px] font-bold tracking-tight text-[var(--text-primary)]">{carouselHeader}</h2>
                     </div>
-                    <div className="flex items-center gap-3 relative">
+                    <div className="flex items-center gap-2 relative">
                         <CarouselPrevious />
-                         <CarouselNext />
+                        <CarouselNext />
                     </div>
                 </div>
                 <CarouselContent className="flex gap-2">

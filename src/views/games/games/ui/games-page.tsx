@@ -60,12 +60,13 @@ export function GamesPage({initialgames}: GamesProps){
     },[games])
 
     return ( 
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-6 py-4">
             <div>
-                <h2 className="text-h2 font-bold">Популярные игры</h2>
+                <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--text-primary)]">Каталог игр</h1>
+                <p className="text-[14px] text-[var(--text-secondary)] mt-1">Находи лучшие предложения и ключи активации</p>
             </div>
-            <div className="grid grid-cols-[calc(20%-12px)_calc(80%-12px)] gap-6">
-                <div className="">
+            <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8">
+                <div>
                     <GamesFilter 
                     priceFromFilter={priceFromFilter} 
                     setPriceFromFilter={setPriceFromFilter} 
@@ -82,10 +83,10 @@ export function GamesPage({initialgames}: GamesProps){
                     genres={Array.from(gameGenre)}
                     />
                 </div>
-                <div className="grid gird-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
                     { filteredGame.map((item) => (
-                        <div key={item.id}>
-                            <Link href={`/games/${item.id}`}>
+                        <div key={item.id} className="h-full">
+                            <Link href={`/games/${item.id}`} className="block h-full">
                                 <CardComponent item={item} sizeVariant="default" />
                             </Link>
                         </div>

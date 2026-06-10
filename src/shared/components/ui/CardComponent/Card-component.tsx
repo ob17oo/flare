@@ -22,70 +22,77 @@ interface CardProps {
 
 export const SIZE_CONFIG = {
     default: {
-            height: 'h-90',
-            cardBasis: 'basis-1/6'
-
-        },
-        medium: {
-            height: 'aspect-square',
-            cardBasis: 'basis-1/4'
-        },
-        large: {
-            height: 'h-100',
-            cardBasis: 'basis-1/3'
-        }
-
+        height: 'h-72',
+        cardBasis: 'basis-1/6'
+    },
+    medium: {
+        height: 'aspect-square',
+        cardBasis: 'basis-1/4'
+    },
+    large: {
+        height: 'h-80',
+        cardBasis: 'basis-1/3'
+    }
 }
 
 export function CardComponent({item, sizeVariant }: CardProps) {
   const price = isProduct(item) ? item.price : undefined
   const description = 'description' in item ? item.description : null
   const launcherInfo = isGameProduct(item) && item.game?.launcher ? item.game.launcher : null
+  
   return (
-    <section>
-      <div
-        className={`relative ${SIZE_CONFIG[sizeVariant].height} overflow-hidden rounded-2xl`}
-      >
+    <div className="group flex flex-col h-full bg-[var(--secondary)] border border-[var(--border-muted)] hover:border-[var(--accent)] rounded-2xl p-3.5 shadow-[var(--card-shadow)] transition-all duration-300">
+      <div className={`relative ${SIZE_CONFIG[sizeVariant].height} overflow-hidden rounded-xl bg-[var(--bg-layer-0)]`}>
         <Image
-          className="object-cover"
+          className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
           fill
           src={item.image_url}
           alt={item.title || "CarouselItem"}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        
         {sizeVariant === "default" && launcherInfo && (
-          <div className="absolute bottom-3 left-3 bg-[#6D6D6D]/60 rounded-2xl px-2 py-1">
-            <div className="flex items-center gap-2">
-              <Image
-                src={launcherInfo.image_url || 'defaultImage'}
-                width={24}
-                height={24}
-                alt={launcherInfo.title || "LauncherLogo"}
-              />
-              <p className="text-lg">{launcherInfo.title}</p>
-            </div>
+          <div className="absolute bottom-2.5 left-2.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5 shadow-sm">
+            <Image
+              src={launcherInfo.image_url || 'defaultImage'}
+              width={24}
+              height={24}
+              alt={launcherInfo.title || "LauncherLogo"}
+            />
+            <p className="text-[11px] font-medium text-white">{launcherInfo.title}</p>
           </div>
         )}
       </div>
-      <div>
-        { sizeVariant === 'default' && price !== undefined ? (
-            <div className="flex flex-col gap-1 mt-1">
-              <span className="text-h4 text-green-400 font-semibold">
-                {price} руб
-              </span>
-              <h3 className="text-h4 text-left">{item.title}</h3>
-            </div>
+      
+      <div className="mt-3.5 flex flex-col flex-1 justify-between gap-1.5">
+        {sizeVariant === 'default' && price !== undefined ? (
+          <div className="flex flex-col gap-1">
+            <span className="text-[15px] font-bold text-[var(--text-primary)]">
+              {price} руб
+            </span>
+            <h4 className="text-[14px] font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors line-clamp-2 text-left leading-snug">
+              {item.title}
+            </h4>
+          </div>
         ) : sizeVariant === 'medium' ? (
-            <div className="mt-1">
-              <h3 className="text-h4 text-center">{item.title}</h3>
-            </div>
+          <div className="flex items-center justify-center py-1">
+            <h4 className="text-[14px] font-semibold text-[var(--text-primary)] text-center tracking-tight">
+              {item.title}
+            </h4>
+          </div>
         ) : (
-            <div className="flex flex-col gap-1 mt-1">
-              <h3 className="text-h4 text-left">{item.title}</h3>
-              <p className="text-lg">{description}</p>
-            </div>
-        )
-        }
+          <div className="flex flex-col gap-1">
+            <h4 className="text-[15px] font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors text-left">
+              {item.title}
+            </h4>
+            {description && (
+              <p className="text-[13px] text-[var(--text-secondary)] line-clamp-3 text-left leading-relaxed">
+                {description}
+              </p>
+            )}
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
 }

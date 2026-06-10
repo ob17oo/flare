@@ -7,7 +7,13 @@ interface NavBtnProps{
 }
 
 export function NavigationButton({pathName, href,placeholder}: NavBtnProps){
+    const isActive = pathName === href || (href !== '/' && pathName.startsWith(href))
     return (
-         <Link className={`text-h5 font-bold cursor-pointer py-2.5 px-4 flex items-center justify-center rounded-2xl transition-all duraiton-300 ease-in-out ${pathName === href ? 'bg-accent' : 'bg-secondary'}`} href={href}>{placeholder}</Link>
+          <Link 
+            className={`text-[14px] font-semibold cursor-pointer py-2 px-4 flex items-center justify-center rounded-xl transition-all duration-300 ease-in-out border ${isActive ? 'bg-accent bg-[var(--secondary)] border-[var(--border-muted)] text-[var(--text-primary)] shadow-[var(--card-shadow)]' : 'bg-secondary bg-transparent border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--secondary)]/50'}`} 
+            href={href}
+         >
+            {placeholder}
+         </Link>
     )
 }

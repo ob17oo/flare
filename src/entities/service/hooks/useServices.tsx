@@ -76,6 +76,7 @@ export function useServicePlan(
         queryFn: async () => {
             if(!planId) return undefined
             const allPlans = await getAllServices()
+            if(!allPlans) return undefined
             return allPlans.find((plan) => plan.id === Number(planId))
         },
         initialData: options?.initialData,

@@ -16,7 +16,7 @@ export function InputComponent({
     return (
         <input 
         {...props}
-        className={`w-full text-h5 border-2 border-accent rounded-2xl outline-0 opacity-70 transition-all duration-300 ease-in-out focus:scale-102 focus:opacity-100 ${sizeVariantConfig[sizeVariant]}`}
+        className={`w-full text-[14px] font-medium bg-[var(--bg-layer-2)] text-[var(--text-primary)] border border-[var(--border-muted)] rounded-xl outline-none transition-all duration-200 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--border-accent-glow)] placeholder-[var(--text-secondary)]/50 ${sizeVariantConfig[sizeVariant]}`}
         />
     )
 }
