@@ -7,11 +7,13 @@ import { redirect } from "next/navigation"
 export async function registerAction(data: {
     email: string,
     login: string,
-    password: string
+    password: string,
+    refCode?: string | null
 }){
     const email = data.email as string
     const login = data.login as string
     const password = data.password as string
+    const refCode = data.refCode
     
     try{
         const userExist = await prisma.user.findUnique({
@@ -24,11 +26,20 @@ export async function registerAction(data: {
             throw new Error('Пользователь уже существует')
         }
 
+        let referredById = null;
+        if (refCode) {
+            const referrer = await prisma.user.findUnique({ where: { referralCode: refCode } });
+            if (referrer) {
+                referredById = referrer.id;
+            }
+        }
+
         await prisma.user.create({
             data: {
                 email: email,
                 login: login,
                 password:await hash(password, 12),
+                ...(referredById ? { referredById } : {})
             }
         })
     } catch(error: unknown){

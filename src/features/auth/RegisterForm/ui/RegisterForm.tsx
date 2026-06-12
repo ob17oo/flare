@@ -2,7 +2,7 @@
 import { InputComponent } from "@/shared/components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { RegisterFormData, registerSchema } from "../lib/schemas/register.schema";
@@ -14,6 +14,8 @@ export function RegisterForm(){
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [serverError, setServerError] = useState<string | null>(null)
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const refCode = searchParams.get('ref')
 
     const { 
         register,
@@ -35,7 +37,7 @@ export function RegisterForm(){
      const onSubmit = async (data: RegisterFormData) => {
         try{
             setServerError(null)
-            await registerAction(data)
+            await registerAction({ ...data, refCode })
             reset()
         } catch(error: unknown){
             if(error instanceof Error){

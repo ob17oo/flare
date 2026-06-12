@@ -14,7 +14,13 @@ import {
   Clock, 
   MessageSquare, 
   AlertCircle, 
-  ChevronRight 
+  ChevronRight,
+  Users,
+  Copy,
+  Check,
+  Package,
+  X,
+  CreditCard
 } from "lucide-react"
 
 interface ProfileProps {
@@ -42,7 +48,26 @@ const STATUS_MAP: Record<string, string> = {
 export function ProfilePage({ session }: ProfileProps) {
   const router = useRouter()
   const { user } = session
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'support'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'support' | 'referrals'>('dashboard')
+  const [copied, setCopied] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState({ login: user.login, email: user.email, password: '' })
+  const [isSaving, setIsSaving] = useState(false)
+  const [visibleOrders, setVisibleOrders] = useState(5)
+  const [refCodeInput, setRefCodeInput] = useState('')
+  const [isApplyingRef, setIsApplyingRef] = useState(false)
+  const [refApplyStatus, setRefApplyStatus] = useState<{success?: boolean, message?: string} | null>(null)
+
+  // Fetch user orders
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<any[]>({
+    queryKey: ['user-orders'],
+    queryFn: async () => {
+      const res = await fetch('/api/profile/orders')
+      if (!res.ok) throw new Error('Failed to fetch orders')
+      return res.json()
+    },
+    enabled: activeTab === 'dashboard' || activeTab === 'orders'
+  })
 
   // Fetch tickets for support tab
   const { data: tickets = [], isLoading: ticketsLoading } = useQuery<any[]>({
@@ -54,6 +79,73 @@ export function ProfilePage({ session }: ProfileProps) {
     },
     enabled: activeTab === 'support'
   })
+
+  // Fetch referrals data
+  const { data: referralsData, isLoading: referralsLoading } = useQuery({
+    queryKey: ['user-referrals'],
+    queryFn: async () => {
+      const res = await fetch('/api/profile/referrals')
+      if (!res.ok) throw new Error('Failed to fetch referrals')
+      return res.json()
+    },
+    enabled: activeTab === 'referrals'
+  })
+
+  const handleCopyRef = () => {
+    if (!referralsData?.referralCode) return;
+    const link = `${window.location.origin}/register?ref=${referralsData.referralCode}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/profile/edit', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+      if (res.ok) {
+        setIsEditing(false);
+        // Force session refresh by reloading page
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const handleApplyRefCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!refCodeInput.trim()) return;
+    setIsApplyingRef(true);
+    setRefApplyStatus(null);
+    try {
+      const res = await fetch('/api/profile/referrals/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: refCodeInput })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRefApplyStatus({ success: true, message: data.message });
+        setRefCodeInput('');
+        // Refresh referrals data
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        setRefApplyStatus({ success: false, message: data.error || 'Ошибка применения кода' });
+      }
+    } catch (err) {
+      setRefApplyStatus({ success: false, message: 'Произошла ошибка' });
+    } finally {
+      setIsApplyingRef(false);
+    }
+  }
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 mt-6 py-4">
@@ -97,10 +189,32 @@ export function ProfilePage({ session }: ProfileProps) {
             <LifeBuoy size={16} />
             Мои тикеты
           </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+              activeTab === 'orders'
+                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <Package size={16} />
+            Мои покупки
+          </button>
+          <button
+            onClick={() => setActiveTab('referrals')}
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+              activeTab === 'referrals'
+                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <Users size={16} />
+            Реферальная программа
+          </button>
         </div>
 
         <div className="flex flex-col gap-2 w-full mt-2 border-t border-[var(--border-muted)]/60 pt-4">
-          <ButtonComponent isFilled={true} color="secondary" className="w-full py-2.5">Редактировать</ButtonComponent>
+          <ButtonComponent onClick={() => setIsEditing(true)} isFilled={true} color="secondary" className="w-full py-2.5">Редактировать</ButtonComponent>
           <ButtonComponent onClick={() => signOut()} isFilled={true} color="accent" className="w-full py-2.5">Выйти</ButtonComponent>
         </div>
       </div>
@@ -136,29 +250,209 @@ export function ProfilePage({ session }: ProfileProps) {
             {/* Stats */}
             <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl p-5 flex flex-col gap-4">
               <h3 className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wide border-b border-[var(--border-muted)] pb-2">Статистика аккаунта</h3>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-0.5 border-b border-[var(--border-muted)] pb-2 mb-2">
                 <span className="text-[11px] font-semibold text-[var(--text-secondary)]">Всего потрачено</span>
                 <p className="text-[20px] font-extrabold text-[var(--accent)]">{user.spent.toLocaleString('ru-RU')} ₽</p>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-semibold text-[var(--text-secondary)]">Выполнено заказов</span>
-                <p className="text-[14px] font-bold text-[var(--text-primary)]">История покупок пуста</p>
-              </div>
             </div>
 
-            {/* Support Creator */}
+            {/* Support Creator -> Referral Code */}
             <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl p-5 flex flex-col gap-4 justify-between">
               <div className="flex items-center justify-between border-b border-[var(--border-muted)] pb-2">
-                <h3 className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wide">Поддержка авторов</h3>
-                <button className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--bg-layer-3)] border border-[var(--border-muted)] text-[var(--text-secondary)] text-xs font-bold hover:text-[var(--text-primary)] transition-colors cursor-pointer" type="button" title="Информация">?</button>
+                <h3 className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wide">Активация реферала</h3>
+                <button className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--bg-layer-3)] border border-[var(--border-muted)] text-[var(--text-secondary)] text-xs font-bold hover:text-[var(--text-primary)] transition-colors cursor-pointer" type="button" title="Введите код или ссылку пригласившего вас человека, чтобы стать его рефералом">?</button>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <InputComponent sizeVariant="default" placeholder="Никнейм автора" />
-                <ButtonComponent isFilled={true} color="accent" className="w-full py-2.5">Поддержать автора</ButtonComponent>
+              <div className="flex flex-col gap-3 flex-1 justify-center">
+                {referralsData?.hasReferrer ? (
+                  <div className="flex flex-col items-center justify-center py-4 text-center gap-2">
+                    <Check size={24} className="text-[var(--success)]" />
+                    <span className="text-[13px] font-semibold text-[var(--success)]">Вы уже активировали код</span>
+                  </div>
+                ) : (
+                  <form onSubmit={handleApplyRefCode} className="flex flex-col gap-3">
+                    <InputComponent 
+                      sizeVariant="default" 
+                      placeholder="Реферальный код или ссылка" 
+                      value={refCodeInput}
+                      onChange={(e) => setRefCodeInput(e.target.value)}
+                    />
+                    {refApplyStatus && (
+                      <span className={`text-[11px] font-bold ${refApplyStatus.success ? 'text-[var(--success)]' : 'text-red-500'}`}>
+                        {refApplyStatus.message}
+                      </span>
+                    )}
+                    <ButtonComponent type="submit" disabled={isApplyingRef} isFilled={true} color="accent" className="w-full py-2.5">
+                      {isApplyingRef ? 'Активация...' : 'Активировать код'}
+                    </ButtonComponent>
+                  </form>
+                )}
               </div>
             </div>
           </div>
+        </div>
+      ) : activeTab === 'referrals' ? (
+        // Referrals Tab
+        <div className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-6 shadow-[var(--card-shadow)] flex flex-col gap-6 h-fit">
+          <div className="flex items-center justify-between border-b border-[var(--border-muted)]/60 pb-3">
+            <h2 className="text-[15px] font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Users size={16} className="text-[var(--accent)]" />
+              Реферальная программа
+            </h2>
+          </div>
+
+          {referralsLoading ? (
+            <div className="py-10 text-center">
+              <span className="text-[12px] text-[var(--text-secondary)]">Загрузка данных...</span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-8">
+              {/* Copy Link Section */}
+              <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] p-5 rounded-xl flex flex-col gap-3">
+                <span className="text-[13px] font-bold text-[var(--text-primary)]">Ваша реферальная ссылка</span>
+                <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
+                  Приглашайте друзей и получайте скидку до 20% на все товары маркетплейса. Скидка растет за каждого друга, совершившего хотя бы одну покупку.
+                </p>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex-1 bg-[var(--bg-layer-0)] border border-[var(--border-muted)] rounded-lg px-4 py-2.5 flex items-center overflow-hidden">
+                    <span className="text-[13px] text-[var(--text-primary)] font-mono truncate">
+                      {window.location.origin}/register?ref={referralsData?.referralCode}
+                    </span>
+                  </div>
+                  <ButtonComponent 
+                    onClick={handleCopyRef} 
+                    color="accent" 
+                    isFilled 
+                    className="flex items-center gap-2 py-2.5 px-6 shrink-0"
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? 'Скопировано' : 'Скопировать'}
+                  </ButtonComponent>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] p-4 rounded-xl flex flex-col gap-1">
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Ваша скидка</span>
+                  <span className="text-[24px] font-extrabold text-[var(--accent)]">{referralsData?.discount}%</span>
+                </div>
+                <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] p-4 rounded-xl flex flex-col gap-1">
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Всего приглашено</span>
+                  <span className="text-[24px] font-extrabold text-[var(--text-primary)]">{referralsData?.totalReferrals || 0}</span>
+                </div>
+                <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] p-4 rounded-xl flex flex-col gap-1">
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Активных (с покупкой)</span>
+                  <span className="text-[24px] font-extrabold text-[var(--success)]">{referralsData?.activeReferrals || 0}</span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] p-5 rounded-xl flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-[13px] font-bold text-[var(--text-primary)]">Уровни скидок</span>
+                  {referralsData?.nextThreshold ? (
+                    <span className="text-[12px] text-[var(--text-secondary)]">
+                      Еще <strong className="text-[var(--text-primary)]">{referralsData.nextThreshold - (referralsData.activeReferrals || 0)}</strong> активных рефералов до скидки {referralsData.nextDiscount}%
+                    </span>
+                  ) : (
+                    <span className="text-[12px] text-[var(--success)] font-bold">
+                      Максимальный уровень достигнут!
+                    </span>
+                  )}
+                </div>
+                
+                <div className="relative w-full h-3 bg-[var(--bg-layer-0)] rounded-full border border-[var(--border-muted)] overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-[var(--accent)] transition-all duration-500 rounded-full"
+                    style={{ width: `${Math.min(((referralsData?.activeReferrals || 0) / 20) * 100, 100)}%` }}
+                  />
+                </div>
+                
+                <div className="flex justify-between text-[10px] font-bold text-[var(--text-secondary)] mt-1">
+                  <span>1 реф (1%)</span>
+                  <span>3 реф (3%)</span>
+                  <span>5 реф (5%)</span>
+                  <span>10 реф (10%)</span>
+                  <span>15 реф (15%)</span>
+                  <span>20+ реф (20%)</span>
+                </div>
+              </div>
+
+            </div>
+          )}
+        </div>
+      ) : activeTab === 'orders' ? (
+        // Orders Tab
+        <div className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-6 shadow-[var(--card-shadow)] flex flex-col gap-6 h-fit">
+          <div className="flex items-center justify-between border-b border-[var(--border-muted)]/60 pb-3">
+            <h2 className="text-[15px] font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Package size={16} className="text-[var(--text-secondary)]" />
+              История покупок
+            </h2>
+          </div>
+
+          {ordersLoading ? (
+            <div className="py-10 text-center">
+              <span className="text-[12px] text-[var(--text-secondary)]">Загрузка заказов...</span>
+            </div>
+          ) : orders.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {orders.slice(0, visibleOrders).map((order: any) => (
+                <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] p-4 rounded-xl transition-all duration-200 gap-4">
+                  <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                    <div className="w-12 h-12 rounded-lg bg-[var(--bg-layer-0)] border border-[var(--border-muted)] flex-shrink-0 relative overflow-hidden">
+                      {order.product?.image_url ? (
+                        <Image src={order.product.image_url} alt="Product" fill className="object-cover" />
+                      ) : (
+                        <Package className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1 overflow-hidden">
+                      <span className="text-[14px] font-bold text-[var(--text-primary)] truncate">{order.product?.title || `Заказ #${order.id.slice(-4)}`}</span>
+                      <span className="text-[11px] text-[var(--text-secondary)]">{new Date(order.createdAt).toLocaleDateString('ru-RU')} в {new Date(order.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1 shrink-0">
+                    <span className="text-[16px] font-extrabold text-[var(--accent)]">{order.price} ₽</span>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg border ${order.status === 'SUCCESS' ? 'bg-green-500/5 text-[var(--success)] border-green-500/10' : 'bg-orange-500/5 text-orange-500 border-orange-500/10'}`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              
+              {visibleOrders < orders.length && (
+                <div className="pt-4 flex justify-center border-t border-[var(--border-muted)]/60 mt-2">
+                  <ButtonComponent 
+                    color="secondary" 
+                    isFilled 
+                    onClick={() => setVisibleOrders(prev => prev + 5)}
+                    className="px-6 py-2 text-[13px]"
+                  >
+                    Показать еще
+                  </ButtonComponent>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="py-14 text-center border border-dashed border-[var(--border-muted)] rounded-xl flex flex-col gap-3 items-center justify-center">
+              <Package size={20} className="text-[var(--text-secondary)]" />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[13px] font-semibold text-[var(--text-primary)]">История покупок пуста</span>
+                <span className="text-[11px] text-[var(--text-secondary)]">Здесь будут отображаться ваши заказы</span>
+              </div>
+              <ButtonComponent
+                onClick={() => router.push('/')}
+                color="accent"
+                isFilled
+                className="flex items-center gap-1.5 px-4 py-2 mt-2 text-[12px]"
+              >
+                Перейти в каталог
+              </ButtonComponent>
+            </div>
+          )}
         </div>
       ) : (
         // Support Tickets List Tab
@@ -238,6 +532,61 @@ export function ProfilePage({ session }: ProfileProps) {
               </ButtonComponent>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl w-full max-w-md p-6 flex flex-col gap-5 shadow-[var(--card-shadow)]">
+            <div className="flex items-center justify-between border-b border-[var(--border-muted)] pb-3">
+              <h2 className="text-[16px] font-bold text-[var(--text-primary)]">Редактировать профиль</h2>
+              <button onClick={() => setIsEditing(false)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase">Логин</label>
+                <InputComponent 
+                  sizeVariant="default"
+                  value={editForm.login} 
+                  onChange={(e) => setEditForm({...editForm, login: e.target.value})} 
+                  placeholder="Ваш логин" 
+                  required 
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase">Email</label>
+                <InputComponent 
+                  sizeVariant="default"
+                  type="email"
+                  value={editForm.email} 
+                  onChange={(e) => setEditForm({...editForm, email: e.target.value})} 
+                  placeholder="Ваш email" 
+                  required 
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase">Новый пароль (необязательно)</label>
+                <InputComponent 
+                  sizeVariant="default"
+                  type="password"
+                  value={editForm.password} 
+                  onChange={(e) => setEditForm({...editForm, password: e.target.value})} 
+                  placeholder="Оставьте пустым, чтобы не менять" 
+                />
+              </div>
+              
+              <div className="flex justify-end gap-3 pt-2 mt-2 border-t border-[var(--border-muted)]">
+                <ButtonComponent type="button" onClick={() => setIsEditing(false)} color="secondary" className="px-5">Отмена</ButtonComponent>
+                <ButtonComponent type="submit" disabled={isSaving} isFilled color="accent" className="px-5">
+                  {isSaving ? 'Сохранение...' : 'Сохранить'}
+                </ButtonComponent>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </section>

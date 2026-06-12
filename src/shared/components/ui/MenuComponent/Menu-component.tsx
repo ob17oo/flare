@@ -31,6 +31,18 @@ export function MenuComponent({isOpen,onClose, session}: MenuProps){
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/faq">FAQ</Link>
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/contacts">Контакты</Link>
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/support">Поддержка</Link>
+                        
+                        {(session?.user as any)?.role === 'ADMIN' && (
+                            <div className="flex flex-col items-center w-full mt-4">
+                                <div className="w-12 h-px bg-[#333] mb-8"></div>
+                                <Link 
+                                    className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#333] hover:border-white hover:bg-white/5 transition-all duration-300 ease-in-out w-full" 
+                                    href="/admin"
+                                >
+                                    <span className="text-[15px] font-medium tracking-wide">Панель Управления</span>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

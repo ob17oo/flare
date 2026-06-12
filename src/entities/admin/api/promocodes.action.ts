@@ -19,7 +19,8 @@ export async function createPromocode(data: any) {
       code: data.code.toUpperCase(),
       discount: Number(data.discount),
       maxUses: Number(data.maxUses),
-      isActive: data.isActive
+      isActive: data.isActive,
+      expiresAt: data.expiresAt ? new Date(data.expiresAt) : null
     }
   });
   revalidatePath('/admin/promocodes');
@@ -33,7 +34,8 @@ export async function updatePromocode(id: number, data: any) {
       code: data.code.toUpperCase(),
       discount: Number(data.discount),
       maxUses: Number(data.maxUses),
-      isActive: data.isActive
+      isActive: data.isActive,
+      expiresAt: data.expiresAt ? new Date(data.expiresAt) : null
     }
   });
   revalidatePath('/admin/promocodes');

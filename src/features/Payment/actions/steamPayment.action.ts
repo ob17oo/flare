@@ -23,15 +23,34 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
 
     const userId = serverSession.user.id
 
-    // Check user & balance
     const user = await prisma.user.findFirst({
       where: { id: userId },
-      select: { balance: true }
+      select: { 
+        balance: true,
+        referrals: {
+          include: {
+            orders: {
+              where: { status: 'SUCCESS' },
+              select: { id: true }
+            }
+          }
+        }
+      }
     })
 
     if (!user) {
       throw new Error('USER_NOT_FOUND')
     }
+
+    // Calculate referral discount
+    const activeReferrals = user.referrals?.filter(ref => ref.orders.length > 0).length || 0;
+    let referralDiscount = 0;
+    if (activeReferrals >= 20) referralDiscount = 20;
+    else if (activeReferrals >= 15) referralDiscount = 15;
+    else if (activeReferrals >= 10) referralDiscount = 10;
+    else if (activeReferrals >= 5) referralDiscount = 5;
+    else if (activeReferrals >= 3) referralDiscount = 3;
+    else if (activeReferrals >= 1) referralDiscount = 1;
 
     // Find any valid Steam wallet product to link the order to
     const steamProvider = await prisma.walletProvider.findFirst({
@@ -68,9 +87,10 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
       discount = promocode.discount
     }
 
-    // Calculate dynamic price with promo code discount
-    const discountAmount = Math.round(data.calculatedPrice * discount / 100)
-    const finalPrice = data.calculatedPrice - discountAmount
+    // Calculate dynamic price with promo code discount + referral discount
+    const totalDiscountPercent = Math.min(discount + referralDiscount, 100)
+    const discountAmount = Math.round(data.calculatedPrice * totalDiscountPercent / 100)
+    const finalPrice = Math.max(data.calculatedPrice - discountAmount, 0)
 
     // If payment method is balance, deduct from account balance
     if (data.paymentMethod === 'balance') {
@@ -111,7 +131,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
           await tx.promocode.update({
             where: { id: promocode.id },
             data: {
-              maxUses: { decrement: 1 }
+              usesCount: { increment: 1 }
             }
           })
         }
@@ -135,7 +155,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
           await tx.promocode.update({
             where: { id: promocode.id },
             data: {
-              maxUses: { decrement: 1 }
+              usesCount: { increment: 1 }
             }
           })
         }

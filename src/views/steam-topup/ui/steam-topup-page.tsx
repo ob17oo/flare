@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { InputComponent, ButtonComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
 import { steamPaymentAction } from "@/features/Payment/actions/steamPayment.action"
 import { SuccessModal } from "@/features/Payment/ui/SuccessModal"
@@ -33,6 +34,42 @@ export function SteamTopupPage() {
   const [showModal, setShowModal] = useState(false)
   const [serverError, setServerError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+  const [promoError, setPromoError] = useState('')
+  const [promoDiscount, setPromoDiscount] = useState(0)
+
+  // Fetch user's referral discount
+  const { data: referralData } = useQuery({
+    queryKey: ['user-referrals'],
+    queryFn: async () => {
+      const res = await fetch('/api/profile/referrals')
+      if (!res.ok) return null
+      return res.json()
+    },
+    enabled: status === 'authenticated'
+  })
+
+  const referralDiscount = referralData?.discount || 0
+
+  const validatePromo = useMutation({
+    mutationFn: async (code: string) => {
+      const res = await fetch('/api/promocodes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      return data
+    },
+    onSuccess: (data) => {
+      setPromoDiscount(data.discount)
+      setPromoError('')
+    },
+    onError: (error: Error) => {
+      setPromoDiscount(0)
+      setPromoError(error.message)
+    }
+  })
 
   const {
     register,
@@ -51,15 +88,41 @@ export function SteamTopupPage() {
   })
 
   const amountValue = watch('amount') || 0
+  const promocodeValue = watch('promocode')
+
+  // Debounced promo validation
+  useMemo(() => {
+    if (!havePromo || !promocodeValue || promocodeValue.length < 3) {
+      setPromoDiscount(0)
+      setPromoError('')
+      return
+    }
+    const timer = setTimeout(() => validatePromo.mutate(promocodeValue), 500)
+    return () => clearTimeout(timer)
+  }, [promocodeValue, havePromo])
 
   // 8% service commission
   const commissionFee = useMemo(() => {
     return Math.round(amountValue * 0.08)
   }, [amountValue])
 
-  const calculatedPrice = useMemo(() => {
+  // Base price with commission
+  const basePriceWithCommission = useMemo(() => {
     return amountValue + commissionFee
   }, [amountValue, commissionFee])
+
+  // Total discount (capped at 100%)
+  const totalDiscountPercent = useMemo(() => {
+    return Math.min(referralDiscount + promoDiscount, 100)
+  }, [referralDiscount, promoDiscount])
+
+  // Final calculated price
+  const calculatedPrice = useMemo(() => {
+    const discountAmount = Math.round(basePriceWithCommission * totalDiscountPercent / 100)
+    return Math.max(basePriceWithCommission - discountAmount, 0)
+  }, [basePriceWithCommission, totalDiscountPercent])
+
+  const discountValueInRub = basePriceWithCommission - calculatedPrice
 
   const canBuy = useMemo(() => {
     if (paymentMethod === 'balance') {
@@ -259,23 +322,39 @@ export function SteamTopupPage() {
             {havePromo ? 'Убрать промокод' : 'Есть промокод?'}
           </button>
           {havePromo && (
-            <InputComponent
-              {...register('promocode')}
-              type="text"
-              sizeVariant="default"
-              placeholder="Введите промокод"
-              className="max-w-xs mt-1"
-            />
+            <div className="flex flex-col gap-1">
+              <InputComponent
+                {...register('promocode')}
+                type="text"
+                sizeVariant="default"
+                placeholder="Введите промокод"
+                className="max-w-xs mt-1 uppercase"
+              />
+              {promoError && <span className="text-[11px] text-[var(--error)] font-medium mt-1">{promoError}</span>}
+              {promoDiscount > 0 && <span className="text-[11px] text-[var(--success)] font-medium mt-1">Промокод применен: -{promoDiscount}%</span>}
+            </div>
           )}
         </div>
 
         {/* Minimal Order Details Summary */}
         <div className="border-t border-[var(--border-muted)] pt-4 mt-2 flex flex-col gap-2">
           <div className="flex justify-between items-center text-[12px] text-[var(--text-secondary)]">
+            <span>Сумма пополнения</span>
+            <span>{amountValue} ₽</span>
+          </div>
+          <div className="flex justify-between items-center text-[12px] text-[var(--text-secondary)]">
             <span>Комиссия за перевод (8%)</span>
             <span>{commissionFee} ₽</span>
           </div>
-          <div className="flex justify-between items-center text-[14px] font-semibold text-[var(--text-primary)]">
+          
+          {(referralDiscount > 0 || promoDiscount > 0) && (
+            <div className="flex justify-between items-center text-[12px] text-[var(--success)] font-medium">
+              <span>Скидка ({totalDiscountPercent}%)</span>
+              <span>-{discountValueInRub} ₽</span>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center text-[14px] font-semibold text-[var(--text-primary)] mt-1">
             <span>Итого к оплате</span>
             <span>{calculatedPrice} ₽</span>
           </div>

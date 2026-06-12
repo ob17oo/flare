@@ -12,7 +12,8 @@ import {
   CreditCard, 
   Tag,
   FileText,
-  LogOut
+  LogOut,
+  Link as LinkIcon
 } from 'lucide-react';
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { name: 'Платежи', href: '/admin/payments', icon: CreditCard },
   { name: 'Тикеты', href: '/admin/support', icon: MessageSquare },
   { name: 'Промокоды', href: '/admin/promocodes', icon: Tag },
+  { name: 'Рефералы', href: '/admin/referrals', icon: LinkIcon },
   { name: 'Логи', href: '/admin/audit', icon: FileText },
 ];
 

@@ -11,7 +11,8 @@ const promoSchema = z.object({
   code: z.string().min(1, 'Обязательное поле'),
   discount: z.coerce.number().min(1, 'Минимум 1%').max(100, 'Максимум 100%'),
   maxUses: z.coerce.number().min(1, 'Минимум 1'),
-  isActive: z.boolean().default(true)
+  isActive: z.boolean().default(true),
+  expiresAt: z.string().optional()
 });
 
 type PromoFormData = z.infer<typeof promoSchema>;
@@ -41,19 +42,25 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
       code: promo.code,
       discount: promo.discount,
       maxUses: promo.maxUses,
-      isActive: promo.isActive
+      isActive: promo.isActive,
+      expiresAt: promo.expiresAt ? new Date(promo.expiresAt).toISOString().slice(0, 16) : ''
     });
     setEditingId(promo.id);
     setIsModalOpen(true);
   };
 
   const onSubmit = (data: PromoFormData) => {
+    const payload = {
+      ...data,
+      expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : null
+    };
+
     if (editingId) {
-      updatePromo.mutate({ id: editingId, data }, {
+      updatePromo.mutate({ id: editingId, data: payload }, {
         onSuccess: () => setIsModalOpen(false)
       });
     } else {
-      createPromo.mutate(data, {
+      createPromo.mutate(payload, {
         onSuccess: () => setIsModalOpen(false)
       });
     }
@@ -87,6 +94,7 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
                 <th className="px-6 py-4 font-medium">Скидка</th>
                 <th className="px-6 py-4 font-medium">Использовано</th>
                 <th className="px-6 py-4 font-medium">Лимит</th>
+                <th className="px-6 py-4 font-medium">Срок действия</th>
                 <th className="px-6 py-4 font-medium">Статус</th>
                 <th className="px-6 py-4 font-medium text-right">Действия</th>
               </tr>
@@ -96,8 +104,11 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
                 <tr key={promo.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 font-bold text-white tracking-wider">{promo.code}</td>
                   <td className="px-6 py-4 text-green-500 font-medium">{promo.discount}%</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">{promo._count.orders}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA]">{promo.usesCount}</td>
                   <td className="px-6 py-4 text-[#A1A1AA]">{promo.maxUses}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA]">
+                    {promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Бессрочно'}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       promo.isActive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
@@ -154,6 +165,11 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
                 <label className="text-sm font-medium text-[#A1A1AA]">Лимит использований</label>
                 <input type="number" {...register('maxUses')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white" />
                 {errors.maxUses && <p className="text-red-500 text-xs">{String(errors.maxUses.message)}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[#A1A1AA]">Действует до (необязательно)</label>
+                <input type="datetime-local" {...register('expiresAt')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white" />
               </div>
 
               <div className="flex items-center gap-2 pt-2">

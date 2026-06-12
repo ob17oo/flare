@@ -22,17 +22,33 @@ export async function paymentAction(data: PaymentActionProps){
         const userId = serverSession.user.id
 
         const user = await prisma.user.findFirst({
-            where: {
-                id: userId
-            },
-            select: {
-                balance: true
+            where: { id: userId },
+            select: { 
+                balance: true,
+                referrals: {
+                    include: {
+                        orders: {
+                            where: { status: 'SUCCESS' },
+                            select: { id: true }
+                        }
+                    }
+                }
             }
         })
 
         if(!user){
             throw new Error('USER_NOT_FOUND')
         }
+
+        // Calculate referral discount
+        const activeReferrals = user.referrals?.filter(ref => ref.orders.length > 0).length || 0;
+        let referralDiscount = 0;
+        if (activeReferrals >= 20) referralDiscount = 20;
+        else if (activeReferrals >= 15) referralDiscount = 15;
+        else if (activeReferrals >= 10) referralDiscount = 10;
+        else if (activeReferrals >= 5) referralDiscount = 5;
+        else if (activeReferrals >= 3) referralDiscount = 3;
+        else if (activeReferrals >= 1) referralDiscount = 1;
 
 
         const product = await prisma.product.findFirst({
@@ -64,8 +80,9 @@ export async function paymentAction(data: PaymentActionProps){
             discount = promocode.discount
         }
     
-        const discountAmount = Math.round(product.price * discount / 100)
-        const finalPrice = product.price - discountAmount
+        const totalDiscountPercent = Math.min(discount + referralDiscount, 100)
+        const discountAmount = Math.round(product.price * totalDiscountPercent / 100)
+        const finalPrice = Math.max(product.price - discountAmount, 0)
         
         if(user.balance < finalPrice){
             throw new Error('NOT_ENOUGH_MONEY')
@@ -132,8 +149,8 @@ export async function paymentAction(data: PaymentActionProps){
                         id: promocode.id
                     },
                     data: {
-                        maxUses: {
-                            decrement: 1
+                        usesCount: {
+                            increment: 1
                         }
                     }
                 })

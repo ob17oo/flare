@@ -14,6 +14,10 @@ model User {
   tickets          SupportTicket[] @relation("UserTickets")
   moderatedTickets SupportTicket[] @relation("ModeratorTickets")
   isBanned  Boolean   @default(false)
+  referralCode String? @unique @default(cuid())
+  referredById String?
+  referredBy   User?   @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals    User[]  @relation("UserReferrals")
 
   @@index([email])
 }

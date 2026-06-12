@@ -4,5 +4,7 @@ model Promocode {
   discount Int     @default(5) @db.SmallInt
   isActive Boolean @default(true)
   maxUses  Int     @default(150)
+  usesCount Int    @default(0)
+  expiresAt DateTime?
   orders   Order[]
 }
