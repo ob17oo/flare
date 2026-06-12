@@ -162,13 +162,20 @@ export const authOptions: NextAuthOptions = {
                 }
             }
 
-            if(session?.user){
-                token.balance = session.user.balance
-                token.discount = session.user.discount
-                token.login = session.user.login
-                token.image_url = session.user.image_url
-                token.spent = session.user.spent
-                token.maxUserDiscount = session.user.maxUserDiscount
+            if (session?.user) {
+                if (session.user.balance !== undefined) token.balance = session.user.balance
+                if (session.user.discount !== undefined) token.discount = session.user.discount
+                if (session.user.login !== undefined) token.login = session.user.login
+                if (session.user.image_url !== undefined) token.image_url = session.user.image_url
+                if (session.user.spent !== undefined) token.spent = session.user.spent
+                if (session.user.maxUserDiscount !== undefined) token.maxUserDiscount = session.user.maxUserDiscount
+            } else if (session) {
+                if (session.balance !== undefined) token.balance = session.balance
+                if (session.discount !== undefined) token.discount = session.discount
+                if (session.login !== undefined) token.login = session.login
+                if (session.image_url !== undefined) token.image_url = session.image_url
+                if (session.spent !== undefined) token.spent = session.spent
+                if (session.maxUserDiscount !== undefined) token.maxUserDiscount = session.maxUserDiscount
             }
 
             return token
@@ -184,6 +191,21 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role
                 session.user.spent = token.spent
                 session.user.maxUserDiscount = token.maxUserDiscount
+
+                // Live-fetch database fields to ensure absolute correctness in real-time
+                try {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { id: token.id as string },
+                        select: { balance: true, discount: true, spent: true }
+                    })
+                    if (dbUser) {
+                        session.user.balance = dbUser.balance
+                        session.user.discount = dbUser.discount
+                        session.user.spent = dbUser.spent
+                    }
+                } catch (err) {
+                    console.error("Error fetching live user data in session callback:", err)
+                }
             }
             return session
         }

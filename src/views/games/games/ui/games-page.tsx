@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { GameProduct } from "@/entities/game/model/types"
 import { useGames } from "@/entities/game/hooks/useGames"
+import { useSearchParams } from "next/navigation"
 
 
 interface GamesProps{
@@ -12,6 +13,8 @@ interface GamesProps{
 }
 
 export function GamesPage({initialgames}: GamesProps){
+    const searchParams = useSearchParams()
+    const urlLauncher = searchParams.get('launcher') || 'Все'
 
     const { 
         data: games = [],
@@ -24,7 +27,7 @@ export function GamesPage({initialgames}: GamesProps){
 
     const [priceFromFilter, setPriceFromFilter] = useState<number | null>(null)
     const [priceToFilter, setPriceToFilter] = useState<number | null>(null)
-    const [launcherFilter, setLauncherFilter] = useState('Все')
+    const [launcherFilter, setLauncherFilter] = useState(urlLauncher)
     const [genreFilter, setGenreFilter] = useState('Все')
 
     const priceRange = useMemo(() => {

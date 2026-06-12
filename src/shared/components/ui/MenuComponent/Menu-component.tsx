@@ -28,8 +28,9 @@ export function MenuComponent({isOpen,onClose, session}: MenuProps){
                             <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/login">Авторизация</Link>
                         )}
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/about">О нас</Link>
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/referal">Реферальная система</Link>
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/something">Что-то</Link>
+                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/faq">FAQ</Link>
+                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/contacts">Контакты</Link>
+                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/support">Поддержка</Link>
                     </div>
                 </div>
             </div>

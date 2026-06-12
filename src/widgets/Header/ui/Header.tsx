@@ -34,7 +34,7 @@ export function Header({serverSession}: HeaderProps){
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     {session && (
-                        <button onClick={() => router.push('/wallets')} type="button" className="h-full cursor-pointer">
+                        <button onClick={() => router.push('/balance/topup')} type="button" className="h-full cursor-pointer">
                             <BalanceComponent balance={session?.user.balance}/>
                         </button>
                     )}

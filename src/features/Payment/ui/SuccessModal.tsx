@@ -3,9 +3,10 @@ import { useRouter } from "next/navigation"
 
 interface SuccessModalProps {
     showModal: boolean,
-    setShowModal: (value: boolean) => void
+    setShowModal: (value: boolean) => void,
+    successMsg?: string
 }
-export function SuccessModal({showModal, setShowModal}: SuccessModalProps){
+export function SuccessModal({showModal, setShowModal, successMsg}: SuccessModalProps){
     const router = useRouter()
     if(!showModal){
         return null
@@ -18,7 +19,9 @@ export function SuccessModal({showModal, setShowModal}: SuccessModalProps){
                 </div>
                 <div className="text-center flex flex-col gap-2">
                     <h3 className="text-[18px] font-bold text-[var(--text-primary)]">Заказ успешно создан</h3>
-                    <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">На указанную вами электронную почту в ближайшее время будет отправлен код активации и инструкции.</p>
+                    <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+                        {successMsg || "На указанную вами электронную почту в ближайшее время будет отправлен код активации и инструкции."}
+                    </p>
                 </div>
                 <div className="flex items-center justify-center gap-3 w-full mt-2">
                     <button 

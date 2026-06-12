@@ -10,6 +10,10 @@ model User {
   spent Int @default(0)
   role      USER_ROLE @default(USER)
   orders    Order[]
+  deposits  Deposit[]
+  tickets          SupportTicket[] @relation("UserTickets")
+  moderatedTickets SupportTicket[] @relation("ModeratorTickets")
+  isBanned  Boolean   @default(false)
 
   @@index([email])
 }

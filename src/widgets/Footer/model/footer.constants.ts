@@ -18,22 +18,22 @@ export const FOOTER_SOCIAL = [
 
 export const FOOTER_HELP = [
     {
-        path: '/',
+        path: '/support',
         title: 'Техническая поддержка'
     },
     {
-        path: '/',
+        path: '/faq',
         title: 'FAQ'
     },
     {
-        path: '/',
+        path: '/contacts',
         title: 'Контакты'
     },
 ]
 
 export const FOOTER_INFORMATION = [
     {
-        path: '/',
+        path: '/about',
         title: 'О нас'
     },
     {

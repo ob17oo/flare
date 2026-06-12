@@ -8,7 +8,7 @@ export const NAV_LINKS = [
         value: 'Лаунчеры'
     },
     {
-        path: '/steam',
+        path: '/steam-topup',
         value: 'Steam'
     },
     {

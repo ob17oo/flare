@@ -12,7 +12,10 @@ model Product {
   game           Game?
   orders         Order[]
   servicePlans   ServicePlans?
-  wallet Wallet?
+  wallet         Wallet?
+  tags           String[]        @default([])
+  seoTitle       String?
+  seoDescription String?
 
   @@index([productType, isActive])
   @@index([price])
