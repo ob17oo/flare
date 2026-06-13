@@ -22,16 +22,16 @@ interface CardProps {
 
 export const SIZE_CONFIG = {
     default: {
-        height: 'h-72',
-        cardBasis: 'basis-1/6'
+        height: 'h-44 sm:h-56 md:h-64 lg:h-72',
+        cardBasis: 'basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6'
     },
     medium: {
         height: 'aspect-square',
-        cardBasis: 'basis-1/4'
+        cardBasis: 'basis-[75%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4'
     },
     large: {
-        height: 'h-80',
-        cardBasis: 'basis-1/3'
+        height: 'h-48 sm:h-64 md:h-72 lg:h-80',
+        cardBasis: 'basis-full sm:basis-1/2 md:basis-1/3'
     }
 }
 
@@ -40,6 +40,12 @@ export function CardComponent({item, sizeVariant }: CardProps) {
   const description = 'description' in item ? item.description : null
   const launcherInfo = isGameProduct(item) && item.game?.launcher ? item.game.launcher : null
   
+  // Safe cast for custom fields
+  const customItem = item as any;
+  const oldPrice = customItem.oldPrice || null;
+  const discountPercent = customItem.discountPercent || 0;
+  const categoryLabel = customItem.categoryLabel || null;
+
   return (
     <div className="group flex flex-col h-full bg-[var(--secondary)] border border-[var(--border-muted)] hover:border-[var(--accent)] rounded-2xl p-3.5 shadow-[var(--card-shadow)] transition-all duration-300">
       <div className={`relative ${SIZE_CONFIG[sizeVariant].height} overflow-hidden rounded-xl bg-[var(--bg-layer-0)]`}>
@@ -51,6 +57,13 @@ export function CardComponent({item, sizeVariant }: CardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         
+        {/* Discount Badge on Image */}
+        {discountPercent > 0 && (
+          <div className="absolute top-2.5 right-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-md z-10">
+            -{discountPercent}%
+          </div>
+        )}
+
         {sizeVariant === "default" && launcherInfo && (
           <div className="absolute bottom-2.5 left-2.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5 shadow-sm">
             <Image
@@ -67,9 +80,24 @@ export function CardComponent({item, sizeVariant }: CardProps) {
       <div className="mt-3.5 flex flex-col flex-1 justify-between gap-1.5">
         {sizeVariant === 'default' && price !== undefined ? (
           <div className="flex flex-col gap-1">
-            <span className="text-[15px] font-bold text-[var(--text-primary)]">
-              {price} руб
-            </span>
+            {/* Category label */}
+            {categoryLabel && (
+              <span className="text-[10px] uppercase font-bold text-[var(--accent)] tracking-wider mb-0.5">
+                {categoryLabel}
+              </span>
+            )}
+            
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[15px] font-bold text-[var(--text-primary)]">
+                {price} руб
+              </span>
+              {oldPrice && oldPrice > price && (
+                <span className="text-[12px] line-through text-[var(--text-secondary)]">
+                  {oldPrice} руб
+                </span>
+              )}
+            </div>
+            
             <h4 className="text-[14px] font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors line-clamp-2 text-left leading-snug">
               {item.title}
             </h4>

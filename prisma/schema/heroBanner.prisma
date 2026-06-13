@@ -1,0 +1,24 @@
+model HeroBanner {
+  id             Int       @id @default(autoincrement())
+  title          String
+  subtitle       String?
+  description    String?
+  image_url      String
+  buttonText     String    @default("Подробнее")
+  linkType       String    // PRODUCT, CATEGORY, URL, SEARCH, PAGE
+  linkUrl        String
+  promoCode      String?
+  sortOrder      Int       @default(0)
+  isActive       Boolean   @default(true)
+  startDate      DateTime?
+  endDate        DateTime?
+
+  // Analytics fields
+  viewsCount     Int       @default(0)
+  clicksCount    Int       @default(0)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isActive, sortOrder])
+}

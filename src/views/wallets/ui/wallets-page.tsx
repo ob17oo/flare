@@ -29,9 +29,18 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
     const [pickProvider, setPickProvider] = useState<number>(initialProvider())
     const [pickedProduct, setPickedProduct] = useState<WalletProduct | null>(null)
 
+    const urlSearch = searchParam.get('search') || ''
+
     const pickedWallet = useMemo(() => {
-       return wallets.filter((wallet) => wallet.wallet?.walletProvider.id === pickProvider).sort((a,b) => a.price - b.price)
-    },[wallets,pickProvider]) 
+       return wallets
+           .filter((wallet) => {
+               if (!urlSearch) {
+                   return wallet.wallet?.walletProvider.id === pickProvider;
+               }
+               return wallet.title.toLowerCase().includes(urlSearch.toLowerCase());
+           })
+           .sort((a,b) => a.price - b.price)
+    },[wallets,pickProvider,urlSearch])
 
     const currentWallet = useMemo(() => {
         if(pickedProduct && pickedWallet.some((w) => w.id === pickedProduct.id)){
@@ -56,15 +65,13 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
         )
     }
 
-    if(!currentWallet){
+    if(!currentWallet && !urlSearch){
         return (
             <div className="flex items-center justify-center p-8">
                 <p className="text-lg">Выбранный кошелек недоступен</p>
             </div>
         )
     }
-
-
 
     return (
         <div className="flex flex-col gap-6 py-4">
@@ -82,19 +89,21 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
                 {/* Main Content Area */}
                 <div className="flex flex-col gap-6">
                     {/* Active Provider Info Banner */}
-                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-4 rounded-2xl flex gap-3.5 items-center shadow-[var(--card-shadow)]">  
-                        <div className="relative overflow-hidden rounded-xl w-12 h-12 border border-[var(--border-muted)] bg-[var(--bg-layer-0)] shrink-0">
-                            <Image fill className="object-cover" src={currentWallet.wallet?.walletProvider.image_url || ''} alt={currentWallet.wallet?.walletProvider.title || ''}/>
+                    {currentWallet && (
+                        <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-4 rounded-2xl flex gap-3.5 items-center shadow-[var(--card-shadow)]">  
+                            <div className="relative overflow-hidden rounded-xl w-12 h-12 border border-[var(--border-muted)] bg-[var(--bg-layer-0)] shrink-0">
+                                <Image fill className="object-cover" src={currentWallet.wallet?.walletProvider.image_url || ''} alt={currentWallet.wallet?.walletProvider.title || ''}/>
+                            </div>
+                            <h3 className="text-[16px] font-bold text-[var(--text-primary)]">{currentWallet.wallet?.walletProvider.title}</h3>
                         </div>
-                        <h3 className="text-[16px] font-bold text-[var(--text-primary)]">{currentWallet.wallet?.walletProvider.title}</h3>
-                    </div>
+                    )}
                     
                     {/* Coin Pack Grid */}
                     <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl flex flex-col gap-4 shadow-[var(--card-shadow)]">
                         <h4 className="text-[13px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Выберите сумму пополнения:</h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
                             { pickedWallet.map((wallet) => {
-                                const isCurrent = wallet.id === currentWallet.id;
+                                const isCurrent = currentWallet && wallet.id === currentWallet.id;
                                 return (
                                     <button 
                                         onClick={() => setPickedProduct(wallet)} 
@@ -124,14 +133,21 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
                                     </button>
                                 );
                             })}
+                            { pickedWallet.length === 0 && (
+                                <div className="col-span-full py-12 text-center text-[var(--text-secondary)]">
+                                    Ничего не найдено по запросу &quot;{urlSearch}&quot;
+                                </div>
+                            )}
                         </div>
                     </div>
                     
                     {/* Description */}
-                    <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl shadow-[var(--card-shadow)]">
-                        <h4 className="text-[14px] font-bold text-[var(--text-primary)] mb-2">Детали услуги</h4>
-                        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{currentWallet.description}</p>
-                    </div>
+                    {currentWallet && (
+                        <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl shadow-[var(--card-shadow)]">
+                            <h4 className="text-[14px] font-bold text-[var(--text-primary)] mb-2">Детали услуги</h4>
+                            <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{currentWallet.description}</p>
+                        </div>
+                    )}
                     
                     {/* Accordions */}
                     <div className="bg-[var(--secondary)] border border-[var(--border-muted)] p-5 rounded-2xl shadow-[var(--card-shadow)]">
@@ -160,7 +176,7 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
                 
                 {/* Checkout Column */}
                 <div className="h-fit">
-                    <PaymentComponent item={currentWallet}/>
+                    {currentWallet && <PaymentComponent item={currentWallet}/>}
                 </div>
             </div>
         </div>

@@ -12,9 +12,20 @@ interface ImageUploadDropzoneProps {
   onUploadError?: (error: string) => void;
   existingUrl?: string | null;
   label?: string;
+  minWidth?: number;
+  minHeight?: number;
 }
 
-export function ImageUploadDropzone({ bucket = 'Products', folder = '', onUploadComplete, onUploadError, existingUrl, label = 'Перетащите изображение сюда или кликните для загрузки' }: ImageUploadDropzoneProps) {
+export function ImageUploadDropzone({
+  bucket = 'Products',
+  folder = '',
+  onUploadComplete,
+  onUploadError,
+  existingUrl,
+  label = 'Перетащите изображение сюда или кликните для загрузки',
+  minWidth,
+  minHeight
+}: ImageUploadDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(existingUrl || null);
@@ -37,6 +48,31 @@ export function ImageUploadDropzone({ bucket = 'Products', folder = '', onUpload
 
     try {
       setIsUploading(true);
+
+      // Validate dimensions if specified
+      if (minWidth || minHeight) {
+        const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+          const img = new window.Image();
+          const objectUrl = URL.createObjectURL(file);
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve({ width: img.width, height: img.height });
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Не удалось прочитать размеры изображения'));
+          };
+          img.src = objectUrl;
+        });
+
+        if (minWidth && dimensions.width < minWidth) {
+          throw new Error(`Ширина изображения должна быть не менее ${minWidth}px (загружено: ${dimensions.width}px)`);
+        }
+        if (minHeight && dimensions.height < minHeight) {
+          throw new Error(`Высота изображения должна быть не менее ${minHeight}px (загружено: ${dimensions.height}px)`);
+        }
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
@@ -138,7 +174,11 @@ export function ImageUploadDropzone({ bucket = 'Products', folder = '', onUpload
               <>
                 <UploadCloud className="w-8 h-8 mb-1 opacity-80" />
                 <p className="text-sm font-medium">{label}</p>
-                <p className="text-xs opacity-60">PNG, JPG, WEBP (до 5MB)</p>
+                <p className="text-xs opacity-60">
+                  {minWidth && minHeight
+                    ? `PNG, JPG, WEBP (мин. ${minWidth}x${minHeight}px, до 5MB)`
+                    : 'PNG, JPG, WEBP (до 5MB)'}
+                </p>
               </>
             )}
           </div>

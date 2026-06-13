@@ -15,7 +15,7 @@ export function MenuComponent({isOpen,onClose, session}: MenuProps){
     return (
         <section className="fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={onClose}>
-                <div className="w-[20%] h-full bg-primary absolute top-0 right-0 transition-all duration-300 ease-in-out p-4">
+                <div className="w-[85%] sm:w-[350px] md:w-[300px] lg:w-[25%] xl:w-[20%] h-full bg-primary absolute top-0 right-0 transition-all duration-300 ease-in-out p-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end">
                         <button className="cursor-pointer" onClick={(e) => {e.stopPropagation();onClose() }} >
                             <Image src="/static/icons/close.svg" width={36} height={36} alt="close"/>

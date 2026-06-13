@@ -1,6 +1,7 @@
 'use server'
 import { prisma } from "@/shared/lib/prisma"
 import { ServicePlanProduct } from "../model/types"
+import { parseProductTags } from "@/entities/admin/api/products.action"
 
 export async function getServicePlansByPlatformId(id: string){
     try {
@@ -27,18 +28,23 @@ export async function getServicePlansByPlatformId(id: string){
             return []
         }
 
-        return platform.servicePlans.map((plan) => ({
-            ...plan.product,
-            productType: 'SERVICE_PLANS' as const,
-            servicePlans: {
-                id: plan.id,
-                productId: plan.productId,
-                subTitle: plan.subTitle,
-                duration: plan.duration,
-                serviceId: plan.serviceId,
-                servicePlatform: platform
-            }
-        })) as ServicePlanProduct[]
+        const mappedPlans = await Promise.all(platform.servicePlans.map(async (plan) => {
+            const parsed = await parseProductTags(plan.product);
+            return {
+                ...parsed,
+                productType: 'SERVICE_PLANS' as const,
+                servicePlans: {
+                    id: plan.id,
+                    productId: plan.productId,
+                    subTitle: plan.subTitle,
+                    duration: plan.duration,
+                    serviceId: plan.serviceId,
+                    servicePlatform: platform
+                }
+            };
+        }));
+
+        return mappedPlans as ServicePlanProduct[];
     } catch(error: unknown){
         if(process.env.NODE_ENV === 'development'){
             console.log(`Error fetching service plan for platform ${id}:`, error)

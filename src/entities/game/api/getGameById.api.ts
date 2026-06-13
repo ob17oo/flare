@@ -1,6 +1,7 @@
 'use server'
 import { prisma } from "@/shared/lib/prisma"
 import { GameProduct } from "../model/types"
+import { parseProductTags } from "@/entities/admin/api/products.action"
 
 export async function getGameById(id: string){
     try {
@@ -24,8 +25,10 @@ export async function getGameById(id: string){
             return null
         }
 
+        const parsed = await parseProductTags(gamesById);
+
         const gameProduct: GameProduct = {
-            ...gamesById,
+            ...parsed,
             productType: 'GAME' as const,
             game: gamesById.game ? {
                 ...gamesById.game,

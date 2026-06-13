@@ -4,6 +4,7 @@ import { TServicePlatform } from "@/entities/service/model/types"
 import Image from "next/image"
 import Link from "next/link"
 import { useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 
 interface SubscriptionsPageProps{
     servicesInitialData: TServicePlatform[]
@@ -11,13 +12,18 @@ interface SubscriptionsPageProps{
 
 export function SubscriptionsPage({servicesInitialData}: SubscriptionsPageProps){
     const [genreFilter, setGenreFilter] = useState('Все')
+    const searchParam = useSearchParams()
+    const urlSearch = searchParam.get('search') || ''
+    
     const { data: servicePlatform = [] } = useServicesPlatforms({
         initialData: servicesInitialData
     })
     
     const filterServices = useMemo(() => {
-        return servicePlatform.filter((elem) => genreFilter === 'Все' || elem.category === genreFilter)
-    },[genreFilter,servicePlatform])
+        return servicePlatform
+            .filter((elem) => genreFilter === 'Все' || elem.category === genreFilter)
+            .filter((elem) => !urlSearch || elem.title.toLowerCase().includes(urlSearch.toLowerCase()))
+    },[genreFilter,servicePlatform,urlSearch])
 
     const serviceGenre = useMemo(() => {
         const genre = servicePlatform.map((elemnt) => elemnt.category).filter((title) => !!title)

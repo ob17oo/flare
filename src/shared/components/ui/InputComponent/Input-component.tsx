@@ -9,8 +9,8 @@ export function InputComponent({
 }: InputProps){
 
     const sizeVariantConfig = {
-        default: 'py-2 px-3',
-        medium: 'py-3 px-4',
+        default: 'h-11 px-3.5',
+        medium: 'h-12 px-4',
     }
 
     return (

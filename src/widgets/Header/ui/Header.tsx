@@ -1,5 +1,5 @@
 'use client'
-import { InputComponent, MenuComponent } from "@/shared/components"
+import { MenuComponent } from "@/shared/components"
 import { Navigaiton } from "@/widgets/NavigationBar/ui/Navigation"
 import { Session } from "next-auth"
 import { useSession } from "next-auth/react"
@@ -9,6 +9,7 @@ import { useState } from "react"
 import { BalanceComponent } from "../BalanceComponent/ui/balance-component"
 import { useTheme } from "@/shared/providers"
 import { Sun, Moon, Menu } from "lucide-react"
+import { SearchInputWithDropdown } from "@/features/Search"
 
 interface HeaderProps {
     serverSession: Session | null
@@ -22,15 +23,15 @@ export function Header({serverSession}: HeaderProps){
     const { theme, toggleTheme } = useTheme()
 
     return ( 
-        <section className="my-6 flex flex-col gap-6">
+        <section className="my-6 flex flex-col gap-4 md:gap-6">
             <div className="flex items-center justify-between gap-6 w-full h-12">
                 <div className="flex items-center shrink-0">
                     <button onClick={() => router.push('/')} type="button" className="relative w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity">
                         <Image className="object-contain" fill src={'/static/Flare-logotype.svg'} alt="HeaderFlareLogotype"/>
                     </button>
                 </div>
-                <div className="flex-1 max-w-2xl mx-auto w-full">
-                    <InputComponent sizeVariant="medium" placeholder="Поиск по маркетплейсу..."/>
+                <div className="hidden md:block flex-1 max-w-2xl mx-auto w-full">
+                    <SearchInputWithDropdown />
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     {session && (
@@ -58,6 +59,12 @@ export function Header({serverSession}: HeaderProps){
                     </div>
                 </div>
             </div>
+            
+            {/* Mobile Search input displayed below logo and actions */}
+            <div className="block md:hidden w-full">
+                <SearchInputWithDropdown />
+            </div>
+            
             <Navigaiton />
         </section>
     )

@@ -18,7 +18,7 @@ export const ReferralsClient = () => {
   });
 
   return (
-    <div className="flex flex-col h-full bg-[#0A0A0A] p-8 max-w-[1200px] mx-auto w-full gap-8">
+    <div className="flex flex-col h-full bg-[#0A0A0A] p-4 sm:p-6 lg:p-8 max-w-[1200px] mx-auto w-full gap-8">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -36,7 +36,7 @@ export const ReferralsClient = () => {
             placeholder="Поиск по логину, почте или коду..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#0A0A0A] border border-[#1F1F1F] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#333333] transition-colors"
+            className="w-full bg-[#0A0A0A] border border-[#1F1F1F] rounded-xl pl-10 pr-4 h-11 text-sm text-white placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#333333] transition-colors"
           />
         </div>
       </div>
@@ -49,7 +49,7 @@ export const ReferralsClient = () => {
               <tr className="border-b border-[#1F1F1F] bg-[#0A0A0A]/50">
                 <th className="px-6 py-4 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Пользователь</th>
                 <th className="px-6 py-4 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Реферальный код</th>
-                <th className="px-6 py-4 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Всего приглашено</th>
+                <th className="px-6 py-4 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider hidden sm:table-cell">Всего приглашено</th>
                 <th className="px-6 py-4 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Активных (С покупкой)</th>
               </tr>
             </thead>
@@ -84,7 +84,7 @@ export const ReferralsClient = () => {
                         <span className="text-sm text-white font-mono">{user.referralCode}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-[#A1A1AA]" />
                         <span className="text-sm font-medium text-white">{user.totalReferrals}</span>

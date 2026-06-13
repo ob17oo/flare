@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { InputComponent, ButtonComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
@@ -28,6 +28,8 @@ type SteamTopupFormData = z.infer<typeof steamTopupSchema>
 
 export function SteamTopupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const promoParam = searchParams ? searchParams.get('promo') : null
   const { data: session, status, update } = useSession()
   const [paymentMethod, setPaymentMethod] = useState<'balance' | 'card' | 'sbp' | 'qiwi'>('card')
   const [havePromo, setHavePromo] = useState(false)
@@ -36,6 +38,8 @@ export function SteamTopupPage() {
   const [successMsg, setSuccessMsg] = useState('')
   const [promoError, setPromoError] = useState('')
   const [promoDiscount, setPromoDiscount] = useState(0)
+  const [promoMessage, setPromoMessage] = useState('')
+  const [promoApplied, setPromoApplied] = useState(false)
 
   // Fetch user's referral discount
   const { data: referralData } = useQuery({
@@ -87,19 +91,53 @@ export function SteamTopupPage() {
     }
   })
 
+  const { mutate: validatePromoMutate } = validatePromo
+
+  useEffect(() => {
+    if (promoParam && !promoApplied) {
+      setHavePromo(true)
+      setValue('promocode', promoParam)
+      
+      validatePromoMutate(promoParam, {
+        onSuccess: (data) => {
+          setPromoMessage(`Промокод "${promoParam}" успешно применен! Скидка: ${data.discount}%`)
+          setPromoDiscount(data.discount)
+          setPromoError('')
+          setPromoApplied(true)
+        },
+        onError: (err) => {
+          setPromoMessage(`Ошибка промокода "${promoParam}": ${err.message}`)
+          setPromoDiscount(0)
+          setPromoError(err.message)
+          setPromoApplied(true)
+        }
+      })
+    }
+  }, [promoParam, promoApplied, setValue, validatePromoMutate])
+
   const amountValue = watch('amount') || 0
   const promocodeValue = watch('promocode')
 
   // Debounced promo validation
-  useMemo(() => {
-    if (!havePromo || !promocodeValue || promocodeValue.length < 3) {
-      setPromoDiscount(0)
-      setPromoError('')
+  useEffect(() => {
+    // If the promo code from parameters is already validated, skip duplicate checks
+    if (promoParam && promoApplied && promocodeValue === promoParam) {
       return
     }
-    const timer = setTimeout(() => validatePromo.mutate(promocodeValue), 500)
+
+    if (!havePromo || !promocodeValue || promocodeValue.length < 3) {
+      // Guard against infinite update loops by updating state only when different
+      setPromoDiscount((prev) => (prev !== 0 ? 0 : prev))
+      setPromoError((prev) => (prev !== '' ? '' : prev))
+      return
+    }
+
+    const timer = setTimeout(() => {
+      validatePromoMutate(promocodeValue)
+    }, 500)
+
     return () => clearTimeout(timer)
-  }, [promocodeValue, havePromo])
+  }, [promocodeValue, havePromo, promoParam, promoApplied, validatePromoMutate])
 
   // 8% service commission
   const commissionFee = useMemo(() => {
@@ -118,9 +156,9 @@ export function SteamTopupPage() {
 
   // Final calculated price
   const calculatedPrice = useMemo(() => {
-    const discountAmount = Math.round(basePriceWithCommission * totalDiscountPercent / 100)
+    const discountAmount = Math.round(amountValue * totalDiscountPercent / 100)
     return Math.max(basePriceWithCommission - discountAmount, 0)
-  }, [basePriceWithCommission, totalDiscountPercent])
+  }, [amountValue, basePriceWithCommission, totalDiscountPercent])
 
   const discountValueInRub = basePriceWithCommission - calculatedPrice
 
@@ -323,6 +361,15 @@ export function SteamTopupPage() {
           </button>
           {havePromo && (
             <div className="flex flex-col gap-1">
+              {promoMessage && (
+                <div className={`text-[12px] p-2.5 rounded-lg border font-medium leading-relaxed mb-1 max-w-xs ${
+                  promoMessage.includes('успешно')
+                    ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                    : 'bg-red-500/10 border-red-500/20 text-red-400'
+                }`}>
+                  {promoMessage}
+                </div>
+              )}
               <InputComponent
                 {...register('promocode')}
                 type="text"
@@ -330,8 +377,8 @@ export function SteamTopupPage() {
                 placeholder="Введите промокод"
                 className="max-w-xs mt-1 uppercase"
               />
-              {promoError && <span className="text-[11px] text-[var(--error)] font-medium mt-1">{promoError}</span>}
-              {promoDiscount > 0 && <span className="text-[11px] text-[var(--success)] font-medium mt-1">Промокод применен: -{promoDiscount}%</span>}
+              {promoError && !promoMessage && <span className="text-[11px] text-[var(--error)] font-medium mt-1">{promoError}</span>}
+              {promoDiscount > 0 && !promoMessage && <span className="text-[11px] text-[var(--success)] font-medium mt-1">Промокод применен: -{promoDiscount}%</span>}
             </div>
           )}
         </div>

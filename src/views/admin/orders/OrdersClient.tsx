@@ -48,18 +48,18 @@ export function OrdersClient({ initialData }: { initialData: any[] }) {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-[#A1A1AA] uppercase bg-[#1F1F1F]/50 border-b border-[#1F1F1F]">
               <tr>
-                <th className="px-6 py-4 font-medium">ID Заказа</th>
+                <th className="px-6 py-4 font-medium hidden md:table-cell">ID Заказа</th>
                 <th className="px-6 py-4 font-medium">Пользователь</th>
                 <th className="px-6 py-4 font-medium">Товар</th>
                 <th className="px-6 py-4 font-medium">Статус</th>
-                <th className="px-6 py-4 font-medium">Дата</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Дата</th>
                 <th className="px-6 py-4 font-medium text-right">Действия</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
               {orders?.map((order: any) => (
                 <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA]">{String(order.id).slice(-8)}</td>
+                  <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] hidden md:table-cell">{String(order.id).slice(-8)}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full overflow-hidden bg-[#1F1F1F]">
@@ -106,20 +106,22 @@ export function OrdersClient({ initialData }: { initialData: any[] }) {
                       order.status === 'PENDING' ? 'bg-orange-500/10 text-orange-500' :
                       order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
                       'bg-blue-500/10 text-blue-500'
-                    }`}>
+                     }`}>
                       {order.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[#A1A1AA] whitespace-nowrap">
+                  <td className="px-6 py-4 text-[#A1A1AA] whitespace-nowrap hidden sm:table-cell">
                     {new Date(order.createdAt).toLocaleDateString('ru-RU')}
                   </td>
-                  <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                    <button onClick={() => openEditModal(order)} className="text-[#A1A1AA] hover:text-white transition-colors">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(order.id)} className="text-[#A1A1AA] hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => openEditModal(order)} className="text-[#A1A1AA] hover:text-white transition-colors w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/5" aria-label="Редактировать заказ">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(order.id)} className="text-[#A1A1AA] hover:text-red-500 transition-colors w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/5" aria-label="Удалить заказ">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

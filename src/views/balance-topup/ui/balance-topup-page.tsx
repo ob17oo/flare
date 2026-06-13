@@ -239,7 +239,7 @@ export function BalanceTopupPage({ initialDeposits = [] }: BalanceTopupPageProps
                 <thead>
                   <tr className="border-b border-[var(--border-muted)]/60 text-[11px] text-[var(--text-secondary)] uppercase tracking-wider font-semibold">
                     <th className="py-2.5">Дата</th>
-                    <th className="py-2.5">ID Сессии</th>
+                    <th className="py-2.5 hidden sm:table-cell">ID Сессии</th>
                     <th className="py-2.5">Сумма</th>
                     <th className="py-2.5 text-right">Статус</th>
                   </tr>
@@ -256,7 +256,7 @@ export function BalanceTopupPage({ initialDeposits = [] }: BalanceTopupPageProps
                           minute: '2-digit'
                         })}
                       </td>
-                      <td className="py-3 font-mono text-[11px] text-[var(--text-secondary)] max-w-[120px] truncate" title={dep.stripeId}>
+                      <td className="py-3 font-mono text-[11px] text-[var(--text-secondary)] max-w-[120px] truncate hidden sm:table-cell" title={dep.stripeId}>
                         {dep.stripeId}
                       </td>
                       <td className="py-3 font-bold">

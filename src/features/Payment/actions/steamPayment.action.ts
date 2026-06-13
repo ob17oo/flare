@@ -87,10 +87,13 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
       discount = promocode.discount
     }
 
+    // Calculate 8% commission on top of the base amount
+    const basePrice = data.amount + Math.round(data.amount * 0.08);
+
     // Calculate dynamic price with promo code discount + referral discount
     const totalDiscountPercent = Math.min(discount + referralDiscount, 100)
-    const discountAmount = Math.round(data.calculatedPrice * totalDiscountPercent / 100)
-    const finalPrice = Math.max(data.calculatedPrice - discountAmount, 0)
+    const discountAmount = Math.round(basePrice * totalDiscountPercent / 100)
+    const finalPrice = Math.max(basePrice - discountAmount, 0)
 
     // If payment method is balance, deduct from account balance
     if (data.paymentMethod === 'balance') {

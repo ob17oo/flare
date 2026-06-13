@@ -44,9 +44,9 @@ export function GamePage({initialGame, gameId}: GameProps){
                     
                     {/* Gallery section */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-[100px_1fr] gap-4">
-                        <div className="flex md:flex-col gap-3">
+                        <div className="flex md:flex-col gap-3 overflow-x-auto scrollbar-hide pb-1 md:pb-0">
                             {imagesStack.map((image, idx) => (
-                                <button key={image} type="button" className={`relative rounded-xl overflow-hidden aspect-[16/9] md:aspect-square w-full border-2 transition-all ${idx === 0 ? 'border-[var(--accent)]' : 'border-[var(--border-muted)] hover:border-[var(--text-secondary)]'} cursor-pointer bg-[var(--secondary)]`}>
+                                <button key={image} type="button" className={`relative rounded-xl overflow-hidden aspect-[16/9] md:aspect-square w-24 shrink-0 md:w-full border-2 transition-all ${idx === 0 ? 'border-[var(--accent)]' : 'border-[var(--border-muted)] hover:border-[var(--text-secondary)]'} cursor-pointer bg-[var(--secondary)]`}>
                                     <Image fill className="object-cover opacity-60" src={game.image_url} alt={`Preview ${idx + 1}`} sizes="100px" />
                                 </button>
                             ))}

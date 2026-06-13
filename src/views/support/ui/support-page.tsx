@@ -547,14 +547,14 @@ export function SupportPage() {
                 <div
                   key={t.id}
                   onClick={() => router.push(`/support?ticketId=${t.id}`)}
-                  className="flex items-center justify-between bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] hover:border-[var(--accent)]/40 px-5 py-4 rounded-xl transition-all duration-200 cursor-pointer"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] hover:border-[var(--accent)]/40 px-5 py-4 rounded-xl transition-all duration-200 cursor-pointer gap-4"
                 >
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[13px] font-bold text-[var(--text-primary)]">
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[13px] font-bold text-[var(--text-primary)] truncate max-w-full">
                         {t.subject}
                       </span>
-                      <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--bg-layer-3)] px-2 py-0.5 rounded border border-[var(--border-muted)]">
+                      <span className="text-[9px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--bg-layer-3)] px-1.5 py-0.5 rounded border border-[var(--border-muted)] shrink-0">
                         {CATEGORY_MAP[t.category]}
                       </span>
                     </div>
@@ -569,7 +569,7 @@ export function SupportPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t border-[var(--border-muted)]/40 pt-3 sm:border-none sm:pt-0">
                     <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
                       t.status === 'RESOLVED' || t.status === 'CLOSED'
                         ? 'bg-green-500/5 text-[var(--success)] border-green-500/10'

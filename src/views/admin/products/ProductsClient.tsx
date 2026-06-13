@@ -163,10 +163,10 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
             <thead className="text-xs text-[#A1A1AA] uppercase bg-[#1A1A1A] border-b border-[#2A2A2A]">
               <tr>
                 <th className="px-6 py-4 font-medium">Товар</th>
-                <th className="px-6 py-4 font-medium">Тип</th>
+                <th className="px-6 py-4 font-medium hidden md:table-cell">Тип</th>
                 <th className="px-6 py-4 font-medium">Цена</th>
-                <th className="px-6 py-4 font-medium">Сток</th>
-                <th className="px-6 py-4 font-medium">Статус</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Сток</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Статус</th>
                 <th className="px-6 py-4 font-medium text-right">Действия</th>
               </tr>
             </thead>
@@ -184,36 +184,36 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="truncate max-w-[250px]">
+                      <div className="truncate max-w-[150px] sm:max-w-[250px]">
                         <p className="font-semibold text-white truncate text-base">{product.title}</p>
                         <p className="text-xs text-[#A1A1AA] truncate mt-0.5">/{product.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-[#A1A1AA] font-medium">{product.productType}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA] font-medium hidden md:table-cell">{product.productType}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="font-bold text-white">{formatPrice(product.price)}</span>
                       {product.oldPrice && <span className="text-xs text-red-400 line-through">{formatPrice(product.oldPrice)}</span>}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden sm:table-cell">
                     <span className={`px-2 py-1 rounded-md text-xs font-semibold ${product.stock > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                       {product.stock > 0 ? `${product.stock} шт.` : 'Нет в наличии'}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden sm:table-cell">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${product.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
                       <span className="text-sm font-medium text-[#A1A1AA]">{product.isActive ? 'Активен' : 'Черновик'}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEditModal(product)} className="p-2 text-[#A1A1AA] hover:text-white bg-[#2A2A2A] hover:bg-[#333] rounded-lg transition-colors">
+                    <div className="flex items-center justify-end gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openEditModal(product)} className="p-2 text-[#A1A1AA] hover:text-white bg-[#2A2A2A] hover:bg-[#333] rounded-lg transition-colors cursor-pointer min-h-9 min-w-9 flex items-center justify-center">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(product.id)} className="p-2 text-[#A1A1AA] hover:text-red-500 bg-[#2A2A2A] hover:bg-red-500/10 rounded-lg transition-colors">
+                      <button onClick={() => handleDelete(product.id)} className="p-2 text-[#A1A1AA] hover:text-red-500 bg-[#2A2A2A] hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer min-h-9 min-w-9 flex items-center justify-center">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

@@ -92,9 +92,9 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
               <tr>
                 <th className="px-6 py-4 font-medium">Код</th>
                 <th className="px-6 py-4 font-medium">Скидка</th>
-                <th className="px-6 py-4 font-medium">Использовано</th>
-                <th className="px-6 py-4 font-medium">Лимит</th>
-                <th className="px-6 py-4 font-medium">Срок действия</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Использовано</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Лимит</th>
+                <th className="px-6 py-4 font-medium hidden md:table-cell">Срок действия</th>
                 <th className="px-6 py-4 font-medium">Статус</th>
                 <th className="px-6 py-4 font-medium text-right">Действия</th>
               </tr>
@@ -104,9 +104,9 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
                 <tr key={promo.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 font-bold text-white tracking-wider">{promo.code}</td>
                   <td className="px-6 py-4 text-green-500 font-medium">{promo.discount}%</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">{promo.usesCount}</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">{promo.maxUses}</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden sm:table-cell">{promo.usesCount}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden sm:table-cell">{promo.maxUses}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden md:table-cell">
                     {promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Бессрочно'}
                   </td>
                   <td className="px-6 py-4">
@@ -116,19 +116,21 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
                       {promo.isActive ? 'Активен' : 'Неактивен'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                    <button onClick={() => openEditModal(promo)} className="text-[#A1A1AA] hover:text-white transition-colors">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(promo.id)} className="text-[#A1A1AA] hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => openEditModal(promo)} className="text-[#A1A1AA] hover:text-white transition-colors w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/5" aria-label="Редактировать промокод">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(promo.id)} className="text-[#A1A1AA] hover:text-red-500 transition-colors w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/5" aria-label="Удалить промокод">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {promocodes?.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-[#A1A1AA]">
+                  <td colSpan={7} className="px-6 py-8 text-center text-[#A1A1AA]">
                     Нет промокодов.
                   </td>
                 </tr>
@@ -151,37 +153,39 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Код</label>
-                <input {...register('code')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white uppercase" />
+                <input {...register('code')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3.5 h-11 text-white uppercase" />
                 {errors.code && <p className="text-red-500 text-xs">{String(errors.code.message)}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Скидка (%)</label>
-                <input type="number" {...register('discount')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white" />
+                <input type="number" {...register('discount')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3.5 h-11 text-white" />
                 {errors.discount && <p className="text-red-500 text-xs">{String(errors.discount.message)}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Лимит использований</label>
-                <input type="number" {...register('maxUses')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white" />
+                <input type="number" {...register('maxUses')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3.5 h-11 text-white" />
                 {errors.maxUses && <p className="text-red-500 text-xs">{String(errors.maxUses.message)}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Действует до (необязательно)</label>
-                <input type="datetime-local" {...register('expiresAt')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white" />
+                <input type="datetime-local" {...register('expiresAt')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3.5 h-11 text-white" />
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input type="checkbox" id="isActive" {...register('isActive')} className="w-4 h-4 rounded bg-[#1F1F1F] border-[#333] text-blue-500" />
-                <label htmlFor="isActive" className="text-sm font-medium text-white">Активный</label>
+              <div className="pt-2">
+                <label className="flex items-center gap-3 py-2 cursor-pointer select-none">
+                  <input type="checkbox" id="isActive" {...register('isActive')} className="w-5 h-5 rounded bg-[#1F1F1F] border-[#333] text-blue-500" />
+                  <span className="text-sm font-medium text-white">Активный</span>
+                </label>
               </div>
 
               <div className="flex justify-end gap-3 pt-6">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg font-medium text-sm text-[#A1A1AA] hover:text-white bg-[#1F1F1F] hover:bg-[#333] transition-colors">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg font-medium text-sm text-[#A1A1AA] hover:text-white bg-[#1F1F1F] hover:bg-[#333] transition-colors min-h-11">
                   Отмена
                 </button>
-                <button type="submit" disabled={createPromo.isPending || updatePromo.isPending} className="px-4 py-2 rounded-lg font-medium text-sm text-black bg-white hover:bg-white/90 disabled:opacity-50 transition-colors">
+                <button type="submit" disabled={createPromo.isPending || updatePromo.isPending} className="px-4 py-2 rounded-lg font-medium text-sm text-black bg-white hover:bg-white/90 disabled:opacity-50 transition-colors min-h-11">
                   {editingId ? 'Сохранить' : 'Создать'}
                 </button>
               </div>

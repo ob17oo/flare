@@ -10,18 +10,18 @@ interface WalletFilterProps{
 
 export function WalletFilter({walletProvider,pick,setPick}: WalletFilterProps){
     return (
-        <div className="w-full rounded-2xl bg-[var(--secondary)] border border-[var(--border-muted)] p-4 flex flex-col gap-4 shadow-[var(--card-shadow)]">
+        <div className="w-full rounded-2xl bg-[var(--secondary)] border border-[var(--border-muted)] p-4 flex flex-col gap-4 shadow-[var(--card-shadow)] lg:sticky lg:top-24">
             <div>
                 <InputComponent sizeVariant="default" placeholder="Поиск лаунчера..."/>
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible scrollbar-hide gap-1.5 pb-2 lg:pb-0">
                 { walletProvider.map((provider) => {
                     const isSelected = provider.id === pick;
                     return (
                         <button 
                             onClick={() => setPick(provider.id)} 
                             key={provider.id} 
-                            className={`flex gap-3 items-center text-[14px] rounded-xl p-2.5 transition-all duration-300 ease-in-out cursor-pointer border ${
+                            className={`flex gap-3 items-center text-[14px] rounded-xl p-2.5 transition-all duration-300 ease-in-out cursor-pointer border shrink-0 ${
                                 isSelected 
                                     ? 'bg-[var(--bg-layer-3)] border-[var(--border-muted)] text-[var(--text-primary)] shadow-sm font-semibold' 
                                     : 'bg-transparent border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-layer-3)]/30'

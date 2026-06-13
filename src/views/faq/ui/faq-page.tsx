@@ -134,8 +134,8 @@ export function FAQPage() {
         // Standard Tabbed View
         <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 mt-2">
           {/* Categories list */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-3 mb-1">
+          <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible scrollbar-hide gap-1.5 pb-2 md:pb-0">
+            <span className="hidden md:inline-block text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-3 mb-1">
               Категории вопросов
             </span>
             {FAQ_DATA.map(cat => {
@@ -144,7 +144,7 @@ export function FAQPage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-[13px] font-medium transition-all duration-200 cursor-pointer shrink-0 md:w-full ${
                     isActive
                       ? 'bg-[var(--accent)] text-white border-transparent shadow-sm'
                       : 'bg-[var(--secondary)] border-[var(--border-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-secondary)]/30'

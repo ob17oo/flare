@@ -9,7 +9,8 @@ import { paymentAction } from "../actions/payment.action"
 import { useSession } from "next-auth/react"
 import { SuccessModal } from "./SuccessModal"
 import { TPaymentItem } from "../model/types"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
 
 interface PaymentComponentProps {
     item: TPaymentItem,
@@ -17,15 +18,20 @@ interface PaymentComponentProps {
 
 export function PaymentComponent({item}: PaymentComponentProps){
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const promoParam = searchParams ? searchParams.get('promo') : null
     const [havePromo, setHavePromo] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [serverError, setServerError] = useState('')
+    const [promoMessage, setPromoMessage] = useState('')
+    const [promoApplied, setPromoApplied] = useState(false)
     const { data: session, status, update } = useSession()
     
     const {
         reset,
         register,
         handleSubmit,
+        setValue,
         formState: { errors, isSubmitting }
     } = useForm<PaymentFormData>({
         resolver: zodResolver(paymentSchema),
@@ -35,6 +41,32 @@ export function PaymentComponent({item}: PaymentComponentProps){
             promocode: ''
         }
     })
+
+    useEffect(() => {
+        if (promoParam && !promoApplied) {
+            setHavePromo(true);
+            setValue('promocode', promoParam);
+            
+            fetch('/api/promocodes/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: promoParam })
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok) {
+                    setPromoMessage(`Промокод "${promoParam}" успешно применен! Скидка: ${data.discount}%`);
+                } else {
+                    setPromoMessage(`Ошибка промокода "${promoParam}": ${data.error}`);
+                }
+                setPromoApplied(true);
+            })
+            .catch(err => {
+                console.error("Promocode auto-apply error:", err);
+                setPromoApplied(true);
+            });
+        }
+    }, [promoParam, promoApplied, setValue]);
 
     if(!item){
         return (
@@ -129,6 +161,15 @@ export function PaymentComponent({item}: PaymentComponentProps){
                     </button>
                     { havePromo && (
                         <div className="flex flex-col gap-1.5 mt-1">
+                            {promoMessage && (
+                                <div className={`text-[12px] p-2.5 rounded-lg border font-medium leading-relaxed mb-1 ${
+                                    promoMessage.includes('успешно')
+                                        ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                                        : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                }`}>
+                                    {promoMessage}
+                                </div>
+                            )}
                             <InputComponent {...register('promocode')} type="text" sizeVariant="default" placeholder="Введите промокод"/>
                             {errors.promocode && (
                                 <p className="text-xs text-[var(--error)] font-medium mt-0.5" role="alert">{errors.promocode.message}</p>

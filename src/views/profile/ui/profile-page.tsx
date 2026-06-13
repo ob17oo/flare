@@ -166,10 +166,10 @@ export function ProfilePage({ session }: ProfileProps) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="w-full border-t border-[var(--border-muted)]/60 pt-4 flex flex-col gap-1.5">
+        <div className="w-full border-t border-[var(--border-muted)]/60 pt-4 flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible scrollbar-hide gap-1.5 pb-2 md:pb-0">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'dashboard'
                 ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -180,7 +180,7 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('support')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'support'
                 ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -191,7 +191,7 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'orders'
                 ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -202,7 +202,7 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('referrals')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'referrals'
                 ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -213,7 +213,7 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 w-full mt-2 border-t border-[var(--border-muted)]/60 pt-4">
+        <div className="flex flex-row md:flex-col gap-2 w-full mt-2 border-t border-[var(--border-muted)]/60 pt-4">
           <ButtonComponent onClick={() => setIsEditing(true)} isFilled={true} color="secondary" className="w-full py-2.5">Редактировать</ButtonComponent>
           <ButtonComponent onClick={() => signOut()} isFilled={true} color="accent" className="w-full py-2.5">Выйти</ButtonComponent>
         </div>

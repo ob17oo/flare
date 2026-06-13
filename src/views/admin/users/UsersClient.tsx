@@ -62,9 +62,9 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
                 <th className="px-6 py-4 font-medium">Пользователь</th>
                 <th className="px-6 py-4 font-medium">Роль</th>
                 <th className="px-6 py-4 font-medium">Баланс</th>
-                <th className="px-6 py-4 font-medium">Потрачено</th>
-                <th className="px-6 py-4 font-medium">Скидка</th>
-                <th className="px-6 py-4 font-medium">Статус</th>
+                <th className="px-6 py-4 font-medium hidden md:table-cell">Потрачено</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Скидка</th>
+                <th className="px-6 py-4 font-medium hidden sm:table-cell">Статус</th>
                 <th className="px-6 py-4 font-medium text-right">Действия</th>
               </tr>
             </thead>
@@ -73,7 +73,7 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
                 <tr key={user.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full overflow-hidden bg-[#1F1F1F]">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-[#1F1F1F] shrink-0">
                         <Image 
                           src={user.image_url} 
                           alt={user.login} 
@@ -82,9 +82,9 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <p className="font-medium text-white">{user.login}</p>
-                        <p className="text-xs text-[#A1A1AA]">{user.email}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-white truncate max-w-[120px] sm:max-w-none">{user.login}</p>
+                        <p className="text-xs text-[#A1A1AA] truncate max-w-[120px] sm:max-w-none">{user.email}</p>
                       </div>
                     </div>
                   </td>
@@ -98,9 +98,9 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
                     </span>
                   </td>
                   <td className="px-6 py-4 font-medium text-white">{formatPrice(user.balance)}</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">{formatPrice(user.spent)}</td>
-                  <td className="px-6 py-4 text-[#A1A1AA]">{user.discount}%</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden md:table-cell">{formatPrice(user.spent)}</td>
+                  <td className="px-6 py-4 text-[#A1A1AA] hidden sm:table-cell">{user.discount}%</td>
+                  <td className="px-6 py-4 hidden sm:table-cell">
                     {user.isBanned ? (
                       <span className="flex items-center gap-1 text-xs font-medium text-red-500"><ShieldAlert className="w-3 h-3"/> Забанен</span>
                     ) : (

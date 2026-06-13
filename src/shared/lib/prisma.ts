@@ -6,8 +6,8 @@ const globalForPrisma = globalThis as unknown as {
     prisma: any
 }
 
-// Clear hot-reloading cache if the new Deposit model is missing in the global instance
-if (globalForPrisma.prisma && !('deposit' in globalForPrisma.prisma)) {
+// Clear hot-reloading cache if the new Deposit or HeroBanner model is missing in the global instance
+if (globalForPrisma.prisma && (!('deposit' in globalForPrisma.prisma) || !('heroBanner' in globalForPrisma.prisma))) {
     globalForPrisma.prisma = undefined
 }
 

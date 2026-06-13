@@ -57,7 +57,7 @@ export function ButtonComponent({
     return (
         <button
             onClick={onClick}
-            className={`text-[14px] font-semibold ${pyClass} ${pxClass} rounded-xl transition-all duration-300 ease-in-out cursor-pointer active:scale-[0.98] ${colorStyles} ${className}`}
+            className={`inline-flex items-center justify-center min-h-11 text-[14px] font-semibold ${pyClass} ${pxClass} rounded-xl transition-all duration-300 ease-in-out cursor-pointer active:scale-[0.98] ${colorStyles} ${className}`}
             {...props}
         >
             {children}
