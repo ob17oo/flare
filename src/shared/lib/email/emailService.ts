@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { getPurchaseReceiptHtml } from './templates/purchaseReceipt'
+import { getAppUrl } from '@/shared/lib/utils'
 
 const resendApiKey = process.env.RESEND_API_KEY
 const emailFrom = process.env.EMAIL_FROM || 'Flare <onboarding@resend.dev>'
@@ -19,7 +20,7 @@ interface SendTicketEmailProps {
 }
 
 export async function sendTicketEmail(props: SendTicketEmailProps): Promise<{ success: boolean; id?: string; error?: any }> {
-  const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const appUrl = getAppUrl()
   const html = getPurchaseReceiptHtml({
     productTitle: props.productTitle,
     purchaseDate: props.purchaseDate,

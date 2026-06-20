@@ -23,19 +23,20 @@ export function MenuComponent({isOpen,onClose, session}: MenuProps){
                     </div>
                     <div className="px-6 py-9 flex flex-col gap-6 items-center">
                         { session ? (
-                            <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/profile">Профиль</Link>
+                            <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/profile">Профиль</Link>
                          ) : (
-                            <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/login">Авторизация</Link>
+                            <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/login">Авторизация</Link>
                         )}
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/about">О нас</Link>
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/faq">FAQ</Link>
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/contacts">Контакты</Link>
-                        <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/support">Поддержка</Link>
+                        <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/about">О нас</Link>
+                        <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/faq">FAQ</Link>
+                        <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/contacts">Контакты</Link>
+                        <Link onClick={onClose} className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/support">Поддержка</Link>
                         
                         {((session?.user as { role?: string })?.role) === 'ADMIN' && (
                             <div className="flex flex-col items-center w-full mt-4">
                                 <div className="w-12 h-px bg-[#333] mb-8"></div>
                                 <Link 
+                                    onClick={onClose}
                                     className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#333] hover:border-white hover:bg-white/5 transition-all duration-300 ease-in-out w-full" 
                                     href="/admin"
                                 >

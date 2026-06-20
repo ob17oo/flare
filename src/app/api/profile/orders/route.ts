@@ -14,7 +14,7 @@ export async function GET() {
       where: { userId: session.user.id },
       include: {
         product: {
-          select: { title: true, image_url: true }
+          select: { title: true, image_url: true, price: true }
         }
       },
       orderBy: { createdAt: 'desc' }

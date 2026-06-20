@@ -128,11 +128,97 @@ export function PaymentComponent({item}: PaymentComponentProps){
         )
     }
 
-    if(status === 'unauthenticated' || !session?.user.id ){
-        return (
-            <div className="bg-secondary rounded-2xl p-4 flex flex-col items-center justify-center gap-6 h-40">
-                <p className="text-error text-h4">Необходимо авторизироваться</p>
-                <button onClick={() => router.push('/login')} className="cursor-pointer px-6 py-3 text-h5 rounded-2xl bg-primary" type="button">Авторизироваться</button>
+    if (status === 'unauthenticated' || !session?.user.id) {
+        return ( 
+            <div className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-6 shadow-[var(--card-shadow)] flex flex-col gap-6 relative overflow-hidden">
+                {/* Decorative glow background */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-[var(--accent)]/10 rounded-full blur-2xl pointer-events-none" />
+
+                {/* Product details header */}
+                <div className="flex items-center gap-3.5 pb-4 border-b border-[var(--border-muted)]">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden relative border border-[var(--border-muted)] bg-[var(--bg-layer-0)] shrink-0">
+                        {item.image_url ? (
+                            <Image className="object-cover" fill src={item.image_url} alt={item.title}/>
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[var(--bg-layer-2)]">
+                                <span className="text-[10px] text-[var(--text-secondary)]">No Image</span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <h3 className="text-[15px] font-bold text-[var(--text-primary)] leading-tight truncate">{item.title}</h3>
+                        <span className="text-[11px] text-[var(--text-secondary)] mt-0.5">Цифровая активация</span>
+                    </div>
+                </div>
+
+                {/* Benefits / Info Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-[var(--bg-layer-2)]/40 border border-[var(--border-muted)]/50 rounded-xl p-3 flex items-start gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] mt-0.5 shrink-0">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                            <span className="text-[12px] font-bold text-[var(--text-primary)]">Мгновенная выдача</span>
+                            <span className="text-[10px] text-[var(--text-secondary)] leading-tight">Ключ сразу после оплаты</span>
+                        </div>
+                    </div>
+                    <div className="bg-[var(--bg-layer-2)]/40 border border-[var(--border-muted)]/50 rounded-xl p-3 flex items-start gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] mt-0.5 shrink-0">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                            <span className="text-[12px] font-bold text-[var(--text-primary)]">Безопасность</span>
+                            <span className="text-[10px] text-[var(--text-secondary)] leading-tight">Stripe, СБП и карты</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Locked price / discount sneak-peek */}
+                <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)]/60 rounded-xl p-4 flex justify-between items-center relative overflow-hidden">
+                    <div className="flex flex-col gap-1 min-w-0">
+                        <span className="text-[11px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Цена товара</span>
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="text-[20px] font-extrabold text-[var(--text-primary)]">{item.price.toLocaleString('ru-RU')} ₽</span>
+                            <span className="text-[10px] text-[var(--success)] font-bold bg-green-500/10 px-1.5 py-0.5 rounded shrink-0">-10% с промокодом</span>
+                        </div>
+                    </div>
+                    <div className="opacity-40 select-none shrink-0">
+                        <svg className="w-8 h-8 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Login / Auth CTA block */}
+                <div className="border-t border-[var(--border-muted)] pt-5 flex flex-col gap-4">
+                    <div className="text-center flex flex-col gap-1.5">
+                        <span className="text-[14px] font-bold text-[var(--text-primary)]">Требуется авторизация</span>
+                        <p className="text-[11px] text-[var(--text-secondary)] max-w-sm mx-auto leading-normal">
+                            Пожалуйста, войдите или зарегистрируйтесь, чтобы завершить покупку, использовать промокоды и отслеживать заказы в личном кабинете.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mt-1">
+                        <button
+                            onClick={() => router.push('/login')}
+                            className="h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[13px] font-bold cursor-pointer transition-colors duration-300 shadow-[var(--card-shadow)] active:scale-[0.98]"
+                            type="button"
+                        >
+                            Войти
+                        </button>
+                        <button
+                            onClick={() => router.push('/register')}
+                            className="h-11 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border-muted)] hover:bg-[var(--bg-layer-3)] text-[var(--text-primary)] text-[13px] font-bold cursor-pointer transition-colors duration-300 active:scale-[0.98]"
+                            type="button"
+                        >
+                            Регистрация
+                        </button>
+                    </div>
+                </div>
             </div>
         )
     }

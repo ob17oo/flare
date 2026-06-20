@@ -29,10 +29,10 @@ export function HomePage({initialGames, initialServicesPlatform,initialWalletPro
     return ( 
         <section className="flex flex-col gap-10">
             <HeroCarouselComponent />
-            <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/Games.svg" />
-            <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/Launchers.svg" />
+            <CarouselComponent carouselValue="games" sizeVariant="default" carouselItem={games} carouselHeader="Популярные игры" carouselImage="/static/carouselIcons/games.svg" />
+            <CarouselComponent carouselValue="subscriptions" sizeVariant="medium" carouselItem={servicesPlatform} carouselHeader="Популярные лаунчеры" carouselImage="/static/carouselIcons/launchers.svg" />
             <AdvantagesComponent />
-            <CarouselComponent carouselValue="wallets" sizeVariant="large" carouselItem={wallet} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/Wallets.svg" />
+            <CarouselComponent carouselValue="wallets" sizeVariant="large" carouselItem={wallet} carouselHeader="Популярные кошельки" carouselImage="/static/carouselIcons/wallets.svg" />
         </section>
     )
 }

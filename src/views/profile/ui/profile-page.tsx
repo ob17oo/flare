@@ -28,12 +28,12 @@ interface ProfileProps {
 
 interface TProfileOrder {
   id: number
-  price: number
   status: string
   createdAt: string
   product: {
     title: string
     image_url: string
+    price: number
   } | null
 }
 
@@ -208,10 +208,10 @@ export function ProfilePage({ session }: ProfileProps) {
         <div className="w-full border-t border-[var(--border-muted)]/60 pt-4 flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible scrollbar-hide gap-1.5 pb-2 md:pb-0">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-colors duration-150 ease-in-out cursor-pointer border ${
               activeTab === 'dashboard'
-                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-layer-2)]/40'
             }`}
           >
             <LayoutDashboard size={16} />
@@ -219,10 +219,10 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('support')}
-            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-colors duration-150 ease-in-out cursor-pointer border ${
               activeTab === 'support'
-                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-layer-2)]/40'
             }`}
           >
             <LifeBuoy size={16} />
@@ -230,10 +230,10 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-colors duration-150 ease-in-out cursor-pointer border ${
               activeTab === 'orders'
-                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-layer-2)]/40'
             }`}
           >
             <Package size={16} />
@@ -241,10 +241,10 @@ export function ProfilePage({ session }: ProfileProps) {
           </button>
           <button
             onClick={() => setActiveTab('referrals')}
-            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
+            className={`w-auto shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-colors duration-150 ease-in-out cursor-pointer border ${
               activeTab === 'referrals'
-                ? 'bg-[var(--bg-layer-2)] border border-[var(--border-muted)] text-[var(--text-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-primary)]'
+                : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-layer-2)]/40'
             }`}
           >
             <Users size={16} />
@@ -454,8 +454,8 @@ export function ProfilePage({ session }: ProfileProps) {
                   </div>
                   
                   <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1 shrink-0">
-                    <span className="text-[16px] font-extrabold text-[var(--accent)]">{order.price} ₽</span>
-                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg border ${order.status === 'SUCCESS' ? 'bg-green-500/5 text-[var(--success)] border-green-500/10' : 'bg-orange-500/5 text-orange-500 border-orange-500/10'}`}>
+                    <span className="text-[16px] font-extrabold text-[var(--accent)]">{order.product?.price ?? 0} ₽</span>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg border ${order.status === 'SUCCESS' || order.status === 'PAID' ? 'bg-green-500/5 text-[var(--success)] border-green-500/10' : 'bg-orange-500/5 text-orange-500 border-orange-500/10'}`}>
                       {order.status}
                     </span>
                   </div>

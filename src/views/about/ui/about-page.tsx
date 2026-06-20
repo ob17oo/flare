@@ -91,7 +91,7 @@ export function AboutPage() {
             {ABOUT_DATA.security.title}
           </h2>
         </div>
-        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+        <p className="text-[13px] md:text-[15px] text-[var(--text-secondary)] leading-relaxed">
           {ABOUT_DATA.security.text}
         </p>
       </div>

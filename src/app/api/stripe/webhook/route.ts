@@ -106,30 +106,28 @@ export async function POST(req: Request) {
         } else if (session.metadata?.purpose === 'product_purchase') {
           const userId = session.metadata.userId
           const productIdStr = session.metadata.productId
-          const orderIdStr = session.metadata.orderId
           const productId = productIdStr ? parseInt(productIdStr, 10) : NaN
-          const orderId = orderIdStr ? parseInt(orderIdStr, 10) : NaN
           const email = session.metadata.email
           const promocode = session.metadata.promocode || null
 
-          if (!userId || isNaN(productId) || isNaN(orderId) || !email) {
+          if (!userId || isNaN(productId) || !email) {
             console.error("[Stripe Webhook Error] Invalid product purchase metadata in session:", session.id)
             break
           }
 
-          // Fetch the order first to check if it's already PAID
+          // Fetch the order first to check if it's already PAID using stripeId (session.id)
           const order = await prisma.order.findUnique({
-            where: { id: orderId },
+            where: { stripeId: session.id },
             include: { product: true }
           })
 
           if (!order) {
-            console.error(`[Stripe Webhook Error] Order #${orderId} not found.`)
+            console.error(`[Stripe Webhook Error] Order with stripeId ${session.id} not found.`)
             break
           }
 
           if (order.status === 'PAID') {
-            console.log(`[Stripe Webhook Idempotency] Order #${orderId} is already marked as PAID. Skipping.`)
+            console.log(`[Stripe Webhook Idempotency] Order #${order.id} is already marked as PAID. Skipping.`)
             break
           }
 
@@ -149,7 +147,7 @@ export async function POST(req: Request) {
             await prisma.$transaction(async (tx) => {
               // 1. Lock and re-fetch the order inside the transaction to prevent race conditions
               const txOrder = await tx.order.findUnique({
-                where: { id: orderId },
+                where: { id: order.id },
                 include: { product: true }
               })
 
@@ -158,7 +156,7 @@ export async function POST(req: Request) {
               }
 
               if (txOrder.status === 'PAID') {
-                console.log(`[Stripe Webhook Transaction] Order #${orderId} already marked PAID.`)
+                console.log(`[Stripe Webhook Transaction] Order #${order.id} already marked PAID.`)
                 return
               }
 
@@ -174,7 +172,7 @@ export async function POST(req: Request) {
 
               // Update Order and Deposit status to PAID
               await tx.order.update({
-                where: { id: orderId },
+                where: { id: order.id },
                 data: { status: 'PAID' }
               })
 
@@ -215,7 +213,7 @@ export async function POST(req: Request) {
               await tx.ticket.create({
                 data: {
                   userId,
-                  orderId,
+                  orderId: order.id,
                   productKey,
                 }
               })
@@ -236,7 +234,7 @@ export async function POST(req: Request) {
               isolationLevel: 'Serializable'
             })
 
-            console.log(`[Stripe Webhook Success] Fulfilled product purchase for user ${userId}, product ${productId}, order ${orderId}`)
+            console.log(`[Stripe Webhook Success] Fulfilled product purchase for user ${userId}, product ${productId}, order ${order.id}`)
 
             // Send email asynchronously and log any errors without raising exceptions to prevent webhook failure
             if (ticketInfo) {

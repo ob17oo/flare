@@ -4,6 +4,7 @@ import { authOptions } from "@/shared/lib/auth"
 import { prisma } from "@/shared/lib/prisma"
 import { stripe } from "@/shared/lib/stripe"
 import { getServerSession } from "next-auth"
+import { getAppUrl } from "@/shared/lib/utils"
 
 interface CreateProductStripeSessionProps {
   productId: number
@@ -76,7 +77,7 @@ export async function createProductStripeSessionAction(data: CreateProductStripe
     const discountAmount = Math.round(product.price * totalDiscountPercent / 100)
     const finalPrice = Math.max(product.price - discountAmount, 0)
 
-    const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const appUrl = getAppUrl()
 
     // Create a Checkout Session in Stripe
     const session = await stripe.checkout.sessions.create({
