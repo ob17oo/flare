@@ -196,12 +196,17 @@ describe('CarouselComponent', () => {
 
         const user = userEvent.setup()
         const items = screen.getAllByTestId('carousel-item')
+        const firstItem = items[0]
+        const secondItem = items[1]
+        if (!firstItem || !secondItem) {
+            throw new Error('Test elements not found')
+        }
 
-        await user.click(items[0])
+        await user.click(firstItem)
         expect(mockRouter.push).toHaveBeenCalledWith('/games/1')
         expect(mockRouter.push).toHaveBeenCalledTimes(1)
 
-        await user.click(items[1])
+        await user.click(secondItem)
         expect(mockRouter.push).toHaveBeenCalledWith('/games/2')
         expect(mockRouter.push).toHaveBeenCalledTimes(2)
     })

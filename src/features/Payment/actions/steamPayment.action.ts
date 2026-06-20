@@ -9,7 +9,7 @@ interface SteamPaymentActionProps {
   steamLogin: string
   amount: number
   calculatedPrice: number
-  promocode?: string
+  promocode?: string | undefined
   paymentMethod: 'balance' | 'card' | 'sbp' | 'qiwi'
 }
 
@@ -69,7 +69,11 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
     }
 
     // Use the first steam wallet product as the item placeholder for database integrity
-    const placeholderProduct = steamProvider.wallet[0].product
+    const firstWallet = steamProvider.wallet[0]
+    if (!firstWallet) {
+      throw new Error('STEAM_PRODUCT_NOT_FOUND')
+    }
+    const placeholderProduct = firstWallet.product
 
     let promocode = null
     let discount = 0
@@ -233,7 +237,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
         'NOT_ENOUGH_MONEY': 'Недостаточно средств на балансе Flare',
         'PROMOCODE_NOT_FOUND': 'Промокод не найден'
       }
-      const errorCode = error.message.split(':')[0]
+      const errorCode = error.message.split(':')[0] ?? ""
       userMessage = errorMap[errorCode] || error.message
     }
     return {

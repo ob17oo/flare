@@ -42,7 +42,7 @@ export function SubscriptionsPage({servicesInitialData}: SubscriptionsPageProps)
                         const isSelected = genreFilter === genre;
                         return (
                             <button 
-                                onClick={() => setGenreFilter(serviceGenre[index])} 
+                                onClick={() => setGenreFilter(genre)} 
                                 key={genre} 
                                 className={`px-4.5 py-2 rounded-xl text-[13px] font-semibold transition-all duration-300 cursor-pointer border ${
                                     isSelected 

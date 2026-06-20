@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache"
 
 interface PaymentActionProps{
     productId: number,
-    promocode?: string,
+    promocode?: string | undefined,
     email: string
 }
 
@@ -209,7 +209,7 @@ export async function paymentAction(data: PaymentActionProps){
                 'NOT_ENOUGH_MONEY' : 'Недостаточно средств',
                 'PROMOCODE_NOT_FOUND' : 'Промокод не найден'
             }
-            const errorCode = error.message.split(':')[0]
+            const errorCode = error.message.split(':')[0] ?? ""
             userMessage = errorMap[errorCode] || error.message
         }
         return {

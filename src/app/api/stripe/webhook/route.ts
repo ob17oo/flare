@@ -45,7 +45,8 @@ export async function POST(req: Request) {
         // Only process balance top-up deposits
         if (session.metadata?.purpose === 'deposit') {
           const userId = session.metadata.userId
-          const amount = parseInt(session.metadata.rubAmount || session.metadata.amount, 10)
+          const rubAmount = session.metadata.rubAmount || session.metadata.amount
+          const amount = rubAmount ? parseInt(rubAmount, 10) : NaN
 
           if (!userId || isNaN(amount)) {
             console.error("[Stripe Webhook Error] Invalid metadata in session:", session.id)
@@ -104,8 +105,10 @@ export async function POST(req: Request) {
           })
         } else if (session.metadata?.purpose === 'product_purchase') {
           const userId = session.metadata.userId
-          const productId = parseInt(session.metadata.productId, 10)
-          const orderId = parseInt(session.metadata.orderId, 10)
+          const productIdStr = session.metadata.productId
+          const orderIdStr = session.metadata.orderId
+          const productId = productIdStr ? parseInt(productIdStr, 10) : NaN
+          const orderId = orderIdStr ? parseInt(orderIdStr, 10) : NaN
           const email = session.metadata.email
           const promocode = session.metadata.promocode || null
 

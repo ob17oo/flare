@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth"
 interface CreateProductStripeSessionProps {
   productId: number
   email: string
-  promocode?: string
+  promocode?: string | undefined
 }
 
 export async function createProductStripeSessionAction(data: CreateProductStripeSessionProps) {
@@ -88,7 +88,7 @@ export async function createProductStripeSessionAction(data: CreateProductStripe
             product_data: {
               name: product.title,
               description: `Покупка товара на Flare. Получатель: ${data.email}`,
-              images: product.image_url ? [product.image_url.startsWith('http') ? product.image_url : `${appUrl}${product.image_url}`] : undefined,
+              ...(product.image_url ? { images: [product.image_url.startsWith('http') ? product.image_url : `${appUrl}${product.image_url}`] } : {})
             },
             unit_amount: finalPrice * 100, // Stripe expects cents/kopecks
           },

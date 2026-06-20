@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
                                 'PASSWORD_NOT_SET': 'Пароль не установлен',
                                 'INVALID_PASSWORD': 'Неверный пароль',
                             }
-                            const errorCode = error.message.split(':')[0]
+                            const errorCode = error.message.split(':')[0] ?? ""
                             const userMessage = errorMap[errorCode] || error.message
 
                             throw new Error(`AUTH_ERROR ${userMessage}`)
@@ -258,5 +258,5 @@ export const authOptions: NextAuthOptions = {
         }
     },
     debug: process.env.NODE_ENV === 'development',
-    secret: process.env.AUTH_SECRET
+    ...(process.env.AUTH_SECRET ? { secret: process.env.AUTH_SECRET } : {})
 }

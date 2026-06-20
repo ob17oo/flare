@@ -22,7 +22,8 @@ export function WalletsPage({initialProviders, initialWallets}: WalletsPageProps
             const parsedId = parseInt(paramId)
             return parsedId
         } else {
-            return providers[0].id
+            const firstProvider = providers[0]
+            return firstProvider ? firstProvider.id : 0
         }
     }
     

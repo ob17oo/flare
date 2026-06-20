@@ -31,7 +31,9 @@ const IconMap: Record<string, React.ComponentType<{ size?: number; className?: s
 
 export function FAQPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategoryId, setSelectedCategoryId] = useState(FAQ_DATA[0].id)
+  const firstFaq = FAQ_DATA[0]
+  if (!firstFaq) throw new Error("FAQ_DATA is empty")
+  const [selectedCategoryId, setSelectedCategoryId] = useState(firstFaq.id)
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -57,12 +59,20 @@ export function FAQPage() {
   }, [searchQuery])
 
   const selectedCategory = useMemo(() => {
-    return FAQ_DATA.find(cat => cat.id === selectedCategoryId) || FAQ_DATA[0]
+    const found = FAQ_DATA.find(cat => cat.id === selectedCategoryId)
+    if (found) return found
+    const first = FAQ_DATA[0]
+    if (!first) throw new Error("FAQ_DATA is empty")
+    return first
   }, [selectedCategoryId])
 
   const renderIcon = (iconName: string, className?: string) => {
     const IconComp = IconMap[iconName]
-    return IconComp ? <IconComp size={16} className={className} /> : <HelpCircle size={16} className={className} />
+    const iconProps = {
+      size: 16,
+      ...(className ? { className } : {})
+    }
+    return IconComp ? <IconComp {...iconProps} /> : <HelpCircle {...iconProps} />
   }
 
   return (

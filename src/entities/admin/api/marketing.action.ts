@@ -5,18 +5,18 @@ import { revalidatePath } from "next/cache";
 
 export interface BannerInput {
   title: string;
-  subtitle?: string | null;
-  description?: string | null;
+  subtitle?: string | null | undefined;
+  description?: string | null | undefined;
   image_url: string;
-  buttonText?: string | null;
+  buttonText?: string | null | undefined;
   linkType: string;
   linkUrl: string;
-  promoCode?: string | null;
-  promoDiscount?: number | string;
-  sortOrder?: number | string;
-  isActive?: boolean;
-  startDate?: string | Date | null;
-  endDate?: string | Date | null;
+  promoCode?: string | null | undefined;
+  promoDiscount?: number | string | undefined;
+  sortOrder?: number | string | undefined;
+  isActive?: boolean | undefined;
+  startDate?: string | Date | null | undefined;
+  endDate?: string | Date | null | undefined;
 }
 
 export async function getAllBanners() {

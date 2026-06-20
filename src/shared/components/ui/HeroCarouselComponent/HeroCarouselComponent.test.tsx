@@ -185,8 +185,12 @@ describe('HerCarouselComponent', () => {
     render(<HeroCarouselComponent carouselItem={mockProducts}/>)
     const user = userEvent.setup()
     const buttons = screen.getAllByText('Подробнее')
+    const firstButton = buttons[0]
+    if (!firstButton) {
+      throw new Error('Button not found')
+    }
 
-    await user.click(buttons[0])
+    await user.click(firstButton)
     expect(mockRouter.push).toHaveBeenCalledWith('/games/1')
     expect(mockRouter.push).toHaveBeenCalledTimes(1)
   })

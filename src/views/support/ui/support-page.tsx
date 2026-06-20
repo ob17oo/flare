@@ -182,7 +182,7 @@ export function SupportPage() {
   // Simulated File Upload handler
   const simulateAttachment = () => {
     const fileNames = ['screenshot_payment_error.png', 'receipt_payment_stripe.pdf', 'system_error_log.txt']
-    const randomName = fileNames[Math.floor(Math.random() * fileNames.length)]
+    const randomName = fileNames[Math.floor(Math.random() * fileNames.length)] ?? 'screenshot_payment_error.png'
     const randomSize = Math.floor(Math.random() * 5 * 1024 * 1024) + 1024 // 1KB to 5MB
 
     const newAttachment = {
