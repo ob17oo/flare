@@ -1,4 +1,4 @@
-import { Product, TBaseProduct } from "@/shared/types/product.types";
+import { Product, TBaseProduct } from "@/entities/product/model/types";
 import { render, screen, waitFor } from "@testing-library/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -51,6 +51,10 @@ jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
 }))
 
+jest.mock('@tanstack/react-query', () => ({
+  useQuery: jest.fn(() => ({ data: [], isLoading: false }))
+}))
+
 jest.mock('../CardComponent/Card-component', () => {
     const mockCardComponent = ({item, sizeVariant}: {item: Product, sizeVariant: string}) => (
         <div data-testid="card-component">
@@ -69,7 +73,7 @@ let onSelectCallback: (() => void) | null = null
 
 jest.mock('@/shared/components/ui/shadCN/carousel', () => {
 
-    const MockCarousel = ({ children, className, plugins, setApi } : {children: React.ReactNode, className?: string, plugins?: unknown[], setApi?: (api:unknown) => void}) => {
+    const MockCarousel = ({ children, className, setApi } : {children: React.ReactNode, className?: string, plugins?: unknown[], setApi?: (api:unknown) => void}) => {
         React.useEffect(() => {
             if(setApi){
                 mockApi = {
@@ -80,6 +84,7 @@ jest.mock('@/shared/components/ui/shadCN/carousel', () => {
                             onSelectCallback = callback   
                         }
                     },
+                    off: jest.fn(),
                     scrollTo: jest.fn()
                 }
                 setApi(mockApi)

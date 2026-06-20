@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ImageUploadDropzone } from './components/ImageUploadDropzone';
+import { getAllProducts } from '@/entities/admin/api/products.action';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Обязательное поле'),
@@ -32,8 +33,9 @@ const productSchema = z.object({
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
+type ProductType = Awaited<ReturnType<typeof getAllProducts>>[number];
 
-export function ProductsClient({ initialData }: { initialData: any[] }) {
+export function ProductsClient({ initialData }: { initialData: ProductType[] }) {
   const { data: products } = useAdminProducts(initialData);
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -46,6 +48,7 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { register, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<any>({
     resolver: zodResolver(productSchema),
     defaultValues: { isActive: true, stock: 100, productType: 'GAME', productEdition: 'Standard', currency: 'RUB' }
@@ -70,19 +73,20 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (product: any) => {
+  const openEditModal = (product: ProductType) => {
+    const rawProduct = product as unknown as Record<string, unknown>;
     reset({
       title: product.title,
-      slug: product.slug,
-      shortDescription: product.shortDescription || '',
+      slug: (rawProduct.slug as string) || '',
+      shortDescription: (rawProduct.shortDescription as string) || '',
       description: product.description || '',
       price: product.price,
-      oldPrice: product.oldPrice || '',
-      discount: product.discount || '',
-      currency: product.currency || 'RUB',
+      oldPrice: (rawProduct.oldPrice as number | undefined) || '',
+      discount: (rawProduct.discount as number | undefined) || '',
+      currency: (rawProduct.currency as string | undefined) || 'RUB',
       image_url: product.image_url || '',
-      bucket: product.bucket || '',
-      imagePath: product.imagePath || '',
+      bucket: (rawProduct.bucket as string | undefined) || '',
+      imagePath: (rawProduct.imagePath as string | undefined) || '',
       isActive: product.isActive,
       productEdition: product.productEdition,
       stock: product.stock,
@@ -97,13 +101,15 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = (data: any) => {
+    const formData = data as ProductFormData;
     setSaveStatus('saving');
     
     // Transform tags back to array
     const formattedData = {
-      ...data,
-      tags: data.tags ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : []
+      ...formData,
+      tags: formData.tags ? formData.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : []
     };
 
     if (editingId) {
@@ -171,7 +177,7 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {products?.map((product: any) => (
+              {products?.map((product: ProductType) => (
                 <tr key={product.id} className="hover:bg-[#1A1A1A] transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
@@ -186,7 +192,7 @@ export function ProductsClient({ initialData }: { initialData: any[] }) {
                       </div>
                       <div className="truncate max-w-[150px] sm:max-w-[250px]">
                         <p className="font-semibold text-white truncate text-base">{product.title}</p>
-                        <p className="text-xs text-[#A1A1AA] truncate mt-0.5">/{product.slug}</p>
+                        <p className="text-xs text-[#A1A1AA] truncate mt-0.5">/{(product as unknown as { slug?: string }).slug}</p>
                       </div>
                     </div>
                   </td>

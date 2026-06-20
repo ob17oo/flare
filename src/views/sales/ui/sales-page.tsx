@@ -4,6 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { CardComponent } from '@/shared/components';
 import { Loader2, Percent, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { TCarouselItem } from '@/entities/product/model/types';
+
+type TDiscountedItem = TCarouselItem & { url: string };
 
 export function SalesPage() {
   const { data, isLoading, isError, refetch, isRefetching } = useQuery({
@@ -12,9 +15,9 @@ export function SalesPage() {
       const res = await fetch('/api/products/discounts');
       if (!res.ok) throw new Error('Failed to fetch discounted products');
       return res.json() as Promise<{
-        games: any[];
-        subscriptions: any[];
-        wallets: any[];
+        games: TDiscountedItem[];
+        subscriptions: TDiscountedItem[];
+        wallets: TDiscountedItem[];
       }>;
     },
     staleTime: 30 * 1000 // 30 seconds stale time
@@ -99,7 +102,7 @@ export function SalesPage() {
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 auto-rows-max">
-                {data.games.map((item: any) => (
+                {data.games.map((item: TDiscountedItem) => (
                   <Link key={item.id} href={item.url} className="block h-full">
                     <CardComponent item={item} sizeVariant="default" />
                   </Link>
@@ -118,7 +121,7 @@ export function SalesPage() {
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 auto-rows-max">
-                {data.subscriptions.map((item: any) => (
+                {data.subscriptions.map((item: TDiscountedItem) => (
                   <Link key={item.id} href={item.url} className="block h-full">
                     <CardComponent item={item} sizeVariant="default" />
                   </Link>
@@ -137,7 +140,7 @@ export function SalesPage() {
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 auto-rows-max">
-                {data.wallets.map((item: any) => (
+                {data.wallets.map((item: TDiscountedItem) => (
                   <Link key={item.id} href={item.url} className="block h-full">
                     <CardComponent item={item} sizeVariant="default" />
                   </Link>

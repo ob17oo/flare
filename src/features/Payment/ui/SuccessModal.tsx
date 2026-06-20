@@ -1,5 +1,6 @@
 import { Check } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useLockScroll } from "@/shared/hooks"
 
 interface SuccessModalProps {
     showModal: boolean,
@@ -8,6 +9,7 @@ interface SuccessModalProps {
 }
 export function SuccessModal({showModal, setShowModal, successMsg}: SuccessModalProps){
     const router = useRouter()
+    useLockScroll({ isOpen: showModal })
     if(!showModal){
         return null
     }

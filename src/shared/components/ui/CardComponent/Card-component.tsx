@@ -41,10 +41,10 @@ export function CardComponent({item, sizeVariant }: CardProps) {
   const launcherInfo = isGameProduct(item) && item.game?.launcher ? item.game.launcher : null
   
   // Safe cast for custom fields
-  const customItem = item as any;
-  const oldPrice = customItem.oldPrice || null;
-  const discountPercent = customItem.discountPercent || 0;
-  const categoryLabel = customItem.categoryLabel || null;
+  const customItem = item as unknown as Record<string, unknown>;
+  const oldPrice = (customItem.oldPrice as number | undefined) || null;
+  const discountPercent = (customItem.discountPercent as number | undefined) || 0;
+  const categoryLabel = (customItem.categoryLabel as string | undefined) || null;
 
   return (
     <div className="group flex flex-col h-full bg-[var(--secondary)] border border-[var(--border-muted)] hover:border-[var(--accent)] rounded-2xl p-3.5 shadow-[var(--card-shadow)] transition-all duration-300">
@@ -72,7 +72,7 @@ export function CardComponent({item, sizeVariant }: CardProps) {
               height={24}
               alt={launcherInfo.title || "LauncherLogo"}
             />
-            <p className="text-[11px] font-medium text-white">{launcherInfo.title}</p>
+            <p className="text-[11px] font-medium text-white hidden xs:block">{launcherInfo.title}</p>
           </div>
         )}
       </div>

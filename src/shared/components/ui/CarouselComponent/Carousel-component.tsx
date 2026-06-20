@@ -13,7 +13,7 @@ type SizeVariant = 'default' | 'medium' | 'large'
 interface CarouselProps{
     carouselItem?: TCarouselItem[],
     carouselHeader: string,
-    carouselImage: string,
+    carouselImage?: string,
     sizeVariant: SizeVariant,
     carouselValue: string
 }

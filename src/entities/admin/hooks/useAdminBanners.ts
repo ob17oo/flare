@@ -6,7 +6,7 @@ export const adminBannerKeys = {
   lists: () => [...adminBannerKeys.all, 'list'] as const,
 };
 
-export function useAdminBanners(initialData?: any[]) {
+export function useAdminBanners(initialData?: Awaited<ReturnType<typeof getAllBanners>>) {
   return useQuery({
     queryKey: adminBannerKeys.lists(),
     queryFn: () => getAllBanners(),
@@ -18,7 +18,7 @@ export function useAdminBanners(initialData?: any[]) {
 export function useCreateBanner() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: any) => createBanner(data),
+    mutationFn: (data: Parameters<typeof createBanner>[0]) => createBanner(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminBannerKeys.all });
     }
@@ -28,7 +28,7 @@ export function useCreateBanner() {
 export function useUpdateBanner() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number, data: any }) => updateBanner(id, data),
+    mutationFn: ({ id, data }: { id: number, data: Parameters<typeof updateBanner>[1] }) => updateBanner(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminBannerKeys.all });
     }

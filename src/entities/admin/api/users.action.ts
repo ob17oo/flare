@@ -10,7 +10,16 @@ export async function getAllUsers() {
   return users;
 }
 
-export async function updateUser(id: string, data: any) {
+import { USER_ROLE } from "@prisma/client";
+
+export interface UserInput {
+  role: USER_ROLE;
+  balance: number | string;
+  discount: number | string;
+  isBanned: boolean;
+}
+
+export async function updateUser(id: string, data: UserInput) {
   const user = await prisma.user.update({
     where: { id },
     data: {

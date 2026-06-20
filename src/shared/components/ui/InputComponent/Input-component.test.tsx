@@ -15,13 +15,13 @@ describe('InputComponent', () => {
         render(<InputComponent sizeVariant="default"/>)
 
         const input = screen.getByRole('textbox')
-        expect(input).toHaveClass('py-2 px-3')
+        expect(input).toHaveClass('h-11 px-3.5')
     })
     it('applies medium size classes', () => {
         render(<InputComponent sizeVariant="medium"/>)
 
         const input = screen.getByRole('textbox')
-        expect(input).toHaveClass('py-3 px-4')
+        expect(input).toHaveClass('h-12 px-4')
     })
 
     it('focuses input on click', async () => {

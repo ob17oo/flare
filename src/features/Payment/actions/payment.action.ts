@@ -21,7 +21,7 @@ export async function paymentAction(data: PaymentActionProps){
 
         const userId = serverSession.user.id
 
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findUnique({
             where: { id: userId },
             select: { 
                 balance: true,
@@ -51,29 +51,21 @@ export async function paymentAction(data: PaymentActionProps){
         else if (activeReferrals >= 1) referralDiscount = 1;
 
 
-        const product = await prisma.product.findFirst({
-            where: {
-                id: data.productId,
-                isActive: true,
-                stock: { gt: 0 }
-            }
+        const product = await prisma.product.findUnique({
+            where: { id: data.productId }
         })
 
-        if(!product){
+        if(!product || !product.isActive || product.stock <= 0){
             throw new Error('PRODUCT_NOT_FOUND')
         }
 
         let promocode = null
         let discount = 0
         if(data.promocode){
-            promocode = await prisma.promocode.findFirst({
-                where: {
-                    code: data.promocode,
-                    isActive: true,
-                    maxUses: { gt: 0 }
-                }
+            promocode = await prisma.promocode.findUnique({
+                where: { code: data.promocode.toUpperCase() }
             })
-            if(!promocode){
+            if(!promocode || !promocode.isActive || (promocode.maxUses - promocode.usesCount) <= 0){
                 throw new Error('PROMOCODE_NOT_FOUND')
             }
 
@@ -89,6 +81,36 @@ export async function paymentAction(data: PaymentActionProps){
         }
 
         const transaction = await prisma.$transaction(async (tx) => {
+            // Re-verify inside the transaction to prevent race conditions under serializable isolation
+            const txUser = await tx.user.findUnique({
+                where: { id: userId },
+                select: { balance: true }
+            })
+
+            if (!txUser) {
+                throw new Error('USER_NOT_FOUND')
+            }
+
+            if (txUser.balance < finalPrice) {
+                throw new Error('NOT_ENOUGH_MONEY')
+            }
+
+            const txProduct = await tx.product.findUnique({
+                where: { id: data.productId }
+            })
+
+            if (!txProduct || !txProduct.isActive || txProduct.stock <= 0) {
+                throw new Error('PRODUCT_NOT_FOUND')
+            }
+
+            if (data.promocode) {
+                const txPromocode = await tx.promocode.findUnique({
+                    where: { code: data.promocode.toUpperCase() }
+                })
+                if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
+                    throw new Error('PROMOCODE_NOT_FOUND')
+                }
+            }
 
             await tx.user.update({
                 where: {
@@ -104,7 +126,7 @@ export async function paymentAction(data: PaymentActionProps){
                 },
             })
             
-            const order = await prisma.order.create({
+            const order = await tx.order.create({
                 data: {
                     userId: userId,
                     productId: data.productId,
@@ -143,10 +165,10 @@ export async function paymentAction(data: PaymentActionProps){
                 }
             })
 
-            if(promocode){
+            if(data.promocode){
                 await tx.promocode.update({
                     where: {
-                        id: promocode.id
+                        code: data.promocode.toUpperCase()
                     },
                     data: {
                         usesCount: {
@@ -178,6 +200,7 @@ export async function paymentAction(data: PaymentActionProps){
             console.log('Order creating error', error)
         }
 
+        let userMessage = 'Произошла неизвестная ошибка'
         if(error instanceof Error){
             const errorMap: Record<string, string> = {
                 'USER_NOT_AUTHORIZED': 'Пользователь не авторизован',
@@ -187,10 +210,11 @@ export async function paymentAction(data: PaymentActionProps){
                 'PROMOCODE_NOT_FOUND' : 'Промокод не найден'
             }
             const errorCode = error.message.split(':')[0]
-            const userMessage = errorMap[errorCode] || error.message
-
-            throw new Error(`CREATING ORDER ERROR ${userMessage}`)
+            userMessage = errorMap[errorCode] || error.message
         }
-        throw new Error(`Creating order: Неизвестная ошибка`)
+        return {
+            success: false,
+            message: userMessage
+        }
     }
 }

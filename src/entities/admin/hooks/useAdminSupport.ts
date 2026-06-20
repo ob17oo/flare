@@ -7,7 +7,7 @@ export const adminSupportKeys = {
   detail: (id: string) => [...adminSupportKeys.all, 'detail', id] as const,
 };
 
-export function useAdminTickets(initialData?: any[]) {
+export function useAdminTickets(initialData?: Awaited<ReturnType<typeof getAllTickets>>) {
   return useQuery({
     queryKey: adminSupportKeys.lists(),
     queryFn: () => getAllTickets(),
@@ -16,7 +16,7 @@ export function useAdminTickets(initialData?: any[]) {
   });
 }
 
-export function useAdminTicketDetails(id: string, initialData?: any) {
+export function useAdminTicketDetails(id: string, initialData?: Awaited<ReturnType<typeof getTicketDetails>>) {
   return useQuery({
     queryKey: adminSupportKeys.detail(id),
     queryFn: () => getTicketDetails(id),
@@ -28,8 +28,8 @@ export function useAdminTicketDetails(id: string, initialData?: any) {
 export function useUpdateTicketStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string, status: any }) => updateTicketStatus(id, status),
-    onSuccess: (_, variables) => {
+    mutationFn: ({ id, status }: { id: string, status: Parameters<typeof updateTicketStatus>[1] }) => updateTicketStatus(id, status),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminSupportKeys.all });
     }
   });
@@ -39,7 +39,7 @@ export function useAssignModerator() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, moderatorId }: { id: string, moderatorId: string }) => assignModerator(id, moderatorId),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminSupportKeys.all });
     }
   });
@@ -49,7 +49,7 @@ export function useReplyToTicket() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ ticketId, content }: { ticketId: string, content: string }) => replyToTicket(ticketId, content),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminSupportKeys.all });
     }
   });

@@ -23,6 +23,22 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+interface DropdownSearchItem {
+  id: number;
+  title: string;
+  price: number;
+  image_url: string;
+  productType: string;
+  productEdition: string;
+  tags: string[];
+  discountPercent: number;
+  oldPrice: number;
+  launcher: string | null;
+  provider: string | null;
+  url: string;
+  categoryLabel?: string;
+}
+
 export function SearchInputWithDropdown() {
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -36,7 +52,7 @@ export function SearchInputWithDropdown() {
   // Fetch search results from API using React Query
   const { data, isLoading, isError } = useQuery({
     queryKey: ['global-search', debouncedQuery],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ games: DropdownSearchItem[]; subscriptions: DropdownSearchItem[]; wallets: DropdownSearchItem[] }> => {
       if (!debouncedQuery.trim()) return { games: [], subscriptions: [], wallets: [] };
       const res = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
       if (!res.ok) throw new Error('Search failed');
@@ -50,9 +66,9 @@ export function SearchInputWithDropdown() {
   const flatItems = useMemo(() => {
     if (!data) return [];
     return [
-      ...(data.games || []).map((item: any) => ({ ...item, categoryLabel: 'Игры' })),
-      ...(data.wallets || []).map((item: any) => ({ ...item, categoryLabel: 'Пополнение' })),
-      ...(data.subscriptions || []).map((item: any) => ({ ...item, categoryLabel: 'Подписки' }))
+      ...(data.games || []).map((item: DropdownSearchItem) => ({ ...item, categoryLabel: 'Игры' })),
+      ...(data.wallets || []).map((item: DropdownSearchItem) => ({ ...item, categoryLabel: 'Пополнение' })),
+      ...(data.subscriptions || []).map((item: DropdownSearchItem) => ({ ...item, categoryLabel: 'Подписки' }))
     ];
   }, [data]);
 
@@ -68,9 +84,11 @@ export function SearchInputWithDropdown() {
   }, []);
 
   // Reset active index when query or results change
-  useEffect(() => {
+  const [prevQuery, setPrevQuery] = useState(debouncedQuery);
+  if (debouncedQuery !== prevQuery) {
+    setPrevQuery(debouncedQuery);
     setActiveIndex(-1);
-  }, [debouncedQuery, flatItems]);
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isOpen) return;
@@ -180,7 +198,7 @@ export function SearchInputWithDropdown() {
                       {categoryLabel}
                     </h4>
                     <div className="space-y-0.5">
-                      {categoryItems.map((item: any) => {
+                      {categoryItems.map((item: DropdownSearchItem) => {
                         // Find global flat index for active hover styling
                         const itemIndex = flatItems.findIndex((f) => f.id === item.id && f.productType === item.productType);
                         const isActive = itemIndex === activeIndex;

@@ -210,13 +210,13 @@ describe('CarouselComponent', () => {
         render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="medium"/>)
 
         const items = screen.getAllByTestId('carousel-item')
-        expect(items[0]).toHaveClass('basis-1/4')
+        expect(items[0]).toHaveClass('lg:basis-1/4')
     })
 
     test('applies lagre size classes', () => {
         render(<CarouselComponent carouselValue="games" carouselItem={mockProduct} carouselHeader="Size Test" sizeVariant="large"/>)
 
         const items = screen.getAllByTestId('carousel-item')
-        expect(items[0]).toHaveClass('basis-1/3')
+        expect(items[0]).toHaveClass('md:basis-1/3')
     })
 })

@@ -1,10 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/shared/lib/prisma";
 import { parseProductTags } from "@/entities/admin/api/products.action";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+interface FormattedProduct {
+  id: number;
+  title: string;
+  price: number;
+  oldPrice: number;
+  discountPercent: number;
+  launcher: unknown;
+  provider: unknown;
+  url: string;
+  categoryLabel?: string;
+  [key: string]: unknown;
+}
+
+export async function GET() {
   try {
     const products = await prisma.product.findMany({
       where: {
@@ -20,9 +33,9 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    const games: any[] = [];
-    const subscriptions: any[] = [];
-    const wallets: any[] = [];
+    const games: FormattedProduct[] = [];
+    const subscriptions: FormattedProduct[] = [];
+    const wallets: FormattedProduct[] = [];
 
     for (const p of products) {
       const parsed = await parseProductTags(p);
@@ -44,7 +57,8 @@ export async function GET(req: NextRequest) {
           ? `/games/${p.id}` 
           : p.productType === "SERVICE_PLANS" 
             ? `/subscriptions/${p.servicePlans?.servicePlatform?.id || p.id}` 
-            : `/wallets?walletId=${p.wallet?.walletProvider?.id || p.id}`
+            : `/wallets?walletId=${p.wallet?.walletProvider?.id || p.id}`,
+        categoryLabel: ""
       };
 
       if (p.productType === "GAME") {

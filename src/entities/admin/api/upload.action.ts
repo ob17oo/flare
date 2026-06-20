@@ -18,7 +18,7 @@ export async function uploadImageAction(formData: FormData): Promise<{ publicUrl
 
     // Ensure bucket exists
     const { data: buckets } = await supabaseAdmin.storage.listBuckets();
-    const bucketExists = buckets?.find((b: any) => b.name === bucket);
+    const bucketExists = buckets?.find((b: { name: string }) => b.name === bucket);
     
     if (!bucketExists) {
       console.log(`Bucket ${bucket} not found, creating it...`);
@@ -29,7 +29,7 @@ export async function uploadImageAction(formData: FormData): Promise<{ publicUrl
       });
     }
 
-    const { data, error } = await supabaseAdmin.storage
+    const { error } = await supabaseAdmin.storage
       .from(bucket)
       .upload(filePath, file, { upsert: true });
 
@@ -41,8 +41,9 @@ export async function uploadImageAction(formData: FormData): Promise<{ publicUrl
     const { data: publicData } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath);
 
     return { publicUrl: publicData.publicUrl, imagePath: filePath, error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Server upload exception:', error);
-    return { publicUrl: '', imagePath: '', error: error.message || 'Внутренняя ошибка сервера при загрузке' };
+    const errMsg = error instanceof Error ? error.message : 'Внутренняя ошибка сервера при загрузке';
+    return { publicUrl: '', imagePath: '', error: errMsg };
   }
 }

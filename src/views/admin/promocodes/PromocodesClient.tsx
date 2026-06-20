@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { getAllPromocodes } from '@/entities/admin/api/promocodes.action';
 
 const promoSchema = z.object({
   code: z.string().min(1, 'Обязательное поле'),
@@ -16,8 +17,9 @@ const promoSchema = z.object({
 });
 
 type PromoFormData = z.infer<typeof promoSchema>;
+type PromocodeType = Awaited<ReturnType<typeof getAllPromocodes>>[number];
 
-export function PromocodesClient({ initialData }: { initialData: any[] }) {
+export function PromocodesClient({ initialData }: { initialData: PromocodeType[] }) {
   const { data: promocodes } = useAdminPromocodes(initialData);
   const createPromo = useCreatePromocode();
   const updatePromo = useUpdatePromocode();
@@ -26,6 +28,7 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { register, handleSubmit, reset, formState: { errors } } = useForm<any>({
     resolver: zodResolver(promoSchema),
     defaultValues: { isActive: true, maxUses: 150, discount: 5 }
@@ -37,7 +40,7 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (promo: any) => {
+  const openEditModal = (promo: PromocodeType) => {
     reset({
       code: promo.code,
       discount: promo.discount,
@@ -49,10 +52,12 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: PromoFormData) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = (data: any) => {
+    const formData = data as PromoFormData;
     const payload = {
-      ...data,
-      expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : null
+      ...formData,
+      expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null
     };
 
     if (editingId) {
@@ -100,7 +105,7 @@ export function PromocodesClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {promocodes?.map((promo: any) => (
+              {promocodes?.map((promo: PromocodeType) => (
                 <tr key={promo.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 font-bold text-white tracking-wider">{promo.code}</td>
                   <td className="px-6 py-4 text-green-500 font-medium">{promo.discount}%</td>

@@ -75,8 +75,9 @@ export function BalanceTopupPage({ initialDeposits = [] }: BalanceTopupPageProps
       } else {
         setErrorMsg('Не удалось создать сессию оплаты')
       }
-    } catch (err: any) {
-      const msg = err.message?.replace('STRIPE_SESSION_ERROR: ', '') || 'Произошла ошибка'
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Произошла ошибка'
+      const msg = errMsg.replace('STRIPE_SESSION_ERROR: ', '')
       setErrorMsg(msg)
     } finally {
       setIsRedirecting(false)

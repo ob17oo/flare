@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from "react"
-import { FAQ_DATA, FAQCategory, FAQItem } from "@/shared/constants/faq.constants"
+import { FAQ_DATA, FAQItem } from "@/shared/constants/faq.constants"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InputComponent } from "@/shared/components"
 import { 
   ShoppingBag, 
@@ -107,7 +107,7 @@ export function FAQPage() {
 
           {searchResults.length > 0 ? (
             <Accordion type="single" collapsible className="flex flex-col gap-3">
-              {searchResults.map(({ categoryTitle, item }, idx) => (
+              {searchResults.map(({ categoryTitle, item }) => (
                 <AccordionItem key={item.id} value={item.id} className="border border-[var(--border-muted)]/60 bg-[var(--bg-layer-2)]/30">
                   <AccordionTrigger className="hover:text-[var(--accent)] font-semibold text-[14px] py-4">
                     <span className="flex items-center gap-2.5">

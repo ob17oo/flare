@@ -6,24 +6,28 @@ import Image from 'next/image';
 import { formatPrice } from '@/shared/lib/utils';
 import { Edit2, X, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { getAllOrders } from '@/entities/admin/api/orders.action';
+import { STATUS } from '@prisma/client';
 
-export function OrdersClient({ initialData }: { initialData: any[] }) {
+type OrderType = Awaited<ReturnType<typeof getAllOrders>>[number];
+
+export function OrdersClient({ initialData }: { initialData: OrderType[] }) {
   const { data: orders } = useAdminOrders(initialData);
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<any | null>(null);
+  const [editingOrder, setEditingOrder] = useState<OrderType | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<{ status: string }>();
+  const { register, handleSubmit, reset } = useForm<{ status: STATUS }>();
 
-  const openEditModal = (order: any) => {
+  const openEditModal = (order: OrderType) => {
     setEditingOrder(order);
     reset({ status: order.status });
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: { status: string }) => {
+  const onSubmit = (data: { status: STATUS }) => {
     if (editingOrder) {
       updateStatus.mutate({ id: editingOrder.id, status: data.status }, {
         onSuccess: () => setIsModalOpen(false)
@@ -31,7 +35,7 @@ export function OrdersClient({ initialData }: { initialData: any[] }) {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (confirm('Удалить этот заказ навсегда?')) {
       deleteOrder.mutate(id);
     }
@@ -57,7 +61,7 @@ export function OrdersClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {orders?.map((order: any) => (
+              {orders?.map((order: OrderType) => (
                 <tr key={order.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] hidden md:table-cell">{String(order.id).slice(-8)}</td>
                   <td className="px-6 py-4">
@@ -102,7 +106,7 @@ export function OrdersClient({ initialData }: { initialData: any[] }) {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      order.status === 'COMPLETED' ? 'bg-green-500/10 text-green-500' :
+                      order.status === 'SUCCESS' ? 'bg-green-500/10 text-green-500' :
                       order.status === 'PENDING' ? 'bg-orange-500/10 text-orange-500' :
                       order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
                       'bg-blue-500/10 text-blue-500'

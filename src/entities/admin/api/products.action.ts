@@ -2,8 +2,25 @@
 
 import { prisma } from "@/shared/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { PRODUCT_EDITION, PRODUCT_TYPE } from "@prisma/client";
 
-export async function parseProductTags(product: any) {
+export interface ProductInput {
+  title: string;
+  description?: string | null;
+  price: number | string;
+  image_url?: string | null;
+  isActive: boolean;
+  productEdition?: PRODUCT_EDITION | string;
+  stock: number | string;
+  productType?: PRODUCT_TYPE | string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  tags?: string[];
+  oldPrice?: number | string | null;
+  discount?: number | string | null;
+}
+
+export async function parseProductTags<T extends { id: number; price: number; tags: string[] }>(product: T) {
   if (!product) return product;
   const tags = product.tags || [];
   let oldPrice: number | null = null;
@@ -40,7 +57,7 @@ export async function getAllProducts() {
   return Promise.all(products.map(p => parseProductTags(p)));
 }
 
-export async function createProduct(data: any) {
+export async function createProduct(data: ProductInput) {
   let tags = data.tags || [];
   tags = tags.filter((t: string) => !t.startsWith('oldPrice:') && !t.startsWith('discount:'));
   if (data.oldPrice && Number(data.oldPrice) > 0) {
@@ -57,9 +74,9 @@ export async function createProduct(data: any) {
       price: Number(data.price),
       image_url: data.image_url || "/static/default/default-product.png",
       isActive: data.isActive,
-      productEdition: data.productEdition || 'Standard',
+      productEdition: (data.productEdition as PRODUCT_EDITION) || 'Standard',
       stock: Number(data.stock),
-      productType: data.productType || 'GAME',
+      productType: (data.productType as PRODUCT_TYPE) || 'GAME',
       seoTitle: data.seoTitle,
       seoDescription: data.seoDescription,
       tags: tags
@@ -69,7 +86,7 @@ export async function createProduct(data: any) {
   return await parseProductTags(product);
 }
 
-export async function updateProduct(id: number, data: any) {
+export async function updateProduct(id: number, data: ProductInput) {
   let tags = data.tags || [];
   tags = tags.filter((t: string) => !t.startsWith('oldPrice:') && !t.startsWith('discount:'));
   if (data.oldPrice && Number(data.oldPrice) > 0) {
@@ -85,11 +102,11 @@ export async function updateProduct(id: number, data: any) {
       title: data.title,
       description: data.description,
       price: Number(data.price),
-      image_url: data.image_url,
+      image_url: data.image_url || undefined,
       isActive: data.isActive,
-      productEdition: data.productEdition,
+      productEdition: data.productEdition ? (data.productEdition as PRODUCT_EDITION) : undefined,
       stock: Number(data.stock),
-      productType: data.productType,
+      productType: data.productType ? (data.productType as PRODUCT_TYPE) : undefined,
       seoTitle: data.seoTitle,
       seoDescription: data.seoDescription,
       tags: tags

@@ -8,6 +8,7 @@ import { Edit2, X, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { getAllUsers } from '@/entities/admin/api/users.action';
 
 const userSchema = z.object({
   role: z.enum(['USER', 'ADMIN', 'MODERATOR']),
@@ -17,19 +18,21 @@ const userSchema = z.object({
 });
 
 type UserFormData = z.infer<typeof userSchema>;
+type UserType = Awaited<ReturnType<typeof getAllUsers>>[number];
 
-export function UsersClient({ initialData }: { initialData: any[] }) {
+export function UsersClient({ initialData }: { initialData: UserType[] }) {
   const { data: users } = useAdminUsers(initialData);
   const updateUser = useUpdateUser();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<any>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { register, handleSubmit, reset } = useForm<any>({
     resolver: zodResolver(userSchema)
   });
 
-  const openEditModal = (user: any) => {
+  const openEditModal = (user: UserType) => {
     reset({
       role: user.role,
       balance: user.balance,
@@ -40,9 +43,10 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: UserFormData) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = (data: any) => {
     if (editingId) {
-      updateUser.mutate({ id: editingId, data }, {
+      updateUser.mutate({ id: editingId, data: data as UserFormData }, {
         onSuccess: () => setIsModalOpen(false)
       });
     }
@@ -69,7 +73,7 @@ export function UsersClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {users?.map((user: any) => (
+              {users?.map((user: UserType) => (
                 <tr key={user.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">

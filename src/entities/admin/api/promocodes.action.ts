@@ -13,7 +13,15 @@ export async function getAllPromocodes() {
   return promocodes;
 }
 
-export async function createPromocode(data: any) {
+export interface PromocodeInput {
+  code: string;
+  discount: number | string;
+  maxUses: number | string;
+  isActive: boolean;
+  expiresAt?: string | Date | null;
+}
+
+export async function createPromocode(data: PromocodeInput) {
   const promocode = await prisma.promocode.create({
     data: {
       code: data.code.toUpperCase(),
@@ -27,7 +35,7 @@ export async function createPromocode(data: any) {
   return promocode;
 }
 
-export async function updatePromocode(id: number, data: any) {
+export async function updatePromocode(id: number, data: PromocodeInput) {
   const promocode = await prisma.promocode.update({
     where: { id },
     data: {

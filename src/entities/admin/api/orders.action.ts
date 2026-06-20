@@ -18,17 +18,19 @@ export async function getAllOrders() {
   return orders;
 }
 
-export async function updateOrderStatus(id: string, status: any) {
+import { STATUS } from "@prisma/client";
+
+export async function updateOrderStatus(id: number, status: STATUS) {
   const order = await prisma.order.update({
-    where: { id: Number(id) },
+    where: { id },
     data: { status }
   });
   revalidatePath('/admin/orders');
   return order;
 }
 
-export async function deleteOrder(id: string) {
-  await prisma.order.delete({ where: { id: Number(id) } });
+export async function deleteOrder(id: number) {
+  await prisma.order.delete({ where: { id } });
   revalidatePath('/admin/orders');
   return { success: true };
 }

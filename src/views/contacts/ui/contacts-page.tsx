@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { InputComponent, ButtonComponent } from "@/shared/components"
-import { Mail, MessageCircle, HelpCircle, Clock, Send, CheckCircle2, ShieldCheck } from "lucide-react"
+import { Mail, MessageCircle, HelpCircle, Clock, Send, CheckCircle2 } from "lucide-react"
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Имя должно содержать минимум 2 символа"),

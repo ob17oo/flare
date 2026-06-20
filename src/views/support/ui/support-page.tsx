@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -19,8 +19,7 @@ import {
   X,
   FileText,
   User,
-  ShieldCheck,
-  CornerDownLeft
+  ShieldCheck
 } from "lucide-react"
 
 // Types
@@ -220,7 +219,7 @@ export function SupportPage() {
   }
 
   return (
-    <div className="max-w-[1000px] mx-auto py-10 flex flex-col gap-8 animate-fade-in">
+    <div className="max-w-[1000px] mx-auto px-4 py-10 flex flex-col gap-8 animate-fade-in">
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-muted)]/60 pb-6">
         <div className="flex flex-col gap-1.5">
@@ -469,7 +468,7 @@ export function SupportPage() {
 
                       {/* Msg bubble */}
                       <div className="flex flex-col gap-1">
-                        <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed ${
+                        <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed break-words whitespace-pre-wrap ${
                           isUser
                             ? 'bg-[var(--accent)] text-white rounded-tr-none'
                             : 'bg-[var(--bg-layer-2)] text-[var(--text-primary)] rounded-tl-none border border-[var(--border-muted)]'
@@ -502,12 +501,12 @@ export function SupportPage() {
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Напишите ответ..."
                   disabled={replyMutation.isPending}
-                  className="flex-1 bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl px-4 py-2.5 text-[13px] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                  className="flex-1 h-11 bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl px-4 text-[13px] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)] transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={replyMutation.isPending || !replyText.trim()}
-                  className={`w-10 h-10 flex items-center justify-center rounded-xl text-white transition-all duration-200 shrink-0 ${
+                  className={`w-11 h-11 flex items-center justify-center rounded-xl text-white transition-all duration-200 shrink-0 ${
                     replyMutation.isPending || !replyText.trim()
                       ? 'bg-[var(--bg-layer-3)] text-[var(--text-secondary)] cursor-not-allowed border border-[var(--border-muted)]'
                       : 'bg-[var(--accent)] hover:bg-[var(--accent-hover)] cursor-pointer'

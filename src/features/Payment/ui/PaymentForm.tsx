@@ -11,6 +11,7 @@ import { SuccessModal } from "./SuccessModal"
 import { TPaymentItem } from "../model/types"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 
 interface PaymentComponentProps {
     item: TPaymentItem,
@@ -20,33 +21,43 @@ export function PaymentComponent({item}: PaymentComponentProps){
     const router = useRouter()
     const searchParams = useSearchParams()
     const promoParam = searchParams ? searchParams.get('promo') : null
-    const [havePromo, setHavePromo] = useState(false)
+    const [havePromo, setHavePromo] = useState(!!promoParam)
     const [showModal, setShowModal] = useState(false)
     const [serverError, setServerError] = useState('')
     const [promoMessage, setPromoMessage] = useState('')
     const [promoApplied, setPromoApplied] = useState(false)
+    const [promoDiscount, setPromoDiscount] = useState(0)
     const { data: session, status, update } = useSession()
+
+    // Fetch user's referral discount
+    const { data: referralData } = useQuery({
+        queryKey: ['user-referrals'],
+        queryFn: async () => {
+            const res = await fetch('/api/profile/referrals')
+            if (!res.ok) return null
+            return res.json()
+        },
+        enabled: status === 'authenticated'
+    })
     
     const {
         reset,
         register,
         handleSubmit,
         setValue,
+        getValues,
         formState: { errors, isSubmitting }
     } = useForm<PaymentFormData>({
         resolver: zodResolver(paymentSchema),
         mode: 'onChange',
         defaultValues: {
             email: '',
-            promocode: ''
+            promocode: promoParam || ''
         }
     })
 
     useEffect(() => {
         if (promoParam && !promoApplied) {
-            setHavePromo(true);
-            setValue('promocode', promoParam);
-            
             fetch('/api/promocodes/validate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -55,9 +66,11 @@ export function PaymentComponent({item}: PaymentComponentProps){
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
                 if (ok) {
-                    setPromoMessage(`Промокод "${promoParam}" успешно применен! Скидка: ${data.discount}%`);
+                    setPromoMessage(`Промокод "${promoParam.toUpperCase()}" успешно применен! Скидка: ${data.discount}%`);
+                    setPromoDiscount(data.discount);
                 } else {
-                    setPromoMessage(`Ошибка промокода "${promoParam}": ${data.error}`);
+                    setPromoMessage(`Ошибка промокода "${promoParam.toUpperCase()}": ${data.error}`);
+                    setPromoDiscount(0);
                 }
                 setPromoApplied(true);
             })
@@ -67,6 +80,35 @@ export function PaymentComponent({item}: PaymentComponentProps){
             });
         }
     }, [promoParam, promoApplied, setValue]);
+
+    const handleApplyPromo = async () => {
+        const code = getValues('promocode')?.trim();
+        if (!code) {
+            setPromoMessage('Введите промокод');
+            setPromoDiscount(0);
+            return;
+        }
+
+        try {
+            setPromoMessage('Проверка...');
+            const res = await fetch('/api/promocodes/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setPromoMessage(`Ошибка: ${data.error || 'Промокод не найден'}`);
+                setPromoDiscount(0);
+            } else {
+                setPromoMessage(`Промокод "${code.toUpperCase()}" успешно применен! Скидка: ${data.discount}%`);
+                setPromoDiscount(data.discount);
+            }
+        } catch {
+            setPromoMessage('Ошибка при проверке промокода');
+            setPromoDiscount(0);
+        }
+    };
 
     if(!item){
         return (
@@ -92,7 +134,12 @@ export function PaymentComponent({item}: PaymentComponentProps){
             </div>
         )
     }
-    const canBuy = item && session.user.balance >= item.price
+
+    const referralDiscount = referralData?.discount || 0
+    const totalDiscountPercent = Math.min(referralDiscount + promoDiscount, 100)
+    const discountAmount = Math.round(item.price * totalDiscountPercent / 100)
+    const calculatedPrice = Math.max(item.price - discountAmount, 0)
+    const canBuy = item && session.user.balance >= calculatedPrice
 
     const onSubmit = async (data: PaymentFormData) => {
         try{
@@ -154,7 +201,12 @@ export function PaymentComponent({item}: PaymentComponentProps){
                 <div className="flex flex-col gap-1.5">
                     <button 
                         className="text-[13px] font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors hover:underline cursor-pointer w-fit text-left" 
-                        onClick={() => setHavePromo(!havePromo)} 
+                        onClick={() => {
+                            setHavePromo(!havePromo)
+                            setPromoDiscount(0)
+                            setPromoMessage('')
+                            setValue('promocode', '')
+                        }} 
                         type="button"
                     >
                         {havePromo ? 'Убрать промокод' : 'У меня есть промокод'}
@@ -170,7 +222,16 @@ export function PaymentComponent({item}: PaymentComponentProps){
                                     {promoMessage}
                                 </div>
                             )}
-                            <InputComponent {...register('promocode')} type="text" sizeVariant="default" placeholder="Введите промокод"/>
+                            <div className="flex gap-2">
+                                <InputComponent {...register('promocode')} type="text" sizeVariant="default" placeholder="Введите промокод" className="flex-1 uppercase"/>
+                                <button
+                                    type="button"
+                                    onClick={handleApplyPromo}
+                                    className="px-4 h-11 bg-[var(--bg-layer-3)] border border-[var(--border-muted)] text-[var(--text-primary)] hover:border-[var(--text-secondary)]/30 hover:bg-[var(--bg-layer-4)] text-[13px] font-semibold rounded-xl transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
+                                >
+                                    Применить
+                                </button>
+                            </div>
                             {errors.promocode && (
                                 <p className="text-xs text-[var(--error)] font-medium mt-0.5" role="alert">{errors.promocode.message}</p>
                             )}
@@ -178,9 +239,23 @@ export function PaymentComponent({item}: PaymentComponentProps){
                     )}
                 </div>
                 
-                <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl p-4 flex justify-between items-center mt-2">
-                    <span className="text-[14px] font-semibold text-[var(--text-secondary)]">Итого к оплате:</span>
-                    <span className="text-[18px] font-extrabold text-[var(--text-primary)]">{item.price.toLocaleString('ru-RU')} ₽</span>
+                <div className="border-t border-[var(--border-muted)] pt-4 mt-2 flex flex-col gap-2">
+                    {(referralDiscount > 0 || promoDiscount > 0) && (
+                        <div className="flex justify-between items-center text-[12px] text-[var(--text-secondary)]">
+                            <span>Начальная цена</span>
+                            <span className="line-through">{item.price.toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                    )}
+                    {(referralDiscount > 0 || promoDiscount > 0) && (
+                        <div className="flex justify-between items-center text-[12px] text-[var(--success)] font-medium">
+                            <span>Скидка ({totalDiscountPercent}%)</span>
+                            <span>-{discountAmount.toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                    )}
+                    <div className="flex justify-between items-center text-[14px] font-semibold text-[var(--text-primary)] mt-1">
+                        <span>Итого к оплате</span>
+                        <span className="text-[18px] font-extrabold text-[var(--text-primary)]">{calculatedPrice.toLocaleString('ru-RU')} ₽</span>
+                    </div>
                 </div>
                 
                 <div className="flex flex-col gap-2.5 mt-2">
@@ -193,7 +268,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
                         type="submit" 
                         disabled={isSubmitting || !canBuy}
                     >
-                        {isSubmitting ? 'Обработка...' : `Оплатить заказ`}
+                        {isSubmitting ? 'Обработка...' : `Оплатить ${calculatedPrice.toLocaleString('ru-RU')} ₽`}
                     </button>
                     <button 
                         className="w-full h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border-muted)] hover:bg-[var(--bg-layer-3)] text-[var(--text-primary)] font-semibold text-[14px] cursor-pointer transition-colors duration-300" 

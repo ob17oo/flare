@@ -23,7 +23,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
 
     const userId = serverSession.user.id
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { 
         balance: true,
@@ -74,14 +74,10 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
     let promocode = null
     let discount = 0
     if (data.promocode) {
-      promocode = await prisma.promocode.findFirst({
-        where: {
-          code: data.promocode,
-          isActive: true,
-          maxUses: { gt: 0 }
-        }
+      promocode = await prisma.promocode.findUnique({
+        where: { code: data.promocode.toUpperCase() }
       })
-      if (!promocode) {
+      if (!promocode || !promocode.isActive || (promocode.maxUses - promocode.usesCount) <= 0) {
         throw new Error('PROMOCODE_NOT_FOUND')
       }
       discount = promocode.discount
@@ -102,6 +98,34 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
       }
 
       await prisma.$transaction(async (tx) => {
+        // Re-verify inside the transaction to prevent race conditions
+        const txUser = await tx.user.findUnique({
+          where: { id: userId },
+          select: { balance: true }
+        })
+        if (!txUser) {
+          throw new Error('USER_NOT_FOUND')
+        }
+        if (txUser.balance < finalPrice) {
+          throw new Error('NOT_ENOUGH_MONEY')
+        }
+
+        const txProduct = await tx.product.findUnique({
+          where: { id: placeholderProduct.id }
+        })
+        if (!txProduct || !txProduct.isActive || txProduct.stock <= 0) {
+          throw new Error('STEAM_PRODUCT_NOT_FOUND')
+        }
+
+        if (data.promocode) {
+          const txPromocode = await tx.promocode.findUnique({
+            where: { code: data.promocode.toUpperCase() }
+          })
+          if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
+            throw new Error('PROMOCODE_NOT_FOUND')
+          }
+        }
+
         // Deduct balance
         await tx.user.update({
           where: { id: userId },
@@ -116,7 +140,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
           data: {
             userId: userId,
             productId: placeholderProduct.id,
-            email: `${data.steamLogin}@steam.topup`, // Save steam login in email or custom format
+            email: `${data.steamLogin}@steam.topup`,
             promo: data.promocode || null,
             status: 'PROCESSING'
           }
@@ -130,20 +154,38 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
           }
         })
 
-        if (promocode) {
+        if (data.promocode) {
           await tx.promocode.update({
-            where: { id: promocode.id },
+            where: { code: data.promocode.toUpperCase() },
             data: {
               usesCount: { increment: 1 }
             }
           })
         }
+      }, {
+        timeout: 10000,
+        maxWait: 2000,
+        isolationLevel: 'Serializable'
       })
     } else {
       // Mock payment for non-balance methods (card, sbp, qiwi)
-      // Since it's a mock payment, we don't deduct account balance,
-      // but we can still create an order for the user as a record!
       await prisma.$transaction(async (tx) => {
+        const txProduct = await tx.product.findUnique({
+          where: { id: placeholderProduct.id }
+        })
+        if (!txProduct || !txProduct.isActive) {
+          throw new Error('STEAM_PRODUCT_NOT_FOUND')
+        }
+
+        if (data.promocode) {
+          const txPromocode = await tx.promocode.findUnique({
+            where: { code: data.promocode.toUpperCase() }
+          })
+          if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
+            throw new Error('PROMOCODE_NOT_FOUND')
+          }
+        }
+
         await tx.order.create({
           data: {
             userId: userId,
@@ -154,14 +196,18 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
           }
         })
 
-        if (promocode) {
+        if (data.promocode) {
           await tx.promocode.update({
-            where: { id: promocode.id },
+            where: { code: data.promocode.toUpperCase() },
             data: {
               usesCount: { increment: 1 }
             }
           })
         }
+      }, {
+        timeout: 10000,
+        maxWait: 2000,
+        isolationLevel: 'Serializable'
       })
     }
 
@@ -178,6 +224,7 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
       console.log('Steam topup order error', error)
     }
 
+    let userMessage = 'Произошла неизвестная ошибка'
     if (error instanceof Error) {
       const errorMap: Record<string, string> = {
         'USER_NOT_AUTHORIZED': 'Пользователь не авторизован',
@@ -187,9 +234,11 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
         'PROMOCODE_NOT_FOUND': 'Промокод не найден'
       }
       const errorCode = error.message.split(':')[0]
-      const userMessage = errorMap[errorCode] || error.message
-      throw new Error(`TOPUP ERROR ${userMessage}`)
+      userMessage = errorMap[errorCode] || error.message
     }
-    throw new Error(`Topup: Неизвестная ошибка`)
+    return {
+      success: false,
+      message: userMessage
+    }
   }
 }

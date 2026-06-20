@@ -31,7 +31,9 @@ export async function getTicketDetails(id: string) {
   return ticket;
 }
 
-export async function updateTicketStatus(id: string, status: any) {
+import { TicketStatus } from "@prisma/client";
+
+export async function updateTicketStatus(id: string, status: TicketStatus) {
   const ticket = await prisma.supportTicket.update({
     where: { id },
     data: { status }

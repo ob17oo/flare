@@ -6,7 +6,7 @@ export const adminOrderKeys = {
   lists: () => [...adminOrderKeys.all, 'list'] as const,
 };
 
-export function useAdminOrders(initialData?: any[]) {
+export function useAdminOrders(initialData?: Awaited<ReturnType<typeof getAllOrders>>) {
   return useQuery({
     queryKey: adminOrderKeys.lists(),
     queryFn: () => getAllOrders(),
@@ -18,7 +18,7 @@ export function useAdminOrders(initialData?: any[]) {
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string, status: any }) => updateOrderStatus(id, status),
+    mutationFn: ({ id, status }: { id: number, status: Parameters<typeof updateOrderStatus>[1] }) => updateOrderStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminOrderKeys.all });
     }
@@ -28,7 +28,7 @@ export function useUpdateOrderStatus() {
 export function useDeleteOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteOrder(id),
+    mutationFn: (id: number) => deleteOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminOrderKeys.all });
     }

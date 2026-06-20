@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ButtonComponent, InputComponent } from "@/shared/components"
+import { useLockScroll } from "@/shared/hooks"
 import { Session } from "next-auth"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -11,7 +12,6 @@ import {
   LayoutDashboard, 
   LifeBuoy, 
   Plus, 
-  Clock, 
   MessageSquare, 
   AlertCircle, 
   ChevronRight,
@@ -19,12 +19,31 @@ import {
   Copy,
   Check,
   Package,
-  X,
-  CreditCard
+  X
 } from "lucide-react"
 
 interface ProfileProps {
   session: Session
+}
+
+interface TProfileOrder {
+  id: number
+  price: number
+  status: string
+  createdAt: string
+  product: {
+    title: string
+    image_url: string
+  } | null
+}
+
+interface TProfileTicket {
+  id: string
+  subject: string
+  category: string
+  status: string
+  createdAt: string
+  updatedAt: string
 }
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -58,8 +77,10 @@ export function ProfilePage({ session }: ProfileProps) {
   const [isApplyingRef, setIsApplyingRef] = useState(false)
   const [refApplyStatus, setRefApplyStatus] = useState<{success?: boolean, message?: string} | null>(null)
 
+  useLockScroll({ isOpen: isEditing })
+
   // Fetch user orders
-  const { data: orders = [], isLoading: ordersLoading } = useQuery<any[]>({
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<TProfileOrder[]>({
     queryKey: ['user-orders'],
     queryFn: async () => {
       const res = await fetch('/api/profile/orders')
@@ -70,7 +91,7 @@ export function ProfilePage({ session }: ProfileProps) {
   })
 
   // Fetch tickets for support tab
-  const { data: tickets = [], isLoading: ticketsLoading } = useQuery<any[]>({
+  const { data: tickets = [], isLoading: ticketsLoading } = useQuery<TProfileTicket[]>({
     queryKey: ['support-tickets'],
     queryFn: async () => {
       const res = await fetch('/api/support/tickets')
@@ -140,7 +161,7 @@ export function ProfilePage({ session }: ProfileProps) {
       } else {
         setRefApplyStatus({ success: false, message: data.error || 'Ошибка применения кода' });
       }
-    } catch (err) {
+    } catch {
       setRefApplyStatus({ success: false, message: 'Произошла ошибка' });
     } finally {
       setIsApplyingRef(false);
@@ -313,7 +334,7 @@ export function ProfilePage({ session }: ProfileProps) {
                 <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
                   Приглашайте друзей и получайте скидку до 20% на все товары маркетплейса. Скидка растет за каждого друга, совершившего хотя бы одну покупку.
                 </p>
-                <div className="flex items-center gap-3 mt-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2">
                   <div className="flex-1 bg-[var(--bg-layer-0)] border border-[var(--border-muted)] rounded-lg px-4 py-2.5 flex items-center overflow-hidden">
                     <span className="text-[13px] text-[var(--text-primary)] font-mono truncate">
                       {window.location.origin}/register?ref={referralsData?.referralCode}
@@ -323,7 +344,7 @@ export function ProfilePage({ session }: ProfileProps) {
                     onClick={handleCopyRef} 
                     color="accent" 
                     isFilled 
-                    className="flex items-center gap-2 py-2.5 px-6 shrink-0"
+                    className="flex items-center justify-center gap-2 py-2.5 px-6 shrink-0 w-full sm:w-auto"
                   >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                     {copied ? 'Скопировано' : 'Скопировать'}
@@ -369,7 +390,7 @@ export function ProfilePage({ session }: ProfileProps) {
                   />
                 </div>
                 
-                <div className="flex justify-between text-[10px] font-bold text-[var(--text-secondary)] mt-1">
+                <div className="grid grid-cols-2 xs:grid-cols-3 md:flex md:justify-between gap-y-2 gap-x-4 text-[10px] font-bold text-[var(--text-secondary)] mt-2">
                   <span>1 реф (1%)</span>
                   <span>3 реф (3%)</span>
                   <span>5 реф (5%)</span>
@@ -398,7 +419,7 @@ export function ProfilePage({ session }: ProfileProps) {
             </div>
           ) : orders.length > 0 ? (
             <div className="flex flex-col gap-3">
-              {orders.slice(0, visibleOrders).map((order: any) => (
+              {orders.slice(0, visibleOrders).map((order: TProfileOrder) => (
                 <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] p-4 rounded-xl transition-all duration-200 gap-4">
                   <div className="flex items-center gap-4 flex-1 overflow-hidden">
                     <div className="w-12 h-12 rounded-lg bg-[var(--bg-layer-0)] border border-[var(--border-muted)] flex-shrink-0 relative overflow-hidden">
@@ -409,7 +430,7 @@ export function ProfilePage({ session }: ProfileProps) {
                       )}
                     </div>
                     <div className="flex flex-col gap-1 flex-1 overflow-hidden">
-                      <span className="text-[14px] font-bold text-[var(--text-primary)] truncate">{order.product?.title || `Заказ #${order.id.slice(-4)}`}</span>
+                      <span className="text-[14px] font-bold text-[var(--text-primary)] truncate">{order.product?.title || `Заказ #${String(order.id).slice(-4)}`}</span>
                       <span className="text-[11px] text-[var(--text-secondary)]">{new Date(order.createdAt).toLocaleDateString('ru-RU')} в {new Date(order.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>

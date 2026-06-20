@@ -1,8 +1,9 @@
 'use client';
 
 import { useAdminAuditLogs } from '@/entities/admin/hooks/useAdminAuditLogs';
+import { AuditLog } from '@prisma/client';
 
-export function AuditClient({ initialData }: { initialData: any[] }) {
+export function AuditClient({ initialData }: { initialData: AuditLog[] }) {
   const { data: logs } = useAdminAuditLogs(initialData);
 
   return (
@@ -25,7 +26,7 @@ export function AuditClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {logs?.map((log: any) => (
+              {logs?.map((log: AuditLog) => (
                 <tr key={log.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] hidden md:table-cell">{log.id.slice(-8)}</td>
                   <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] hidden md:table-cell">{log.userId}</td>

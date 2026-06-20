@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { UploadCloud, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { UploadCloud, X, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { uploadImageAction } from '@/entities/admin/api/upload.action';
 
@@ -40,7 +40,7 @@ export function ImageUploadDropzone({
     setIsDragging(false);
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       onUploadError?.('Пожалуйста, загрузите изображение');
       return;
@@ -73,10 +73,6 @@ export function ImageUploadDropzone({
         }
       }
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
       // Local preview
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
@@ -93,21 +89,22 @@ export function ImageUploadDropzone({
       }
       
       onUploadComplete(result.publicUrl, result.imagePath);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err);
-      onUploadError?.(err.message || 'Ошибка при загрузке');
+      const errMsg = err instanceof Error ? err.message : 'Ошибка при загрузке';
+      onUploadError?.(errMsg);
       setPreview(existingUrl || null);
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [bucket, folder, onUploadComplete, onUploadError, existingUrl, minWidth, minHeight]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) uploadFile(file);
-  }, [bucket]);
+  }, [uploadFile]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

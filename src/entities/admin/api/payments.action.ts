@@ -15,7 +15,9 @@ export async function getAllPayments() {
   return payments;
 }
 
-export async function updatePaymentStatus(id: string, status: any) {
+import { STATUS } from "@prisma/client";
+
+export async function updatePaymentStatus(id: string, status: STATUS) {
   const deposit = await prisma.deposit.findUnique({ where: { id } });
   if (!deposit) throw new Error("Payment not found");
 

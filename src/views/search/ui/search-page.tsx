@@ -1,11 +1,34 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { CardComponent } from '@/shared/components';
 import { Loader2, Filter, SlidersHorizontal, Check } from 'lucide-react';
 import Link from 'next/link';
+import { TPaymentItem } from '@/features/Payment/model/types';
+
+interface RawSearchItem {
+  id: number;
+  title: string;
+  description?: string;
+  image_url: string;
+  price: number;
+  url: string;
+  launcher?: string;
+  provider?: string;
+  discountPercent?: number;
+  productType: 'GAME' | 'WALLET' | 'SERVICE_PLANS';
+}
+
+type TSearchItem = TPaymentItem & {
+  url: string;
+  categoryKey: string;
+  categoryLabel: string;
+  launcher?: string;
+  provider?: string;
+  discountPercent?: number;
+};
 
 export function SearchPageView() {
   const searchParams = useSearchParams();
@@ -24,7 +47,11 @@ export function SearchPageView() {
   const [sortBy, setSortBy] = useState<string>('default');
 
   // Fetch unified search results
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<{
+    games: RawSearchItem[];
+    subscriptions: RawSearchItem[];
+    wallets: RawSearchItem[];
+  }>({
     queryKey: ['global-search-page-results', q],
     queryFn: async () => {
       if (!q.trim()) return { games: [], subscriptions: [], wallets: [] };
@@ -37,12 +64,12 @@ export function SearchPageView() {
   });
 
   // Flat list of unified items
-  const allItems = useMemo(() => {
+  const allItems = useMemo<TSearchItem[]>(() => {
     if (!data) return [];
     return [
-      ...(data.games || []).map((item: any) => ({ ...item, categoryKey: 'games', categoryLabel: 'Игры' })),
-      ...(data.subscriptions || []).map((item: any) => ({ ...item, categoryKey: 'subscriptions', categoryLabel: 'Подписки' })),
-      ...(data.wallets || []).map((item: any) => ({ ...item, categoryKey: 'wallets', categoryLabel: 'Пополнение' }))
+      ...(data.games || []).map((item: RawSearchItem) => ({ ...item, categoryKey: 'games', categoryLabel: 'Игры' } as unknown as TSearchItem)),
+      ...(data.subscriptions || []).map((item: RawSearchItem) => ({ ...item, categoryKey: 'subscriptions', categoryLabel: 'Подписки' } as unknown as TSearchItem)),
+      ...(data.wallets || []).map((item: RawSearchItem) => ({ ...item, categoryKey: 'wallets', categoryLabel: 'Пополнение' } as unknown as TSearchItem))
     ];
   }, [data]);
 
@@ -82,14 +109,14 @@ export function SearchPageView() {
         }
 
         // Sale / Discount filter
-        if (onlyDiscounted && item.discountPercent === 0) return false;
+        if (onlyDiscounted && (item.discountPercent || 0) === 0) return false;
 
         return true;
       })
       .sort((a, b) => {
         if (sortBy === 'price-asc') return a.price - b.price;
         if (sortBy === 'price-desc') return b.price - a.price;
-        if (sortBy === 'discount') return b.discountPercent - a.discountPercent;
+        if (sortBy === 'discount') return (b.discountPercent || 0) - (a.discountPercent || 0);
         return 0; // Default sorted by relevance
       });
   }, [allItems, categoryFilters, minPrice, maxPrice, selectedPlatform, onlyDiscounted, sortBy]);

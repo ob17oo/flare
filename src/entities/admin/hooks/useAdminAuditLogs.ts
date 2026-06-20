@@ -6,7 +6,7 @@ export const adminAuditKeys = {
   lists: () => [...adminAuditKeys.all, 'list'] as const,
 };
 
-export function useAdminAuditLogs(initialData?: any[]) {
+export function useAdminAuditLogs(initialData?: Awaited<ReturnType<typeof getAllAuditLogs>>) {
   return useQuery({
     queryKey: adminAuditKeys.lists(),
     queryFn: () => getAllAuditLogs(),

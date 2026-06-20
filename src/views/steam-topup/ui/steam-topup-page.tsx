@@ -4,13 +4,12 @@ import { useState, useMemo, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useQuery, useMutation } from "@tanstack/react-query"
-import { InputComponent, ButtonComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
+import { InputComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
 import { steamPaymentAction } from "@/features/Payment/actions/steamPayment.action"
 import { SuccessModal } from "@/features/Payment/ui/SuccessModal"
-import { CreditCard, Wallet, QrCode } from "lucide-react"
 
 // Schema validation
 const steamTopupSchema = z.object({
@@ -27,7 +26,6 @@ const steamTopupSchema = z.object({
 type SteamTopupFormData = z.infer<typeof steamTopupSchema>
 
 export function SteamTopupPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const promoParam = searchParams ? searchParams.get('promo') : null
   const { data: session, status, update } = useSession()
@@ -198,6 +196,8 @@ export function SteamTopupPage() {
         }
         setSuccessMsg(result.message)
         setShowModal(true)
+      } else {
+        setServerError(result.message)
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -210,7 +210,7 @@ export function SteamTopupPage() {
   }
 
   return (
-    <div className="max-w-[480px] mx-auto py-12 flex flex-col gap-10">
+    <div className="max-w-[480px] mx-auto px-4 py-12 flex flex-col gap-10">
       {/* Centered Minimal Header */}
       <div className="flex flex-col gap-1.5 text-center">
         <h1 className="text-[26px] font-bold tracking-tight text-[var(--text-primary)]">

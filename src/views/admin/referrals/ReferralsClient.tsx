@@ -2,15 +2,23 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { InputComponent } from '@/shared/components';
-import { Search, Link as LinkIcon, Users, CheckCircle, ArrowRight } from 'lucide-react';
+import { Search, Link as LinkIcon, Users, CheckCircle } from 'lucide-react';
+
+interface ReferrerUser {
+  id: string;
+  login: string;
+  email: string;
+  referralCode: string;
+  totalReferrals: number;
+  activeReferrals: number;
+}
 
 export const ReferralsClient = () => {
   const [search, setSearch] = useState('');
 
-  const { data: referrers = [], isLoading } = useQuery({
+  const { data: referrers = [], isLoading } = useQuery<ReferrerUser[]>({
     queryKey: ['admin-referrals', search],
-    queryFn: async () => {
+    queryFn: async (): Promise<ReferrerUser[]> => {
       const res = await fetch(`/api/admin/referrals?search=${encodeURIComponent(search)}`);
       if (!res.ok) throw new Error('Failed to fetch referrals');
       return res.json();
@@ -70,7 +78,7 @@ export const ReferralsClient = () => {
                   </td>
                 </tr>
               ) : (
-                referrers.map((user: any) => (
+                referrers.map((user: ReferrerUser) => (
                   <tr key={user.id} className="hover:bg-[#1A1A1A] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">

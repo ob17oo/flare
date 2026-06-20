@@ -43,22 +43,26 @@ export default async function Success({ searchParams }: SuccessPageProps) {
             where: { stripeId: session_id }
           })
 
-          if (deposit && deposit.status === 'PENDING') {
-            // Update deposit status
-            await tx.deposit.update({
-              where: { id: deposit.id },
-              data: { status: 'SUCCESS' }
-            })
+          if (deposit) {
+            if (deposit.status === 'PENDING') {
+              // Atomic check-and-update status
+              const updateResult = await tx.deposit.updateMany({
+                where: { id: deposit.id, status: 'PENDING' },
+                data: { status: 'SUCCESS' }
+              })
 
-            // Increment user balance
-            await tx.user.update({
-              where: { id: session.user.id },
-              data: {
-                balance: { increment: amountPaidRub }
+              if (updateResult.count > 0) {
+                // Increment user balance
+                await tx.user.update({
+                  where: { id: session.user.id },
+                  data: {
+                    balance: { increment: amountPaidRub }
+                  }
+                })
+
+                console.log(`[Stripe Success Fallback] Successfully credited ${amountPaidRub} RUB to user ${session.user.id}`)
               }
-            })
-
-            console.log(`[Stripe Success Fallback] Successfully credited ${amountPaidRub} RUB to user ${session.user.id}`)
+            }
           }
         })
       }

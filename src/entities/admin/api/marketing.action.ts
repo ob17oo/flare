@@ -3,6 +3,22 @@
 import { prisma } from "@/shared/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+export interface BannerInput {
+  title: string;
+  subtitle?: string | null;
+  description?: string | null;
+  image_url: string;
+  buttonText?: string | null;
+  linkType: string;
+  linkUrl: string;
+  promoCode?: string | null;
+  promoDiscount?: number | string;
+  sortOrder?: number | string;
+  isActive?: boolean;
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
+}
+
 export async function getAllBanners() {
   try {
     const banners = await prisma.heroBanner.findMany({
@@ -32,7 +48,7 @@ export async function getAllBanners() {
   }
 }
 
-export async function createBanner(data: any) {
+export async function createBanner(data: BannerInput) {
   try {
     const rawPromoCode = data.promoCode?.trim().toUpperCase() || null;
     const discountVal = Number(data.promoDiscount) || 10;
@@ -81,13 +97,14 @@ export async function createBanner(data: any) {
     revalidatePath('/admin/promocodes');
     revalidatePath('/');
     return banner;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in createBanner:", error);
-    throw new Error(`Не удалось создать баннер: ${error.message}`);
+    const errMsg = error instanceof Error ? error.message : "unknown error";
+    throw new Error(`Не удалось создать баннер: ${errMsg}`);
   }
 }
 
-export async function updateBanner(id: number, data: any) {
+export async function updateBanner(id: number, data: BannerInput) {
   try {
     const rawPromoCode = data.promoCode?.trim().toUpperCase() || null;
     const discountVal = Number(data.promoDiscount) || 10;
@@ -137,9 +154,10 @@ export async function updateBanner(id: number, data: any) {
     revalidatePath('/admin/promocodes');
     revalidatePath('/');
     return banner;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in updateBanner:", error);
-    throw new Error(`Не удалось обновить баннер: ${error.message}`);
+    const errMsg = error instanceof Error ? error.message : "unknown error";
+    throw new Error(`Не удалось обновить баннер: ${errMsg}`);
   }
 }
 
@@ -151,9 +169,10 @@ export async function deleteBanner(id: number) {
     revalidatePath('/admin/marketing');
     revalidatePath('/');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in deleteBanner:", error);
-    throw new Error(`Не удалось удалить баннер: ${error.message}`);
+    const errMsg = error instanceof Error ? error.message : "unknown error";
+    throw new Error(`Не удалось удалить баннер: ${errMsg}`);
   }
 }
 

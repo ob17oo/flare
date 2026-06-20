@@ -32,7 +32,7 @@ export function MenuComponent({isOpen,onClose, session}: MenuProps){
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/contacts">Контакты</Link>
                         <Link className="cursor-pointer text-h4 transition-all duration-300 ease-in-out hover:scale-105" href="/support">Поддержка</Link>
                         
-                        {(session?.user as any)?.role === 'ADMIN' && (
+                        {((session?.user as { role?: string })?.role) === 'ADMIN' && (
                             <div className="flex flex-col items-center w-full mt-4">
                                 <div className="w-12 h-px bg-[#333] mb-8"></div>
                                 <Link 

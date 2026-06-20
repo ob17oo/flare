@@ -18,10 +18,7 @@ export function GamesPage({initialgames}: GamesProps){
     const urlSearch = searchParams.get('search') || ''
 
     const { 
-        data: games = [],
-        isLoading,
-        isError,
-        error
+        data: games = []
      } = useGames({
         initialData: initialgames
     })
@@ -98,7 +95,7 @@ export function GamesPage({initialgames}: GamesProps){
                     genres={Array.from(gameGenre)}
                     />
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
                     { filteredGame.map((item) => (
                         <div key={item.id} className="h-full">
                             <Link href={`/games/${item.id}`} className="block h-full">

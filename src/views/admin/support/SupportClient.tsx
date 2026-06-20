@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 import { useAdminTickets, useAdminTicketDetails, useUpdateTicketStatus, useReplyToTicket } from '@/entities/admin/hooks/useAdminSupport';
-import { Edit2, X, MessageSquare, ArrowRight, Send } from 'lucide-react';
+import { X, MessageSquare, ArrowRight, Send } from 'lucide-react';
 import Image from 'next/image';
+import { getAllTickets, getTicketDetails } from '@/entities/admin/api/support.action';
+import { TicketStatus } from '@prisma/client';
+
+type TicketType = Awaited<ReturnType<typeof getAllTickets>>[number];
+type MessageType = NonNullable<Awaited<ReturnType<typeof getTicketDetails>>>['messages'][number];
 
 function TicketDetailsModal({ ticketId, onClose }: { ticketId: string, onClose: () => void }) {
   const { data: ticket, isLoading } = useAdminTicketDetails(ticketId);
@@ -28,7 +33,7 @@ function TicketDetailsModal({ ticketId, onClose }: { ticketId: string, onClose: 
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateStatus.mutate({ id: ticketId, status: e.target.value });
+    updateStatus.mutate({ id: ticketId, status: e.target.value as TicketStatus });
   };
 
   return (
@@ -68,13 +73,13 @@ function TicketDetailsModal({ ticketId, onClose }: { ticketId: string, onClose: 
             </div>
             <div className="bg-[#1F1F1F] rounded-2xl rounded-tl-none px-4 py-2.5 sm:px-5 sm:py-3 border border-[#333]">
               <p className="text-xs sm:text-sm font-medium text-white mb-1">{ticket.user.login}</p>
-              <p className="text-white text-xs sm:text-sm whitespace-pre-wrap">{ticket.message}</p>
+              <p className="text-white text-xs sm:text-sm whitespace-pre-wrap">{ticket.messages[0]?.text || ''}</p>
               <p className="text-[10px] sm:text-xs text-[#A1A1AA] mt-2">{new Date(ticket.createdAt).toLocaleString('ru-RU')}</p>
             </div>
           </div>
 
           {/* Replies */}
-          {ticket.messages.map((msg: any) => {
+          {ticket.messages.slice(1).map((msg: MessageType) => {
             const isMe = msg.isAdmin;
             return (
               <div key={msg.id} className={`flex gap-3 sm:gap-4 max-w-3xl ${isMe ? 'ml-auto flex-row-reverse' : ''}`}>
@@ -120,7 +125,7 @@ function TicketDetailsModal({ ticketId, onClose }: { ticketId: string, onClose: 
   );
 }
 
-export function SupportClient({ initialData }: { initialData: any[] }) {
+export function SupportClient({ initialData }: { initialData: TicketType[] }) {
   const { data: tickets } = useAdminTickets(initialData);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
@@ -145,7 +150,7 @@ export function SupportClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {tickets?.map((ticket: any) => (
+              {tickets?.map((ticket: TicketType) => (
                 <tr key={ticket.id} className="hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setSelectedTicketId(ticket.id)}>
                   <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] hidden md:table-cell">{ticket.id.slice(-8)}</td>
                   <td className="px-6 py-4">

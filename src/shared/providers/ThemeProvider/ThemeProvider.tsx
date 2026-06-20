@@ -17,7 +17,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Determine the theme on client mount
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme) {
-      setTheme(savedTheme);
+      if (savedTheme !== "dark") {
+        setTimeout(() => {
+          setTheme(savedTheme);
+        }, 0);
+      }
       document.documentElement.setAttribute("data-theme", savedTheme);
       document.documentElement.classList.remove("light", "dark");
       document.documentElement.classList.add(savedTheme);

@@ -12,11 +12,22 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface HeroCarouselComponentProps {
-  carouselItem?: any; // kept for backward-compatibility but ignored in favor of DB banners
+interface DBBanner {
+  id: number;
+  title: string;
+  subtitle: string | null;
+  description: string | null;
+  image_url: string;
+  buttonText: string | null;
+  linkUrl: string;
+  promoCode: string | null;
 }
 
-const fallbackBanner = {
+interface HeroCarouselComponentProps {
+  carouselItem?: unknown; // kept for backward-compatibility but ignored in favor of DB banners
+}
+
+const fallbackBanner: DBBanner = {
   id: 0,
   title: "Добро пожаловать во Flare!",
   subtitle: "Лучшие цифровые товары и пополнения",
@@ -27,16 +38,28 @@ const fallbackBanner = {
   promoCode: null
 };
 
-export function HeroCarouselComponent({}: HeroCarouselComponentProps) {
+export function HeroCarouselComponent({ carouselItem }: HeroCarouselComponentProps) {
   const router = useRouter();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const initialBanners: DBBanner[] = (carouselItem as any[])?.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle || "Лучшие цифровые товары и пополнения",
+    description: item.description || "",
+    image_url: item.image_url || "/static/default/default-product.png",
+    buttonText: item.buttonText || "Подробнее",
+    linkUrl: item.linkUrl || `/games/${item.id}`,
+    promoCode: item.promoCode || null
+  })) || [];
+
   // Fetch active banners dynamically via React Query
-  const { data: banners = [], isLoading } = useQuery({
+  const { data: banners = [], isLoading } = useQuery<DBBanner[]>({
     queryKey: ['active-marketing-banners'],
     queryFn: async () => {
       const res = await fetch('/api/marketing/banners');
       if (!res.ok) throw new Error('Failed to fetch banners');
-      return res.json() as Promise<any[]>;
+      return res.json() as Promise<DBBanner[]>;
     },
     staleTime: 60 * 1000
   });
@@ -45,7 +68,7 @@ export function HeroCarouselComponent({}: HeroCarouselComponentProps) {
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  const displayItems = banners.length > 0 ? banners : [fallbackBanner];
+  const displayItems = initialBanners.length > 0 ? initialBanners : (banners.length > 0 ? banners : [fallbackBanner]);
 
   useEffect(() => {
     if (!api) return;
@@ -65,11 +88,11 @@ export function HeroCarouselComponent({}: HeroCarouselComponentProps) {
   }, [api, displayItems.length]);
 
   // Track impressions when banners are fetched successfully
-  const bannerIdsString = banners.map((b: any) => b.id).join(',');
+  const bannerIdsString = banners.map((b: DBBanner) => b.id).join(',');
   useEffect(() => {
-    if (banners && banners.length > 0) {
-      const bannerIds = banners.map((b: any) => b.id).filter(id => id > 0);
-      if (bannerIds.length > 0) {
+    if (bannerIdsString) {
+      const bannerIds = bannerIdsString.split(',').map(Number).filter(id => id > 0);
+      if (bannerIds.length > 0 && typeof fetch !== 'undefined') {
         fetch('/api/marketing/banners/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -79,8 +102,8 @@ export function HeroCarouselComponent({}: HeroCarouselComponentProps) {
     }
   }, [bannerIdsString]);
 
-  const handleBannerClick = (banner: any) => {
-    if (banner.id > 0) {
+  const handleBannerClick = (banner: DBBanner) => {
+    if (banner.id > 0 && typeof fetch !== 'undefined') {
       // Fire click tracking
       fetch('/api/marketing/banners/track', {
         method: 'POST',

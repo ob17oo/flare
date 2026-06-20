@@ -1,13 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllProducts, createProduct, updateProduct, deleteProduct } from "../api/products.action";
-import type { Product } from "@prisma/client";
 
 export const adminProductKeys = {
   all: ['admin-products'] as const,
   lists: () => [...adminProductKeys.all, 'list'] as const,
 };
 
-export function useAdminProducts(initialData?: any[]) {
+export function useAdminProducts(initialData?: Awaited<ReturnType<typeof getAllProducts>>) {
   return useQuery({
     queryKey: adminProductKeys.lists(),
     queryFn: () => getAllProducts(),
@@ -19,7 +18,7 @@ export function useAdminProducts(initialData?: any[]) {
 export function useCreateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: any) => createProduct(data),
+    mutationFn: (data: Parameters<typeof createProduct>[0]) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminProductKeys.all });
     }
@@ -29,7 +28,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number, data: any }) => updateProduct(id, data),
+    mutationFn: ({ id, data }: { id: number, data: Parameters<typeof updateProduct>[1] }) => updateProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminProductKeys.all });
     }

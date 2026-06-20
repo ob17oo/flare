@@ -6,7 +6,7 @@ export const adminPaymentKeys = {
   lists: () => [...adminPaymentKeys.all, 'list'] as const,
 };
 
-export function useAdminPayments(initialData?: any[]) {
+export function useAdminPayments(initialData?: Awaited<ReturnType<typeof getAllPayments>>) {
   return useQuery({
     queryKey: adminPaymentKeys.lists(),
     queryFn: () => getAllPayments(),
@@ -18,7 +18,7 @@ export function useAdminPayments(initialData?: any[]) {
 export function useUpdatePaymentStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string, status: any }) => updatePaymentStatus(id, status),
+    mutationFn: ({ id, status }: { id: string, status: Parameters<typeof updatePaymentStatus>[1] }) => updatePaymentStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminPaymentKeys.all });
     }

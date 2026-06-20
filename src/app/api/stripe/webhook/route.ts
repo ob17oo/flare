@@ -27,9 +27,10 @@ export async function POST(req: Request) {
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
-  } catch (err: any) {
-    console.error(`[Stripe Webhook Error] Signature verification failed: ${err.message}`)
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : "Unknown error"
+    console.error(`[Stripe Webhook Error] Signature verification failed: ${errMsg}`)
+    return NextResponse.json({ error: `Webhook Error: ${errMsg}` }, { status: 400 })
   }
 
   console.log(`[Stripe Webhook] Received event type: ${event.type}`)
@@ -56,27 +57,37 @@ export async function POST(req: Request) {
               where: { stripeId: session.id }
             })
 
-            if (existingDeposit && existingDeposit.status === 'SUCCESS') {
-              console.log(`[Stripe Webhook Idempotency] Deposit ${session.id} already marked as success. Skipping.`)
-              return
-            }
-
             if (existingDeposit) {
-              // Update status to SUCCESS
-              await tx.deposit.update({
-                where: { id: existingDeposit.id },
+              if (existingDeposit.status === 'SUCCESS') {
+                console.log(`[Stripe Webhook Idempotency] Deposit ${session.id} already marked as success. Skipping.`)
+                return
+              }
+
+              // Atomic check-and-update status
+              const updateResult = await tx.deposit.updateMany({
+                where: { id: existingDeposit.id, status: 'PENDING' },
                 data: { status: 'SUCCESS' }
               })
+
+              if (updateResult.count === 0) {
+                console.log(`[Stripe Webhook Concurrency] Deposit ${session.id} status update raced. Skipping balance credit.`)
+                return
+              }
             } else {
               // Create deposit record if it doesn't exist for some reason
-              await tx.deposit.create({
-                data: {
-                  userId,
-                  amount,
-                  stripeId: session.id,
-                  status: 'SUCCESS'
-                }
-              })
+              try {
+                await tx.deposit.create({
+                  data: {
+                    userId,
+                    amount,
+                    stripeId: session.id,
+                    status: 'SUCCESS'
+                  }
+                })
+              } catch (err) {
+                console.warn(`[Stripe Webhook Concurrency] Failed to create deposit (likely unique constraint conflict):`, err)
+                return
+              }
             }
 
             // Increment user balance
@@ -160,7 +171,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ received: true }, { status: 200 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Stripe Webhook Error] Handler error:", error)
     return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 })
   }

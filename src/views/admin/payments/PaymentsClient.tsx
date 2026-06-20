@@ -6,23 +6,27 @@ import Image from 'next/image';
 import { formatPrice } from '@/shared/lib/utils';
 import { Edit2, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { getAllPayments } from '@/entities/admin/api/payments.action';
+import { STATUS } from '@prisma/client';
 
-export function PaymentsClient({ initialData }: { initialData: any[] }) {
+type PaymentType = Awaited<ReturnType<typeof getAllPayments>>[number];
+
+export function PaymentsClient({ initialData }: { initialData: PaymentType[] }) {
   const { data: payments } = useAdminPayments(initialData);
   const updateStatus = useUpdatePaymentStatus();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState<any | null>(null);
+  const [editingPayment, setEditingPayment] = useState<PaymentType | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<{ status: string }>();
+  const { register, handleSubmit, reset } = useForm<{ status: STATUS }>();
 
-  const openEditModal = (payment: any) => {
+  const openEditModal = (payment: PaymentType) => {
     setEditingPayment(payment);
     reset({ status: payment.status });
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: { status: string }) => {
+  const onSubmit = (data: { status: STATUS }) => {
     if (editingPayment) {
       if (confirm('Изменение статуса платежа может повлиять на баланс пользователя. Продолжить?')) {
         updateStatus.mutate({ id: editingPayment.id, status: data.status }, {
@@ -52,9 +56,9 @@ export function PaymentsClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {payments?.map((payment: any) => (
+              {payments?.map((payment: PaymentType) => (
                 <tr key={payment.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] truncate max-w-[200px] hidden md:table-cell">{payment.stripeSessionId}</td>
+                  <td className="px-6 py-4 text-xs font-mono text-[#A1A1AA] truncate max-w-[200px] hidden md:table-cell">{payment.stripeId}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full overflow-hidden bg-[#1F1F1F]">

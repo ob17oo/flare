@@ -1,7 +1,7 @@
 import { withAuth } from "next-auth/middleware";
 
 export default withAuth(
-  function middleware(req) {
+  function middleware() {
     // If we want additional logic per-route within /admin, we can add it here.
   },
   {

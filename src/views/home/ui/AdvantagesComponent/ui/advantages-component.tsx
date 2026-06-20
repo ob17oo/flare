@@ -4,8 +4,8 @@ import Image from "next/image";
 export function AdvantagesComponent(){
     return (
         <div className="w-full flex flex-col gap-8 my-16">
-            <div className="w-full flex items-center justify-center gap-3">
-                <div className="relative overflow-hidden w-28 h-7">
+            <div className="w-full flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-3">
+                <div className="relative overflow-hidden w-28 h-7 shrink-0">
                     <Image className="object-contain" fill src={'/static/Flare-logotype.svg'} alt="AdvantagesFlareLogotype"/>
                 </div>
                 <h2 className="text-[20px] font-bold tracking-tight text-[var(--text-primary)] uppercase">гарантирует</h2>

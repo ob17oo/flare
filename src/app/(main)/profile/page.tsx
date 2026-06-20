@@ -1,7 +1,8 @@
-'use server'
 import { authOptions } from "@/shared/lib/auth"
 import { ProfilePage } from "@/views"
 import { getServerSession } from "next-auth"
+
+export const dynamic = 'force-dynamic'
 
 export default async function Profile(){
     const session = await getServerSession(authOptions)

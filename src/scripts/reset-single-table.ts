@@ -13,7 +13,7 @@ async function resetTable() {
   try {
     await prisma.$executeRaw`ALTER SEQUENCE "${TABLE_NAME}_id_seq" RESTART WITH 1;`
     console.log('🔁 Автоинкремент сброшен')
-  } catch (error) {
+  } catch {
     console.log('Автоинкремент не требуется (возможно UUID)')
   }
   

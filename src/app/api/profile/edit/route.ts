@@ -14,7 +14,7 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { login, email, password } = body;
 
-    const updateData: any = {};
+    const updateData: { login?: string; email?: string; password?: string } = {};
     if (login) updateData.login = login;
     if (email) updateData.email = email;
     if (password) {

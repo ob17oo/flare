@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ImageUploadDropzone } from '../products/components/ImageUploadDropzone';
 import Image from 'next/image';
+import { getAllBanners } from '@/entities/admin/api/marketing.action';
 
 const bannerSchema = z.object({
   title: z.string().min(1, 'Обязательное поле'),
@@ -26,8 +27,9 @@ const bannerSchema = z.object({
 });
 
 type BannerFormData = z.infer<typeof bannerSchema>;
+type BannerType = Awaited<ReturnType<typeof getAllBanners>>[number];
 
-export function MarketingClient({ initialData }: { initialData: any[] }) {
+export function MarketingClient({ initialData }: { initialData: BannerType[] }) {
   const { data: banners } = useAdminBanners(initialData);
   const createBannerMutation = useCreateBanner();
   const updateBannerMutation = useUpdateBanner();
@@ -36,6 +38,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<any>({
     resolver: zodResolver(bannerSchema),
     defaultValues: { isActive: true, sortOrder: 0, buttonText: 'Подробнее', linkType: 'URL', image_url: '', promoDiscount: 10 }
@@ -55,7 +58,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (banner: any) => {
+  const openEditModal = (banner: BannerType) => {
     reset({
       title: banner.title,
       subtitle: banner.subtitle || '',
@@ -75,11 +78,13 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: BannerFormData) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = (data: any) => {
+    const formData = data as BannerFormData;
     const payload = {
-      ...data,
-      startDate: data.startDate ? new Date(data.startDate).toISOString() : null,
-      endDate: data.endDate ? new Date(data.endDate).toISOString() : null
+      ...formData,
+      startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
+      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null
     };
 
     if (editingId) {
@@ -99,7 +104,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
     }
   };
 
-  const handleToggleActive = (banner: any) => {
+  const handleToggleActive = (banner: BannerType) => {
     updateBannerMutation.mutate({
       id: banner.id,
       data: {
@@ -143,7 +148,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
           <div>
             <p className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Всего показов</p>
             <p className="text-2xl font-bold text-white mt-1">
-              {banners?.reduce((acc: number, curr: any) => acc + (curr.viewsCount || 0), 0).toLocaleString('ru-RU')}
+              {banners?.reduce((acc: number, curr: BannerType) => acc + (curr.viewsCount || 0), 0).toLocaleString('ru-RU')}
             </p>
           </div>
         </div>
@@ -155,7 +160,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
           <div>
             <p className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Всего кликов</p>
             <p className="text-2xl font-bold text-white mt-1">
-              {banners?.reduce((acc: number, curr: any) => acc + (curr.clicksCount || 0), 0).toLocaleString('ru-RU')}
+              {banners?.reduce((acc: number, curr: BannerType) => acc + (curr.clicksCount || 0), 0).toLocaleString('ru-RU')}
             </p>
           </div>
         </div>
@@ -168,8 +173,8 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
             <p className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">Средний CTR</p>
             <p className="text-2xl font-bold text-white mt-1">
               {(() => {
-                const totalViews = banners?.reduce((acc: number, curr: any) => acc + (curr.viewsCount || 0), 0) || 0;
-                const totalClicks = banners?.reduce((acc: number, curr: any) => acc + (curr.clicksCount || 0), 0) || 0;
+                const totalViews = banners?.reduce((acc: number, curr: BannerType) => acc + (curr.viewsCount || 0), 0) || 0;
+                const totalClicks = banners?.reduce((acc: number, curr: BannerType) => acc + (curr.clicksCount || 0), 0) || 0;
                 return calculateCTR(totalClicks, totalViews);
               })()}
             </p>
@@ -194,7 +199,7 @@ export function MarketingClient({ initialData }: { initialData: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1F1F1F]">
-              {banners?.map((banner: any) => (
+              {banners?.map((banner: BannerType) => (
                 <tr key={banner.id} className="hover:bg-[#1A1A1A] transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">

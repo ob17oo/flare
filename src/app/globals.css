@@ -6,6 +6,7 @@
   
   --color-brand-primary: #DF2531;
   --color-brand-dark: #1C1C1C;
+  --breakpoint-xs: 400px;
 }
 
 @layer base {
@@ -69,13 +70,13 @@
     --border-muted: #2E3642;
     --border-accent-glow: rgba(223, 37, 49, 0.22);
 
-    --h1-size: 48px;
-    --h2-size: 36px;
-    --h3-size: 24px;
-    --h4-size: 20px;
-    --h5-size: 16px;
-    --paragraph-size: 15px;
-    --small-text-size: 13px;
+    --h1-size: clamp(2rem, 5vw, 3rem);
+    --h2-size: clamp(1.625rem, 4.5vw, 2.25rem);
+    --h3-size: clamp(1.25rem, 3.5vw, 1.5rem);
+    --h4-size: clamp(1.125rem, 2.5vw, 1.25rem);
+    --h5-size: clamp(0.95rem, 2vw, 1rem);
+    --paragraph-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+    --small-text-size: clamp(0.75rem, 1.2vw, 0.8125rem);
     
     --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
     --modal-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);

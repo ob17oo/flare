@@ -56,9 +56,24 @@ export async function GET(req: NextRequest) {
       take: 20
     });
 
-    const games: any[] = [];
-    const subscriptions: any[] = [];
-    const wallets: any[] = [];
+    interface SearchItem {
+      id: number;
+      title: string;
+      price: number;
+      image_url: string;
+      productType: string;
+      productEdition: string;
+      tags: string[];
+      discountPercent: number;
+      oldPrice: number;
+      launcher: string | null;
+      provider: string | null;
+      url: string;
+    }
+
+    const games: SearchItem[] = [];
+    const subscriptions: SearchItem[] = [];
+    const wallets: SearchItem[] = [];
 
     for (const p of products) {
       const parsed = await parseProductTags(p);

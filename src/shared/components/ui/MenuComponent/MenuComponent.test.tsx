@@ -77,6 +77,8 @@ describe('MenuComponent', () => {
             image_url: 'ImageTestSession',
             balance: 0,
             discount: 1,
+            spent: 0,
+            maxUserDiscount: 20,
         },
         expires: '2024-12-31T23:59:59.999Z'
     }
