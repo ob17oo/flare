@@ -19,6 +19,11 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Flare",
   description: "Сервис по продаже цифровых товаров и услуг",
+  icons: {
+    icon: "/static/Flare-logotype.svg",
+    shortcut: "/static/Flare-logotype.svg",
+    apple: "/static/Flare-logotype.svg",
+  },
 };
 
 export default function RootLayout({
