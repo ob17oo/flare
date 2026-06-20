@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ error: "Invalid tracking type" }, { status: 400 });
+    return NextResponse.json({ error: "Некорректный тип отслеживания" }, { status: 400 });
   } catch (error) {
     console.error("Error in POST /api/marketing/banners/track:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

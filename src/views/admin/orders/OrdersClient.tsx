@@ -8,6 +8,7 @@ import { Edit2, X, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { getAllOrders } from '@/entities/admin/api/orders.action';
 import { STATUS } from '@prisma/client';
+import { ErrorMessage } from '@/shared/components';
 
 type OrderType = Awaited<ReturnType<typeof getAllOrders>>[number];
 
@@ -46,6 +47,10 @@ export function OrdersClient({ initialData }: { initialData: OrderType[] }) {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Заказы</h1>
       </div>
+
+      {deleteOrder.isError && (
+        <ErrorMessage message={deleteOrder.error instanceof Error ? deleteOrder.error.message : 'Не удалось удалить заказ'} />
+      )}
 
       <div className="bg-[#121212] border border-[#1F1F1F] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -152,6 +157,10 @@ export function OrdersClient({ initialData }: { initialData: OrderType[] }) {
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+              {updateStatus.isError && (
+                <ErrorMessage message={updateStatus.error instanceof Error ? updateStatus.error.message : 'Не удалось обновить статус заказа'} />
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Новый статус</label>
                 <select {...register('status')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white">

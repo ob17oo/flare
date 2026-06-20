@@ -7,7 +7,7 @@ import { z } from "zod"
 import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useQuery, useMutation } from "@tanstack/react-query"
-import { InputComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components"
+import { InputComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger, ErrorMessage } from "@/shared/components"
 import { steamPaymentAction } from "@/features/Payment/actions/steamPayment.action"
 import { SuccessModal } from "@/features/Payment/ui/SuccessModal"
 
@@ -408,9 +408,7 @@ export function SteamTopupPage() {
         </div>
 
         {serverError && (
-          <div className="p-3 bg-red-500/5 text-[var(--error)] text-[12px] font-medium rounded-xl text-center border border-red-500/10">
-            {serverError}
-          </div>
+          <ErrorMessage message={serverError} />
         )}
 
         {/* CTA pay button */}

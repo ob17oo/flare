@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { ImageUploadDropzone } from '../products/components/ImageUploadDropzone';
 import Image from 'next/image';
 import { getAllBanners } from '@/entities/admin/api/marketing.action';
+import { ErrorMessage } from '@/shared/components';
 
 const bannerSchema = z.object({
   title: z.string().min(1, 'Обязательное поле'),
@@ -138,6 +139,10 @@ export function MarketingClient({ initialData }: { initialData: BannerType[] }) 
           Добавить баннер
         </button>
       </div>
+
+      {deleteBannerMutation.isError && (
+        <ErrorMessage message={deleteBannerMutation.error instanceof Error ? deleteBannerMutation.error.message : 'Не удалось удалить баннер'} />
+      )}
 
       {/* Analytics Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -306,6 +311,16 @@ export function MarketingClient({ initialData }: { initialData: BannerType[] }) 
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                {(createBannerMutation.isError || updateBannerMutation.isError) && (
+                  <ErrorMessage 
+                    message={
+                      (createBannerMutation.error instanceof Error ? createBannerMutation.error.message : '') || 
+                      (updateBannerMutation.error instanceof Error ? updateBannerMutation.error.message : '') || 
+                      'Не удалось сохранить предложение'
+                    } 
+                  />
+                )}
+
                 {/* Image Upload Box */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-[#A1A1AA]">Баннерное изображение <span className="text-red-500">*</span></label>

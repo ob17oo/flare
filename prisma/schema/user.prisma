@@ -13,6 +13,7 @@ model User {
   deposits  Deposit[]
   tickets          SupportTicket[] @relation("UserTickets")
   moderatedTickets SupportTicket[] @relation("ModeratorTickets")
+  productTickets   Ticket[]
   isBanned  Boolean   @default(false)
   referralCode String? @unique @default(cuid())
   referredById String?

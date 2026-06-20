@@ -3,9 +3,10 @@ import { useForm } from "react-hook-form"
 import { PaymentFormData, paymentSchema } from "../lib/schemas/payment.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Image from "next/image"
-import { InputComponent } from "@/shared/components"
+import { InputComponent, ErrorMessage } from "@/shared/components"
 import { useState } from "react"
 import { paymentAction } from "../actions/payment.action"
+import { createProductStripeSessionAction } from "../actions/createProductStripeSession.action"
 import { useSession } from "next-auth/react"
 import { SuccessModal } from "./SuccessModal"
 import { TPaymentItem } from "../model/types"
@@ -27,6 +28,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
     const [promoMessage, setPromoMessage] = useState('')
     const [promoApplied, setPromoApplied] = useState(false)
     const [promoDiscount, setPromoDiscount] = useState(0)
+    const [paymentMethod, setPaymentMethod] = useState<'balance' | 'stripe'>('balance')
     const { data: session, status, update } = useSession()
 
     // Fetch user's referral discount
@@ -139,7 +141,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
     const totalDiscountPercent = Math.min(referralDiscount + promoDiscount, 100)
     const discountAmount = Math.round(item.price * totalDiscountPercent / 100)
     const calculatedPrice = Math.max(item.price - discountAmount, 0)
-    const canBuy = item && session.user.balance >= calculatedPrice
+    const canBuy = item && (paymentMethod === 'stripe' || session.user.balance >= calculatedPrice)
 
     const onSubmit = async (data: PaymentFormData) => {
         try{
@@ -150,22 +152,36 @@ export function PaymentComponent({item}: PaymentComponentProps){
             
             setServerError('')
             
-            const result = await paymentAction({
-                productId: item.id,
-                email: data.email,
-                promocode: data.promocode?.trim() || undefined
-            })
-            
-            if(result.success){
-                try {
-                    await update()
-                } catch(error: unknown){
-                    console.error(`Session update failed: ${error}`)
+            if (paymentMethod === 'stripe') {
+                const result = await createProductStripeSessionAction({
+                    productId: item.id,
+                    email: data.email,
+                    promocode: data.promocode?.trim() || undefined
+                })
+                
+                if(result.success && result.url){
+                    window.location.href = result.url
+                } else {
+                    setServerError('Не удалось запустить оплату Stripe')
                 }
-                reset()
-                setShowModal(true)
             } else {
-                setServerError(result.message)
+                const result = await paymentAction({
+                    productId: item.id,
+                    email: data.email,
+                    promocode: data.promocode?.trim() || undefined
+                })
+                
+                if(result.success){
+                    try {
+                        await update()
+                    } catch(error: unknown){
+                        console.error(`Session update failed: ${error}`)
+                    }
+                    reset()
+                    setShowModal(true)
+                } else {
+                    setServerError(result.message)
+                }
             }
         } catch(error: unknown){
             if(process.env.NODE_ENV === 'development'){
@@ -196,6 +212,36 @@ export function PaymentComponent({item}: PaymentComponentProps){
                     {errors.email && (
                         <p className="text-xs text-[var(--error)] font-medium mt-0.5" role="alert">{errors.email.message}</p>
                     )}
+                </div>
+
+                <div className="flex flex-col gap-1.5 mt-1">
+                    <label className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Способ оплаты</label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                            type="button"
+                            onClick={() => setPaymentMethod('balance')}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                                paymentMethod === 'balance'
+                                    ? 'bg-[var(--accent)]/10 border-[var(--accent)] text-[var(--accent)] shadow-[0_0_12px_rgba(99,102,241,0.15)]'
+                                    : 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]/30'
+                            }`}
+                        >
+                            <span className="text-[13px] font-bold">Баланс аккаунта</span>
+                            <span className="text-[11px] opacity-80 mt-0.5">{session?.user?.balance?.toLocaleString('ru-RU')} ₽</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPaymentMethod('stripe')}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                                paymentMethod === 'stripe'
+                                    ? 'bg-[var(--accent)]/10 border-[var(--accent)] text-[var(--accent)] shadow-[0_0_12px_rgba(99,102,241,0.15)]'
+                                    : 'bg-[var(--bg-layer-2)] border-[var(--border-muted)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]/30'
+                            }`}
+                        >
+                            <span className="text-[13px] font-bold">Карта / Stripe</span>
+                            <span className="text-[11px] opacity-80 mt-0.5">Stripe Checkout</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div className="flex flex-col gap-1.5">
@@ -268,7 +314,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
                         type="submit" 
                         disabled={isSubmitting || !canBuy}
                     >
-                        {isSubmitting ? 'Обработка...' : `Оплатить ${calculatedPrice.toLocaleString('ru-RU')} ₽`}
+                        {isSubmitting ? 'Обработка...' : paymentMethod === 'stripe' ? `Оплатить картой ${calculatedPrice.toLocaleString('ru-RU')} ₽` : `Оплатить с баланса ${calculatedPrice.toLocaleString('ru-RU')} ₽`}
                     </button>
                     <button 
                         className="w-full h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border-muted)] hover:bg-[var(--bg-layer-3)] text-[var(--text-primary)] font-semibold text-[14px] cursor-pointer transition-colors duration-300" 
@@ -279,12 +325,12 @@ export function PaymentComponent({item}: PaymentComponentProps){
                 </div>
             </form>
             
-            <div className="mt-1">
+            <div className="mt-1 flex flex-col gap-2">
                 { serverError && (
-                    <p className="text-xs text-[var(--error)] font-semibold text-center" role="alert">{serverError}</p>
+                    <ErrorMessage message={serverError} />
                 ) }
-                { !canBuy && (
-                    <p className="text-xs text-[var(--error)] font-semibold text-center" role="alert">Недостаточно средств на балансе</p>
+                { !canBuy && paymentMethod === 'balance' && (
+                    <ErrorMessage message="Недостаточно средств на балансе" />
                 ) }
             </div>
             <SuccessModal showModal={showModal} setShowModal={setShowModal}/>

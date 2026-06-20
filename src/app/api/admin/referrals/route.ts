@@ -7,12 +7,12 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Неавторизованный доступ' }, { status: 401 });
     }
 
     const adminCheck = await prisma.user.findUnique({ where: { id: session.user.id } });
     if (adminCheck?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -58,6 +58,6 @@ export async function GET(req: Request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching admin referrals:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

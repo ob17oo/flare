@@ -116,6 +116,6 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Search API error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

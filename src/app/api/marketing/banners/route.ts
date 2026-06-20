@@ -30,6 +30,6 @@ export async function GET() {
     return NextResponse.json(banners);
   } catch (error) {
     console.error("Error in GET /api/marketing/banners:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

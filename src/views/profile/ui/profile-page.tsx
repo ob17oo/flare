@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ButtonComponent, InputComponent } from "@/shared/components"
+import { ButtonComponent, InputComponent, ErrorMessage } from "@/shared/components"
 import { useLockScroll } from "@/shared/hooks"
 import { Session } from "next-auth"
 import { signOut } from "next-auth/react"
@@ -72,6 +72,7 @@ export function ProfilePage({ session }: ProfileProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({ login: user.login, email: user.email, password: '' })
   const [isSaving, setIsSaving] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
   const [visibleOrders, setVisibleOrders] = useState(5)
   const [refCodeInput, setRefCodeInput] = useState('')
   const [isApplyingRef, setIsApplyingRef] = useState(false)
@@ -122,6 +123,19 @@ export function ProfilePage({ session }: ProfileProps) {
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEditError(null);
+
+    // Basic client-side validation
+    if (editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email)) {
+      setEditError('Введите корректный адрес электронной почты');
+      return;
+    }
+
+    if (editForm.password && editForm.password.length < 8) {
+      setEditError('Пароль должен содержать не менее 8 символов');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const res = await fetch('/api/profile/edit', {
@@ -129,13 +143,17 @@ export function ProfilePage({ session }: ProfileProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)
       });
+      const data = await res.json();
       if (res.ok) {
         setIsEditing(false);
         // Force session refresh by reloading page
         window.location.reload();
+      } else {
+        setEditError(data.error || 'Не удалось обновить профиль');
       }
     } catch (error) {
       console.error(error);
+      setEditError('Произошла ошибка при обновлении профиля');
     } finally {
       setIsSaving(false);
     }
@@ -235,7 +253,7 @@ export function ProfilePage({ session }: ProfileProps) {
         </div>
 
         <div className="flex flex-row md:flex-col gap-2 w-full mt-2 border-t border-[var(--border-muted)]/60 pt-4">
-          <ButtonComponent onClick={() => setIsEditing(true)} isFilled={true} color="secondary" className="w-full py-2.5">Редактировать</ButtonComponent>
+          <ButtonComponent onClick={() => { setIsEditing(true); setEditError(null); }} isFilled={true} color="secondary" className="w-full py-2.5">Редактировать</ButtonComponent>
           <ButtonComponent onClick={() => signOut()} isFilled={true} color="accent" className="w-full py-2.5">Выйти</ButtonComponent>
         </div>
       </div>
@@ -599,6 +617,10 @@ export function ProfilePage({ session }: ProfileProps) {
                   placeholder="Оставьте пустым, чтобы не менять" 
                 />
               </div>
+              
+              {editError && (
+                <ErrorMessage message={editError} className="mt-2" />
+              )}
               
               <div className="flex justify-end gap-3 pt-2 mt-2 border-t border-[var(--border-muted)]">
                 <ButtonComponent type="button" onClick={() => setIsEditing(false)} color="secondary" className="px-5">Отмена</ButtonComponent>

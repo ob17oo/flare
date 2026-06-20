@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const { code } = await req.json();
 
     if (!code) {
-      return NextResponse.json({ error: "Code is required" }, { status: 400 });
+      return NextResponse.json({ error: "Код промокода обязателен" }, { status: 400 });
     }
 
     const promocode = await prisma.promocode.findUnique({
@@ -36,6 +36,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("Error validating promocode:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

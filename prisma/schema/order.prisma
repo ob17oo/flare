@@ -7,9 +7,11 @@ model Order {
   status        STATUS        @default(PENDING)
   promo         String?
   email         String
+  stripeId      String?       @unique
   product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
   promoCode     Promocode?    @relation(fields: [promo], references: [code], onDelete: Cascade)
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket        Ticket?
 
   @@index([userId])
   @@index([status, createdAt])

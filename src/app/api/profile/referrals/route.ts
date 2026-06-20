@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Неавторизованный доступ" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -25,7 +25,7 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
     }
 
     const totalReferrals = user.referrals.length;
@@ -62,6 +62,6 @@ export async function GET() {
 
   } catch (error) {
     console.error("Error fetching referrals:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

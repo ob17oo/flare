@@ -8,7 +8,7 @@ export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Неавторизованный доступ' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -29,6 +29,6 @@ export async function PUT(req: Request) {
     return NextResponse.json({ success: true, user: { login: updatedUser.login, email: updatedUser.email } });
   } catch (error) {
     console.error('Error updating profile:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

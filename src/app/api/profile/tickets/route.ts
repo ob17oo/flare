@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -10,19 +12,23 @@ export async function GET() {
       return NextResponse.json({ error: 'Неавторизованный доступ' }, { status: 401 });
     }
 
-    const orders = await prisma.order.findMany({
+    const tickets = await prisma.ticket.findMany({
       where: { userId: session.user.id },
       include: {
-        product: {
-          select: { title: true, image_url: true }
+        order: {
+          include: {
+            product: {
+              select: { title: true, image_url: true }
+            }
+          }
         }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(orders);
+    return NextResponse.json(tickets);
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error('Error fetching digital tickets:', error);
     return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

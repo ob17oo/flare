@@ -3,6 +3,8 @@ import { headers } from "next/headers"
 import { stripe } from "@/shared/lib/stripe"
 import { prisma } from "@/shared/lib/prisma"
 import Stripe from "stripe"
+import { generateProductKey } from "@/shared/lib/utils/productKey"
+import { sendTicketEmail } from "@/shared/lib/email/emailService"
 
 export const dynamic = 'force-dynamic'
 
@@ -100,6 +102,150 @@ export async function POST(req: Request) {
 
             console.log(`[Stripe Webhook Success] Credited ${amount} RUB to user ${userId} balance.`)
           })
+        } else if (session.metadata?.purpose === 'product_purchase') {
+          const userId = session.metadata.userId
+          const productId = parseInt(session.metadata.productId, 10)
+          const orderId = parseInt(session.metadata.orderId, 10)
+          const email = session.metadata.email
+          const promocode = session.metadata.promocode || null
+
+          if (!userId || isNaN(productId) || isNaN(orderId) || !email) {
+            console.error("[Stripe Webhook Error] Invalid product purchase metadata in session:", session.id)
+            break
+          }
+
+          // Fetch the order first to check if it's already PAID
+          const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: { product: true }
+          })
+
+          if (!order) {
+            console.error(`[Stripe Webhook Error] Order #${orderId} not found.`)
+            break
+          }
+
+          if (order.status === 'PAID') {
+            console.log(`[Stripe Webhook Idempotency] Order #${orderId} is already marked as PAID. Skipping.`)
+            break
+          }
+
+          // Define variables to hold info needed for sending the email outside the transaction
+          let ticketInfo: {
+            toEmail: string
+            productTitle: string
+            purchaseDate: string
+            orderId: string | number
+            price: number | string
+            paymentMethod: string
+            status: string
+            productKey: string
+          } | null = null
+
+          try {
+            await prisma.$transaction(async (tx) => {
+              // 1. Lock and re-fetch the order inside the transaction to prevent race conditions
+              const txOrder = await tx.order.findUnique({
+                where: { id: orderId },
+                include: { product: true }
+              })
+
+              if (!txOrder) {
+                throw new Error('ORDER_NOT_FOUND')
+              }
+
+              if (txOrder.status === 'PAID') {
+                console.log(`[Stripe Webhook Transaction] Order #${orderId} already marked PAID.`)
+                return
+              }
+
+              // 2. Lock and fetch the deposit
+              const existingDeposit = await tx.deposit.findUnique({
+                where: { stripeId: session.id }
+              })
+
+              if (existingDeposit && existingDeposit.status === 'PAID') {
+                console.log(`[Stripe Webhook Transaction] Deposit ${session.id} already marked PAID.`)
+                return
+              }
+
+              // Update Order and Deposit status to PAID
+              await tx.order.update({
+                where: { id: orderId },
+                data: { status: 'PAID' }
+              })
+
+              if (existingDeposit) {
+                await tx.deposit.update({
+                  where: { id: existingDeposit.id },
+                  data: { status: 'PAID' }
+                })
+              } else {
+                await tx.deposit.create({
+                  data: {
+                    userId,
+                    amount: txOrder.product.price,
+                    stripeId: session.id,
+                    status: 'PAID'
+                  }
+                })
+              }
+
+              // Decrement product stock
+              await tx.product.update({
+                where: { id: productId },
+                data: { stock: { decrement: 1 } }
+              })
+
+              // Increment promocode usesCount if applicable
+              if (promocode) {
+                await tx.promocode.update({
+                  where: { code: promocode.toUpperCase() },
+                  data: { usesCount: { increment: 1 } }
+                })
+              }
+
+              // Generate digital product key
+              const productKey = generateProductKey()
+
+              // Create digital ticket
+              await tx.ticket.create({
+                data: {
+                  userId,
+                  orderId,
+                  productKey,
+                }
+              })
+
+              ticketInfo = {
+                toEmail: email,
+                productTitle: txOrder.product.title,
+                purchaseDate: new Date().toLocaleDateString('ru-RU'),
+                orderId: txOrder.id,
+                price: session.metadata?.finalPrice || txOrder.product.price.toString(),
+                paymentMethod: 'Банковская карта (Stripe)',
+                status: 'Оплачено (PAID)',
+                productKey,
+              }
+            }, {
+              timeout: 10000,
+              maxWait: 2000,
+              isolationLevel: 'Serializable'
+            })
+
+            console.log(`[Stripe Webhook Success] Fulfilled product purchase for user ${userId}, product ${productId}, order ${orderId}`)
+
+            // Send email asynchronously and log any errors without raising exceptions to prevent webhook failure
+            if (ticketInfo) {
+              sendTicketEmail(ticketInfo).catch((emailErr) => {
+                console.error(`[Email Send Failure] Failed to send ticket email to ${email}:`, emailErr)
+              })
+            }
+
+          } catch (err: unknown) {
+            console.error(`[Stripe Webhook Error] Transaction failed for product purchase:`, err)
+            throw err
+          }
         }
         break
       }

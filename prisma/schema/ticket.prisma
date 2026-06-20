@@ -1,0 +1,14 @@
+model Ticket {
+  id         String   @id @default(cuid())
+  productKey String
+  createdAt  DateTime @default(now())
+  userId     String
+  orderId    Int      @unique
+  eventId    Int?
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([orderId])
+}

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { InputComponent, ButtonComponent } from "@/shared/components"
+import { InputComponent, ButtonComponent, ErrorMessage } from "@/shared/components"
 import { Mail, MessageCircle, HelpCircle, Clock, Send, CheckCircle2 } from "lucide-react"
 
 const feedbackSchema = z.object({
@@ -216,9 +216,7 @@ export function ContactsPage() {
               </div>
 
               {errorMsg && (
-                <div className="p-3 bg-red-500/5 text-[var(--error)] text-[12px] font-medium rounded-xl border border-red-500/10 text-center">
-                  {errorMsg}
-                </div>
+                <ErrorMessage message={errorMsg} />
               )}
 
               {/* Submit Button */}

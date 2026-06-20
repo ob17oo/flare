@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { getAllPromocodes } from '@/entities/admin/api/promocodes.action';
+import { ErrorMessage } from '@/shared/components';
 
 const promoSchema = z.object({
   code: z.string().min(1, 'Обязательное поле'),
@@ -90,6 +91,10 @@ export function PromocodesClient({ initialData }: { initialData: PromocodeType[]
         </button>
       </div>
 
+      {deletePromo.isError && (
+        <ErrorMessage message={deletePromo.error instanceof Error ? deletePromo.error.message : 'Не удалось удалить промокод'} />
+      )}
+
       <div className="bg-[#121212] border border-[#1F1F1F] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
@@ -156,6 +161,16 @@ export function PromocodesClient({ initialData }: { initialData: PromocodeType[]
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+              {(createPromo.isError || updatePromo.isError) && (
+                <ErrorMessage 
+                  message={
+                    (createPromo.error instanceof Error ? createPromo.error.message : '') || 
+                    (updatePromo.error instanceof Error ? updatePromo.error.message : '') || 
+                    'Не удалось сохранить промокод'
+                  } 
+                />
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Код</label>
                 <input {...register('code')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3.5 h-11 text-white uppercase" />

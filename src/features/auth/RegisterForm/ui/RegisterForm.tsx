@@ -1,5 +1,5 @@
 'use client'
-import { InputComponent } from "@/shared/components";
+import { InputComponent, ErrorMessage } from "@/shared/components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -132,7 +132,7 @@ export function RegisterForm(){
                     </form>
                     
                     {serverError && (
-                        <p className="text-xs text-[var(--error)] font-semibold text-center mt-1" role="alert">{serverError}</p>
+                        <ErrorMessage message={serverError} className="mt-1 justify-center text-center" />
                     )}
                 </section>
             </div>

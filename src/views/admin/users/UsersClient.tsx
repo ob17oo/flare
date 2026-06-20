@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { getAllUsers } from '@/entities/admin/api/users.action';
+import { ErrorMessage } from '@/shared/components';
 
 const userSchema = z.object({
   role: z.enum(['USER', 'ADMIN', 'MODERATOR']),
@@ -141,6 +142,10 @@ export function UsersClient({ initialData }: { initialData: UserType[] }) {
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+              {updateUser.isError && (
+                <ErrorMessage message={updateUser.error instanceof Error ? updateUser.error.message : 'Не удалось обновить данные пользователя'} />
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Роль</label>
                 <select {...register('role')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white">

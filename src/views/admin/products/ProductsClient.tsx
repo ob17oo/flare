@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ImageUploadDropzone } from './components/ImageUploadDropzone';
 import { getAllProducts } from '@/entities/admin/api/products.action';
+import { ErrorMessage } from '@/shared/components';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Обязательное поле'),
@@ -162,6 +163,10 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
           Создать товар
         </button>
       </div>
+
+      {deleteProduct.isError && (
+        <ErrorMessage message={deleteProduct.error instanceof Error ? deleteProduct.error.message : 'Не удалось удалить товар'} />
+      )}
 
       <div className="bg-[#121212] border border-[#1F1F1F] rounded-xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
@@ -412,9 +417,7 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
             <div className="p-6 border-t border-[#1F1F1F] bg-[#121212] shrink-0 flex items-center justify-between">
               <div>
                 {saveStatus === 'error' && (
-                  <p className="text-red-500 text-sm font-medium flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" /> {errorMessage || 'Ошибка при сохранении'}
-                  </p>
+                  <ErrorMessage message={errorMessage || 'Ошибка при сохранении'} />
                 )}
                 {saveStatus === 'success' && (
                   <p className="text-green-500 text-sm font-medium flex items-center gap-2">

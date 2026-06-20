@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { InputComponent, ButtonComponent } from "@/shared/components"
+import { InputComponent, ButtonComponent, ErrorMessage } from "@/shared/components"
 import { createStripeSessionAction } from "@/features/Payment/actions/createStripeSession.action"
 import { ShieldCheck, Zap, CreditCard, History, Wallet } from "lucide-react"
 
@@ -15,7 +15,7 @@ interface DepositInfo {
   id: string
   amount: number
   stripeId: string
-  status: 'PENDING' | 'SUCCESS' | 'CANCELLED' | 'PROCESSING'
+  status: 'PENDING' | 'SUCCESS' | 'CANCELLED' | 'PROCESSING' | 'PAID'
   createdAt: Date
 }
 
@@ -192,9 +192,7 @@ export function BalanceTopupPage({ initialDeposits = [] }: BalanceTopupPageProps
           </div>
 
           {errorMsg && (
-            <div className="p-3 bg-red-500/5 text-[var(--error)] text-[12px] font-medium rounded-xl text-center border border-red-500/10">
-              {errorMsg}
-            </div>
+            <ErrorMessage message={errorMsg} />
           )}
 
           {/* Checkout Button */}
@@ -265,13 +263,13 @@ export function BalanceTopupPage({ initialDeposits = [] }: BalanceTopupPageProps
                       </td>
                       <td className="py-3 text-right">
                         <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
-                          dep.status === 'SUCCESS'
+                          dep.status === 'SUCCESS' || dep.status === 'PAID'
                             ? 'bg-green-500/5 text-[var(--success)] border-green-500/10'
                             : dep.status === 'PENDING'
                             ? 'bg-yellow-500/5 text-yellow-500 border-yellow-500/10'
                             : 'bg-red-500/5 text-[var(--error)] border-red-500/10'
                         }`}>
-                          {dep.status === 'SUCCESS' ? 'Выполнено' : dep.status === 'PENDING' ? 'Ожидание' : 'Отменено'}
+                          {dep.status === 'SUCCESS' || dep.status === 'PAID' ? 'Выполнено' : dep.status === 'PENDING' ? 'Ожидание' : 'Отменено'}
                         </span>
                       </td>
                     </tr>

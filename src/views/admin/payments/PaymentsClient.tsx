@@ -8,6 +8,7 @@ import { Edit2, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { getAllPayments } from '@/entities/admin/api/payments.action';
 import { STATUS } from '@prisma/client';
+import { ErrorMessage } from '@/shared/components';
 
 type PaymentType = Awaited<ReturnType<typeof getAllPayments>>[number];
 
@@ -121,6 +122,10 @@ export function PaymentsClient({ initialData }: { initialData: PaymentType[] }) 
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+              {updateStatus.isError && (
+                <ErrorMessage message={updateStatus.error instanceof Error ? updateStatus.error.message : 'Не удалось обновить статус платежа'} />
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Новый статус</label>
                 <select {...register('status')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white">
