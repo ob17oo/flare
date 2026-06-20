@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Key, Copy, Check, ArrowLeft, Ticket as TicketIcon } from "lucide-react"
 
@@ -26,7 +26,21 @@ interface TDigitalTicket {
 }
 
 export function ProfileTicketsPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-4xl mx-auto py-16 px-4 text-center">
+        <span className="text-[14px] text-[var(--text-secondary)]">Загрузка ваших цифровых товаров...</span>
+      </div>
+    }>
+      <ProfileTicketsContent />
+    </Suspense>
+  )
+}
+
+function ProfileTicketsContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isSuccess = searchParams ? searchParams.get('success') === 'true' : false
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null)
 
   const { data: tickets = [], isLoading } = useQuery<TDigitalTicket[]>({
@@ -66,23 +80,51 @@ export function ProfileTicketsPage() {
         </div>
       </div>
 
+      {/* Success banner for Stripe redirection */}
+      {isSuccess && (
+        <div className="bg-[var(--success)]/10 border border-[var(--success)]/30 rounded-2xl p-5 mb-6 flex items-start gap-4 shadow-[var(--card-shadow)] animate-fade-in relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-[var(--success)]" />
+          <div className="p-2.5 rounded-xl bg-[var(--success)]/10 text-[var(--success)] shrink-0">
+            <Check size={20} strokeWidth={2.5} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <h4 className="text-[15px] font-extrabold text-[var(--text-primary)]">Оплата успешно проведена!</h4>
+            <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
+              Благодарим вас за покупку в нашем магазине! Ваш лицензионный код активации успешно сгенерирован и отображен ниже. Вы можете скопировать его в один клик. Ключ также всегда доступен в вашем личном кабинете.
+            </p>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-16 text-center shadow-[var(--card-shadow)]">
           <span className="text-[14px] text-[var(--text-secondary)]">Загрузка ваших цифровых товаров...</span>
         </div>
       ) : tickets.length > 0 ? (
         <div className="flex flex-col gap-4">
-          {tickets.map((ticket) => {
+          {tickets.map((ticket, index) => {
             const isCopied = copiedKeyId === ticket.id
             const orderDate = ticket.order?.createdAt 
               ? new Date(ticket.order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
               : 'Неизвестно'
 
+            const isNewPurchase = isSuccess && index === 0
+
             return (
               <div 
                 key={ticket.id} 
-                className="bg-[var(--secondary)] border border-[var(--border-muted)] rounded-2xl p-5 shadow-[var(--card-shadow)] flex flex-col md:flex-row md:items-center gap-5 hover:border-[var(--text-secondary)]/10 transition-all duration-300"
+                className={`bg-[var(--secondary)] border rounded-2xl p-5 shadow-[var(--card-shadow)] flex flex-col md:flex-row md:items-center gap-5 hover:border-[var(--text-secondary)]/10 transition-all duration-300 relative overflow-hidden ${
+                  isNewPurchase 
+                    ? 'border-[var(--success)] shadow-[0_0_20px_rgba(34,197,94,0.15)] ring-1 ring-[var(--success)]/20' 
+                    : 'border-[var(--border-muted)]'
+                }`}
               >
+                {isNewPurchase && (
+                  <div className="absolute top-0 right-0 bg-[var(--success)] text-white text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-bl-xl tracking-wider">
+                    Только что куплено
+                  </div>
+                )}
+
                 {/* Product Image */}
                 <div className="w-16 h-16 rounded-xl bg-[var(--bg-layer-0)] border border-[var(--border-muted)] relative overflow-hidden shrink-0">
                   {ticket.order?.product?.image_url ? (
@@ -101,10 +143,16 @@ export function ProfileTicketsPage() {
                     <span>Заказ: <strong className="text-[var(--text-primary)]">#{ticket.order?.id}</strong></span>
                     <span>Дата покупки: <strong>{orderDate}</strong></span>
                     <span>Статус: <strong className="text-[var(--success)]">Оплачено</strong></span>
+                    {isNewPurchase && (
+                      <span className="inline-flex items-center gap-1 text-[var(--success)] font-bold animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]"></span>
+                        Новый
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Key Display & Copy Action */}
+                {/* Display activation key */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 mt-2 md:mt-0">
                   <div className="bg-[var(--bg-layer-2)] border border-[var(--border-muted)] rounded-xl px-4 py-3 flex items-center justify-between gap-3 font-mono text-[14px] font-bold text-[var(--text-primary)] tracking-wider">
                     <span>{ticket.productKey}</span>

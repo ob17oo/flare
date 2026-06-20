@@ -24,6 +24,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
     const promoParam = searchParams ? searchParams.get('promo') : null
     const [havePromo, setHavePromo] = useState(!!promoParam)
     const [showModal, setShowModal] = useState(false)
+    const [activationKey, setActivationKey] = useState<string | null>(null)
     const [serverError, setServerError] = useState('')
     const [promoMessage, setPromoMessage] = useState('')
     const [promoApplied, setPromoApplied] = useState(false)
@@ -263,6 +264,11 @@ export function PaymentComponent({item}: PaymentComponentProps){
                     } catch(error: unknown){
                         console.error(`Session update failed: ${error}`)
                     }
+                    if (result.data?.ticket?.productKey) {
+                        setActivationKey(result.data.ticket.productKey)
+                    } else {
+                        setActivationKey(null)
+                    }
                     reset()
                     setShowModal(true)
                 } else {
@@ -419,7 +425,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
                     <ErrorMessage message="Недостаточно средств на балансе" />
                 ) }
             </div>
-            <SuccessModal showModal={showModal} setShowModal={setShowModal}/>
+            <SuccessModal showModal={showModal} setShowModal={setShowModal} activationKey={activationKey}/>
         </div>
     )
 }

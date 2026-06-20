@@ -125,8 +125,8 @@ export async function POST(req: Request) {
             break
           }
 
-          if (order.status === 'PAID') {
-            console.log(`[Stripe Webhook Idempotency] Order #${order.id} is already marked as PAID. Skipping.`)
+          if (order.status === 'SUCCESS' || order.status === 'PAID') {
+            console.log(`[Stripe Webhook Idempotency] Order #${order.id} is already marked as SUCCESS or PAID. Skipping.`)
             break
           }
 
@@ -154,8 +154,8 @@ export async function POST(req: Request) {
                 throw new Error('ORDER_NOT_FOUND')
               }
 
-              if (txOrder.status === 'PAID') {
-                console.log(`[Stripe Webhook Transaction] Order #${order.id} already marked PAID.`)
+              if (txOrder.status === 'SUCCESS' || txOrder.status === 'PAID') {
+                console.log(`[Stripe Webhook Transaction] Order #${order.id} already marked SUCCESS or PAID.`)
                 return
               }
 
@@ -164,15 +164,15 @@ export async function POST(req: Request) {
                 where: { stripeId: session.id }
               })
 
-              if (existingDeposit && existingDeposit.status === 'PAID') {
-                console.log(`[Stripe Webhook Transaction] Deposit ${session.id} already marked PAID.`)
+              if (existingDeposit && (existingDeposit.status === 'SUCCESS' || existingDeposit.status === 'PAID')) {
+                console.log(`[Stripe Webhook Transaction] Deposit ${session.id} already marked SUCCESS or PAID.`)
                 return
               }
 
-              // Update Order and Deposit status to PAID
+              // Update Order and Deposit status to SUCCESS
               await tx.order.update({
                 where: { id: order.id },
-                data: { status: 'PROCESSING' }
+                data: { status: 'SUCCESS' }
               })
 
               if (existingDeposit) {
@@ -223,17 +223,6 @@ export async function POST(req: Request) {
             })
 
             console.log(`[Stripe Webhook Success] Fulfilled product purchase for user ${userId}, product ${productId}, order ${order.id}`)
-
-            // Update order status to SUCCESS after the artificial delay for presentation
-            // 1.5s artificial delay for presentation to show the processing transition
-            await new Promise((resolve) => setTimeout(resolve, 1500))
-
-            await prisma.order.update({
-              where: { id: order.id },
-              data: { status: 'SUCCESS' }
-            })
-            console.log(`[Stripe Webhook Completion] Order #${order.id} status updated to SUCCESS.`)
-
           } catch (err: unknown) {
             console.error(`[Stripe Webhook Error] Transaction failed for product purchase:`, err)
             throw err

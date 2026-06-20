@@ -1,6 +1,5 @@
 import { prisma } from "../shared/lib/prisma"
 import { generateProductKey } from "../shared/lib/utils/productKey"
-import { sendTicketEmail } from "../shared/lib/email/emailService"
 import bcrypt from "bcrypt"
 
 async function runTest() {
@@ -101,8 +100,8 @@ async function runTest() {
       throw new Error('ORDER_NOT_FOUND')
     }
 
-    if (txOrder.status === 'PAID') {
-      console.log(`[Idempotency Skip] Order #${pendingOrder.id} already marked PAID.`)
+    if (txOrder.status === 'SUCCESS' || txOrder.status === 'PAID') {
+      console.log(`[Idempotency Skip] Order #${pendingOrder.id} already marked SUCCESS.`)
       return
     }
 
@@ -110,15 +109,15 @@ async function runTest() {
       where: { stripeId: mockStripeSessionId }
     })
 
-    if (existingDeposit && existingDeposit.status === 'PAID') {
+    if (existingDeposit && (existingDeposit.status === 'SUCCESS' || existingDeposit.status === 'PAID')) {
       console.log(`[Idempotency Skip] Deposit ${mockStripeSessionId} already marked PAID.`)
       return
     }
 
-    // Update Order & Deposit
+    // Update Order & Deposit status to SUCCESS
     await tx.order.update({
       where: { id: pendingOrder.id },
-      data: { status: 'PAID' }
+      data: { status: 'SUCCESS' }
     })
 
     if (existingDeposit) {
@@ -153,7 +152,7 @@ async function runTest() {
       orderId: txOrder.id,
       price: sessionMetadata.finalPrice,
       paymentMethod: 'Банковская карта (Stripe)',
-      status: 'Оплачено (PAID)',
+      status: 'Успешно (SUCCESS)',
       productKey,
     }
   }, {
@@ -171,7 +170,7 @@ async function runTest() {
   const updatedProduct = await prisma.product.findUnique({ where: { id: testProduct.id } })
   const createdTicket = await prisma.ticket.findUnique({ where: { orderId: pendingOrder.id } })
 
-  if (updatedOrder?.status !== 'PAID') throw new Error("Order status was not updated to PAID!")
+  if (updatedOrder?.status !== 'SUCCESS') throw new Error("Order status was not updated to SUCCESS!")
   if (updatedDeposit?.status !== 'PAID') throw new Error("Deposit status was not updated to PAID!")
   if (updatedProduct?.stock !== testProduct.stock - 1) throw new Error("Product stock was not decremented!")
   if (!createdTicket) throw new Error("Ticket record was not created in database!")
@@ -193,8 +192,8 @@ async function runTest() {
       throw new Error('ORDER_NOT_FOUND')
     }
 
-    if (txOrder.status === 'PAID') {
-      console.log("🛡️ [Idempotency Success] Order is already marked PAID. Skipping database updates!")
+    if (txOrder.status === 'SUCCESS' || txOrder.status === 'PAID') {
+      console.log("🛡️ [Idempotency Success] Order is already marked SUCCESS. Skipping database updates!")
       return
     }
 
@@ -206,17 +205,9 @@ async function runTest() {
   })
 
   if (secondRunExecuted) {
-    throw new Error("Idempotency failed! Re-processed already paid order.")
+    throw new Error("Idempotency failed! Re-processed already successful order.")
   }
   console.log("✅ Idempotency test PASSED! No duplicates created, no status updates performed.")
-
-  // 7. Verify email template generation
-  console.log("✉️ Simulating Email Service trigger...")
-  const emailResult = await sendTicketEmail(ticketInfo)
-  if (!emailResult.success) {
-    throw new Error("Email sending wrapper returned error: " + JSON.stringify(emailResult.error))
-  }
-  console.log("✅ Email trigger verification PASSED!")
 
   console.log("\n⭐️⭐️⭐️ DIGITAL DELIVERY SYSTEM VERIFICATION PASSED SUCCESSFULLY! ⭐️⭐️⭐️\n")
 }

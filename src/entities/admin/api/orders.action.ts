@@ -4,7 +4,6 @@ import { prisma } from "@/shared/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { STATUS } from "@prisma/client";
 import { generateProductKey } from "@/shared/lib/utils/productKey";
-import { sendTicketEmail } from "@/shared/lib/email/emailService";
 
 export async function getAllOrders() {
   const orders = await prisma.order.findMany({
@@ -40,7 +39,7 @@ export async function updateOrderStatus(id: number, status: STATUS) {
   if ((status === 'SUCCESS' || status === 'PAID') && !order.ticket) {
     const productKey = generateProductKey();
 
-    // Create the ticket in the database
+    // 1. Create the ticket in the database
     await prisma.ticket.create({
       data: {
         userId: order.userId,
@@ -48,29 +47,14 @@ export async function updateOrderStatus(id: number, status: STATUS) {
         productKey
       }
     });
+    console.log(`[Admin Panel] Ticket created for Order #${order.id}`);
 
-    // Decrement product stock
+    // 2. Decrement product stock
     await prisma.product.update({
       where: { id: order.productId },
       data: { stock: { decrement: 1 } }
     });
 
-    // Construct email parameters
-    const ticketInfo = {
-      toEmail: order.email,
-      productTitle: order.product.title,
-      purchaseDate: new Date().toLocaleDateString('ru-RU'),
-      orderId: order.id,
-      price: order.product.price.toString(),
-      paymentMethod: 'Панель управления (Вручную)',
-      status: `Выдан администратором (${status})`,
-      productKey,
-    };
-
-    // Send the email asynchronously without blocking the status update
-    sendTicketEmail(ticketInfo).catch((emailErr) => {
-      console.error(`[Admin Manual Activation Email Failure] Failed to send ticket email to ${order.email}:`, emailErr);
-    });
   }
 
   // Update order status in database
@@ -79,6 +63,7 @@ export async function updateOrderStatus(id: number, status: STATUS) {
     data: { status }
   });
 
+  console.log(`[Admin Panel] Order #${id} status updated to ${status}`);
   revalidatePath('/admin/orders');
   return updatedOrder;
 }
