@@ -35,6 +35,9 @@ interface TProfileOrder {
     image_url: string
     price: number
   } | null
+  ticket: {
+    productKey: string
+  } | null
 }
 
 interface TProfileTicket {
@@ -77,6 +80,7 @@ export function ProfilePage({ session }: ProfileProps) {
   const [refCodeInput, setRefCodeInput] = useState('')
   const [isApplyingRef, setIsApplyingRef] = useState(false)
   const [refApplyStatus, setRefApplyStatus] = useState<{success?: boolean, message?: string} | null>(null)
+  const [copiedKeyId, setCopiedKeyId] = useState<number | null>(null)
 
   useLockScroll({ isOpen: isEditing })
 
@@ -438,27 +442,54 @@ export function ProfilePage({ session }: ProfileProps) {
           ) : orders.length > 0 ? (
             <div className="flex flex-col gap-3">
               {orders.slice(0, visibleOrders).map((order: TProfileOrder) => (
-                <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] p-4 rounded-xl transition-all duration-200 gap-4">
-                  <div className="flex items-center gap-4 flex-1 overflow-hidden">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--bg-layer-0)] border border-[var(--border-muted)] flex-shrink-0 relative overflow-hidden">
-                      {order.product?.image_url ? (
-                        <Image src={order.product.image_url} alt="Product" fill className="object-cover" />
-                      ) : (
-                        <Package className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
-                      )}
+                <div key={order.id} className="flex flex-col bg-[var(--bg-layer-2)]/30 hover:bg-[var(--bg-layer-2)]/60 border border-[var(--border-muted)] p-4 rounded-xl transition-all duration-200 gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                      <div className="w-12 h-12 rounded-lg bg-[var(--bg-layer-0)] border border-[var(--border-muted)] flex-shrink-0 relative overflow-hidden">
+                        {order.product?.image_url ? (
+                          <Image src={order.product.image_url} alt="Product" fill className="object-cover" />
+                        ) : (
+                          <Package className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1 overflow-hidden">
+                        <span className="text-[14px] font-bold text-[var(--text-primary)] truncate">{order.product?.title || `Заказ #${String(order.id).slice(-4)}`}</span>
+                        <span className="text-[11px] text-[var(--text-secondary)]">{new Date(order.createdAt).toLocaleDateString('ru-RU')} в {new Date(order.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 flex-1 overflow-hidden">
-                      <span className="text-[14px] font-bold text-[var(--text-primary)] truncate">{order.product?.title || `Заказ #${String(order.id).slice(-4)}`}</span>
-                      <span className="text-[11px] text-[var(--text-secondary)]">{new Date(order.createdAt).toLocaleDateString('ru-RU')} в {new Date(order.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                    
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1 shrink-0">
+                      <span className="text-[16px] font-extrabold text-[var(--text-primary)]">{order.product?.price ?? 0} ₽</span>
+                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg border ${order.status === 'SUCCESS' || order.status === 'PAID' ? 'bg-green-500/5 text-[var(--success)] border-green-500/10' : 'bg-orange-500/5 text-orange-500 border-orange-500/10'}`}>
+                        {order.status}
+                      </span>
                     </div>
                   </div>
-                  
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1 shrink-0">
-                    <span className="text-[16px] font-extrabold text-[var(--accent)]">{order.product?.price ?? 0} ₽</span>
-                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg border ${order.status === 'SUCCESS' || order.status === 'PAID' ? 'bg-green-500/5 text-[var(--success)] border-green-500/10' : 'bg-orange-500/5 text-orange-500 border-orange-500/10'}`}>
-                      {order.status}
-                    </span>
-                  </div>
+
+                  {order.ticket?.productKey && (order.status === 'SUCCESS' || order.status === 'PAID') && (
+                    <div className="pt-3 border-t border-[var(--border-muted)]/60 flex flex-col gap-2">
+                      <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Лицензионный ключ активации</span>
+                      <div className="flex items-center gap-2 bg-[var(--bg-layer-0)] border border-[var(--border-muted)] p-2.5 rounded-xl justify-between group">
+                        <code className="text-[13px] font-mono font-bold text-[var(--text-primary)] select-all tracking-wider break-all">{order.ticket.productKey}</code>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(order.ticket!.productKey);
+                            setCopiedKeyId(order.id);
+                            setTimeout(() => setCopiedKeyId(null), 2000);
+                          }}
+                          className="p-2 rounded-lg bg-[var(--bg-layer-2)] hover:bg-[var(--accent)] hover:text-white border border-[var(--border-muted)] text-[var(--text-secondary)] transition-all cursor-pointer flex items-center justify-center shrink-0"
+                          title="Копировать ключ"
+                        >
+                          {copiedKeyId === order.id ? (
+                            <Check size={14} className="text-white" />
+                          ) : (
+                            <Copy size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
               

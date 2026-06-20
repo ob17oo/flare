@@ -4,7 +4,6 @@ import { stripe } from "@/shared/lib/stripe"
 import { prisma } from "@/shared/lib/prisma"
 import Stripe from "stripe"
 import { generateProductKey } from "@/shared/lib/utils/productKey"
-import { sendTicketEmail } from "@/shared/lib/email/emailService"
 
 export const dynamic = 'force-dynamic'
 
@@ -217,17 +216,6 @@ export async function POST(req: Request) {
                   productKey,
                 }
               })
-
-              ticketInfo = {
-                toEmail: email,
-                productTitle: txOrder.product.title,
-                purchaseDate: new Date().toLocaleDateString('ru-RU'),
-                orderId: txOrder.id,
-                price: session.metadata?.finalPrice || txOrder.product.price.toString(),
-                paymentMethod: 'Банковская карта (Stripe)',
-                status: 'Завершено (SUCCESS)',
-                productKey,
-              }
             }, {
               timeout: 10000,
               maxWait: 2000,
@@ -236,30 +224,15 @@ export async function POST(req: Request) {
 
             console.log(`[Stripe Webhook Success] Fulfilled product purchase for user ${userId}, product ${productId}, order ${order.id}`)
 
-            // Send email and update status to SUCCESS after the artificial delay
-            if (ticketInfo) {
-              // 1.5s artificial delay for presentation to show the processing transition
-              await new Promise((resolve) => setTimeout(resolve, 1500));
+            // Update order status to SUCCESS after the artificial delay for presentation
+            // 1.5s artificial delay for presentation to show the processing transition
+            await new Promise((resolve) => setTimeout(resolve, 1500))
 
-              try {
-                const emailRes = await sendTicketEmail(ticketInfo);
-                console.log(`[Email Send Result] Email delivery success: ${emailRes.success}`);
-
-                // Update Order status to SUCCESS in the database
-                await prisma.order.update({
-                  where: { id: order.id },
-                  data: { status: 'SUCCESS' }
-                });
-                console.log(`[Stripe Webhook Completion] Order #${order.id} status updated to SUCCESS.`);
-              } catch (emailErr) {
-                console.error(`[Email Send / Status Update Failure] Failed to send ticket email or update order status to SUCCESS:`, emailErr);
-                // Even if email throws, update status to SUCCESS so it doesn't get stuck in PROCESSING
-                await prisma.order.update({
-                  where: { id: order.id },
-                  data: { status: 'SUCCESS' }
-                }).catch(() => {});
-              }
-            }
+            await prisma.order.update({
+              where: { id: order.id },
+              data: { status: 'SUCCESS' }
+            })
+            console.log(`[Stripe Webhook Completion] Order #${order.id} status updated to SUCCESS.`)
 
           } catch (err: unknown) {
             console.error(`[Stripe Webhook Error] Transaction failed for product purchase:`, err)

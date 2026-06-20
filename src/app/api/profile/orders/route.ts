@@ -15,6 +15,9 @@ export async function GET() {
       include: {
         product: {
           select: { title: true, image_url: true, price: true }
+        },
+        ticket: {
+          select: { productKey: true }
         }
       },
       orderBy: { createdAt: 'desc' }

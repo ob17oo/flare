@@ -4,6 +4,8 @@ import { authOptions } from "@/shared/lib/auth"
 import { prisma } from "@/shared/lib/prisma"
 import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
+import { generateProductKey } from "@/shared/lib/utils/productKey"
+import { sendTicketEmail } from "@/shared/lib/email/emailService"
 
 interface PaymentActionProps{
     productId: number,
@@ -188,6 +190,51 @@ export async function paymentAction(data: PaymentActionProps){
         
         revalidatePath('/orders')
         revalidatePath('/profile')
+
+        // Automate digital product key generation and email dispatch for balance payments
+        // Set a 1.5s delay for presentation to show the transition from PROCESSING to SUCCESS
+        setTimeout(async () => {
+            try {
+                const productKey = generateProductKey()
+
+                // 1. Create the Ticket in database
+                await prisma.ticket.create({
+                    data: {
+                        userId,
+                        orderId: transaction.id,
+                        productKey,
+                    }
+                })
+
+                // 2. Send the email receipt
+                const ticketInfo = {
+                    toEmail: data.email,
+                    productTitle: transaction.product.title,
+                    purchaseDate: new Date().toLocaleDateString('ru-RU'),
+                    orderId: transaction.id,
+                    price: finalPrice.toString(),
+                    paymentMethod: 'Баланс аккаунта',
+                    status: 'Завершено (SUCCESS)',
+                    productKey,
+                }
+                await sendTicketEmail(ticketInfo)
+
+                // 3. Update order status to SUCCESS
+                await prisma.order.update({
+                    where: { id: transaction.id },
+                    data: { status: 'SUCCESS' }
+                })
+
+                console.log(`[Balance Payment Success] Fulfilled key for Order #${transaction.id} and set status to SUCCESS`)
+            } catch (err) {
+                console.error(`[Balance Payment Automation Error] Failed to complete fulfillment for Order #${transaction.id}:`, err)
+                // Even on error, set status to SUCCESS to prevent lock
+                await prisma.order.update({
+                    where: { id: transaction.id },
+                    data: { status: 'SUCCESS' }
+                }).catch(() => {})
+            }
+        }, 1500)
 
         return {
             success: true,
