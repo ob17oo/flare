@@ -83,28 +83,28 @@
   }
 
   [data-theme='light'] {
-    --primary: #F2F4F7;
+    --primary: #F8FAFC;
     --secondary: #FFFFFF;
     
-    --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --text-muted: #6B7280;
+    --text-primary: #0F172A;
+    --text-secondary: #334155;
+    --text-muted: #64748B;
     
     --accent: #DF2531;
     --accent-hover: #C71E2A;
-    --accent-soft: #FDEBEC;
+    --accent-soft: #FFECEC;
 
-    --bg-layer-0: #F2F4F7;
+    --bg-layer-0: #F8FAFC;
     --bg-layer-1: #FFFFFF;
-    --bg-layer-2: #E5E7EB;
-    --bg-layer-3: #D1D5DB;
-    --bg-layer-4: #E5E7EB;
+    --bg-layer-2: #F1F5F9;
+    --bg-layer-3: #FFECEC;
+    --bg-layer-4: #FFFFFF;
 
-    --border-muted: #D1D5DB;
-    --border-accent-glow: rgba(223, 37, 49, 0.15);
+    --border-muted: #CBD5E1;
+    --border-accent-glow: rgba(223, 37, 49, 0.22);
 
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    --modal-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --card-shadow: 0 4px 20px rgba(223, 37, 49, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
+    --modal-shadow: 0 10px 30px rgba(223, 37, 49, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
   }
 
   body {

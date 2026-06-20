@@ -164,11 +164,11 @@ export function OrdersClient({ initialData }: { initialData: OrderType[] }) {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#A1A1AA]">Новый статус</label>
                 <select {...register('status')} className="w-full bg-[#1F1F1F] border border-[#333] rounded-lg px-3 py-2 text-white">
-                  <option value="PENDING">Ожидание</option>
-                  <option value="PROCESSING">В обработке</option>
-                  <option value="COMPLETED">Завершен</option>
-                  <option value="CANCELLED">Отменен</option>
-                  <option value="REFUNDED">Возврат</option>
+                  <option value="PENDING">Ожидание (PENDING)</option>
+                  <option value="PROCESSING">В обработке (PROCESSING)</option>
+                  <option value="PAID">Оплачен (PAID)</option>
+                  <option value="SUCCESS">Завершен (SUCCESS)</option>
+                  <option value="CANCELLED">Отменен / Возврат (CANCELLED)</option>
                 </select>
               </div>
 
