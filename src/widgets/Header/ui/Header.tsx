@@ -35,7 +35,7 @@ export function Header({serverSession}: HeaderProps){
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     {session && (
-                        <button onClick={() => router.push('/balance/topup')} type="button" className="h-full cursor-pointer">
+                        <button onClick={() => router.push('/balance/topup')} type="button" className="hidden md:block h-full cursor-pointer">
                             <BalanceComponent balance={session?.user.balance}/>
                         </button>
                     )}
@@ -59,6 +59,15 @@ export function Header({serverSession}: HeaderProps){
                     </div>
                 </div>
             </div>
+            
+            {/* Mobile Balance displays below logo and theme/menu actions */}
+            {session && (
+                <div className="block md:hidden w-full">
+                    <button onClick={() => router.push('/balance/topup')} type="button" className="w-full cursor-pointer">
+                        <BalanceComponent balance={session?.user.balance} className="w-full" />
+                    </button>
+                </div>
+            )}
             
             {/* Mobile Search input displayed below logo and actions */}
             <div className="block md:hidden w-full">
