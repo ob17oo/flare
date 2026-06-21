@@ -153,7 +153,7 @@ export function PaymentComponent({item}: PaymentComponentProps){
                 </div>
 
                 {/* Benefits / Info Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
                     <div className="bg-[var(--bg-layer-2)]/40 border border-[var(--border-muted)]/50 rounded-xl p-3 flex items-start gap-2.5">
                         <div className="p-1.5 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] mt-0.5 shrink-0">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
