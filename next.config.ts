@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         pathname: '/storage/v1/object/**',
       }
     ]
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb'
+    }
   }
 };
 
