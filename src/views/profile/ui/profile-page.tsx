@@ -115,7 +115,7 @@ export function ProfilePage({ session }: ProfileProps) {
       if (!res.ok) throw new Error('Failed to fetch referrals')
       return res.json()
     },
-    enabled: activeTab === 'referrals'
+    enabled: activeTab === 'referrals' || activeTab === 'dashboard'
   })
 
   const handleCopyRef = async () => {
@@ -282,11 +282,11 @@ export function ProfilePage({ session }: ProfileProps) {
             <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Ваша персональная скидка</span>
             <div className="flex flex-col mt-2">
               <div className="w-full h-2.5 rounded-full bg-[var(--bg-layer-0)] border border-[var(--border-muted)] relative overflow-hidden">
-                <div className="h-full bg-[var(--accent)] rounded-full transition-all duration-500" style={{ width: `${Math.min((user.discount / user.maxUserDiscount) * 100, 100)}%` }}></div>
+                <div className="h-full bg-[var(--accent)] rounded-full transition-all duration-500" style={{ width: `${Math.min(((referralsData?.discount !== undefined ? referralsData.discount : user.discount) / user.maxUserDiscount) * 100, 100)}%` }}></div>
               </div>
               <div className="flex justify-between items-center mt-2">
                 <span className="text-[12px] text-[var(--text-secondary)]">Текущая скидка</span>
-                <span className="text-[13px] font-bold text-[var(--accent)]">{user.discount}% / {user.maxUserDiscount}%</span>
+                <span className="text-[13px] font-bold text-[var(--accent)]">{referralsData?.discount !== undefined ? referralsData.discount : user.discount}% / {user.maxUserDiscount}%</span>
               </div>
             </div>
           </div>

@@ -34,7 +34,11 @@ export async function GET(req: Request) {
         referrals: {
           include: {
             orders: {
-              where: { status: 'SUCCESS' },
+              where: {
+                status: {
+                  in: ['SUCCESS', 'PAID']
+                }
+              },
               select: { id: true }
             }
           }

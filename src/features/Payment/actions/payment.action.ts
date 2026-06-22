@@ -29,7 +29,11 @@ export async function paymentAction(data: PaymentActionProps){
                 referrals: {
                     include: {
                         orders: {
-                            where: { status: 'SUCCESS' },
+                            where: {
+                                status: {
+                                    in: ['SUCCESS', 'PAID']
+                                }
+                            },
                             select: { id: true }
                         }
                     }

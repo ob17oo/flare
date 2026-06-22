@@ -16,7 +16,11 @@ export async function GET() {
         referrals: {
           include: {
             orders: {
-              where: { status: 'SUCCESS' },
+              where: {
+                status: {
+                  in: ['SUCCESS', 'PAID']
+                }
+              },
               select: { id: true }
             }
           }
@@ -48,6 +52,14 @@ export async function GET() {
     else if (activeReferrals >= 5) calculatedDiscount = 5;
     else if (activeReferrals >= 3) calculatedDiscount = 3;
     else if (activeReferrals >= 1) calculatedDiscount = 1;
+
+    // Update the database discount column to match the calculated dynamic discount
+    if (user.discount !== calculatedDiscount) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { discount: calculatedDiscount }
+      });
+    }
 
     // Determine next threshold
     let nextThreshold = null;

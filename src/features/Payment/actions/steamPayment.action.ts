@@ -30,7 +30,11 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
         referrals: {
           include: {
             orders: {
-              where: { status: 'SUCCESS' },
+              where: {
+                status: {
+                  in: ['SUCCESS', 'PAID']
+                }
+              },
               select: { id: true }
             }
           }
