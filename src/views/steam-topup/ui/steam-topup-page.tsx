@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { InputComponent, Accordion, AccordionContent, AccordionItem, AccordionTrigger, ErrorMessage } from "@/shared/components"
 import { steamPaymentAction } from "@/features/Payment/actions/steamPayment.action"
+import { createSteamStripeSessionAction } from "@/features/Payment/actions/createSteamStripeSession.action"
 import { SuccessModal } from "@/features/Payment/ui/SuccessModal"
 
 // Schema validation
@@ -29,7 +30,7 @@ export function SteamTopupPage() {
   const searchParams = useSearchParams()
   const promoParam = searchParams ? searchParams.get('promo') : null
   const { data: session, status, update } = useSession()
-  const [paymentMethod, setPaymentMethod] = useState<'balance' | 'card' | 'sbp' | 'qiwi'>('card')
+  const [paymentMethod, setPaymentMethod] = useState<'balance' | 'stripe'>('stripe')
   const [havePromo, setHavePromo] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [serverError, setServerError] = useState('')
@@ -175,29 +176,44 @@ export function SteamTopupPage() {
     try {
       setServerError('')
       
-      if (paymentMethod === 'balance' && (!session?.user?.id)) {
+      if (!session?.user?.id) {
         setServerError('Необходима авторизация')
         return
       }
 
-      const result = await steamPaymentAction({
-        steamLogin: data.steamLogin,
-        amount: data.amount,
-        calculatedPrice: calculatedPrice,
-        promocode: data.promocode?.trim() || undefined,
-        paymentMethod: paymentMethod
-      })
-
-      if (result.success) {
-        try {
-          await update()
-        } catch (err) {
-          console.error('Session update error:', err)
+      if (paymentMethod === 'stripe') {
+        const result = await createSteamStripeSessionAction({
+          steamLogin: data.steamLogin,
+          amount: data.amount,
+          calculatedPrice: calculatedPrice,
+          promocode: data.promocode?.trim() || undefined
+        })
+        
+        if (result.success && result.url) {
+          window.location.href = result.url
+        } else {
+          setServerError('Не удалось запустить оплату Stripe')
         }
-        setSuccessMsg(result.message)
-        setShowModal(true)
       } else {
-        setServerError(result.message)
+        const result = await steamPaymentAction({
+          steamLogin: data.steamLogin,
+          amount: data.amount,
+          calculatedPrice: calculatedPrice,
+          promocode: data.promocode?.trim() || undefined,
+          paymentMethod: 'balance'
+        })
+
+        if (result.success) {
+          try {
+            await update()
+          } catch (err) {
+            console.error('Session update error:', err)
+          }
+          setSuccessMsg(result.message)
+          setShowModal(true)
+        } else {
+          setServerError(result.message)
+        }
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -293,39 +309,17 @@ export function SteamTopupPage() {
           <label className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
             Способ оплаты
           </label>
-          <div className="grid grid-cols-4 bg-[var(--bg-layer-2)] p-1 rounded-xl border border-[var(--border-muted)] gap-1">
+          <div className="grid grid-cols-2 bg-[var(--bg-layer-2)] p-1 rounded-xl border border-[var(--border-muted)] gap-1">
             <button
               type="button"
-              onClick={() => setPaymentMethod('card')}
+              onClick={() => setPaymentMethod('stripe')}
               className={`text-[12px] font-semibold py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                paymentMethod === 'card'
+                paymentMethod === 'stripe'
                   ? 'bg-[var(--secondary)] text-[var(--text-primary)] shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              Карта РФ
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('sbp')}
-              className={`text-[12px] font-semibold py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                paymentMethod === 'sbp'
-                  ? 'bg-[var(--secondary)] text-[var(--text-primary)] shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              СБП
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('qiwi')}
-              className={`text-[12px] font-semibold py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                paymentMethod === 'qiwi'
-                  ? 'bg-[var(--secondary)] text-[var(--text-primary)] shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              QIWI
+              Карта / Stripe
             </button>
             <button
               type="button"

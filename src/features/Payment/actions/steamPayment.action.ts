@@ -10,7 +10,7 @@ interface SteamPaymentActionProps {
   amount: number
   calculatedPrice: number
   promocode?: string | undefined
-  paymentMethod: 'balance' | 'card' | 'sbp' | 'qiwi'
+  paymentMethod: 'balance'
 }
 
 export async function steamPaymentAction(data: SteamPaymentActionProps) {
@@ -99,125 +99,81 @@ export async function steamPaymentAction(data: SteamPaymentActionProps) {
     const discountAmount = Math.round(basePrice * totalDiscountPercent / 100)
     const finalPrice = Math.max(basePrice - discountAmount, 0)
 
-    // If payment method is balance, deduct from account balance
-    if (data.paymentMethod === 'balance') {
-      if (user.balance < finalPrice) {
+    // Since paymentMethod is restricted to 'balance', perform balance deduction
+    if (user.balance < finalPrice) {
+      throw new Error('NOT_ENOUGH_MONEY')
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Re-verify inside the transaction to prevent race conditions
+      const txUser = await tx.user.findUnique({
+        where: { id: userId },
+        select: { balance: true }
+      })
+      if (!txUser) {
+        throw new Error('USER_NOT_FOUND')
+      }
+      if (txUser.balance < finalPrice) {
         throw new Error('NOT_ENOUGH_MONEY')
       }
 
-      await prisma.$transaction(async (tx) => {
-        // Re-verify inside the transaction to prevent race conditions
-        const txUser = await tx.user.findUnique({
-          where: { id: userId },
-          select: { balance: true }
-        })
-        if (!txUser) {
-          throw new Error('USER_NOT_FOUND')
-        }
-        if (txUser.balance < finalPrice) {
-          throw new Error('NOT_ENOUGH_MONEY')
-        }
-
-        const txProduct = await tx.product.findUnique({
-          where: { id: placeholderProduct.id }
-        })
-        if (!txProduct || !txProduct.isActive || txProduct.stock <= 0) {
-          throw new Error('STEAM_PRODUCT_NOT_FOUND')
-        }
-
-        if (data.promocode) {
-          const txPromocode = await tx.promocode.findUnique({
-            where: { code: data.promocode.toUpperCase() }
-          })
-          if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
-            throw new Error('PROMOCODE_NOT_FOUND')
-          }
-        }
-
-        // Deduct balance
-        await tx.user.update({
-          where: { id: userId },
-          data: {
-            balance: { decrement: finalPrice },
-            spent: { increment: finalPrice }
-          }
-        })
-
-        // Create order
-        await tx.order.create({
-          data: {
-            userId: userId,
-            productId: placeholderProduct.id,
-            email: `${data.steamLogin}@steam.topup`,
-            promo: data.promocode || null,
-            status: 'PROCESSING'
-          }
-        })
-
-        // Decrement placeholder product stock
-        await tx.product.update({
-          where: { id: placeholderProduct.id },
-          data: {
-            stock: { decrement: 1 }
-          }
-        })
-
-        if (data.promocode) {
-          await tx.promocode.update({
-            where: { code: data.promocode.toUpperCase() },
-            data: {
-              usesCount: { increment: 1 }
-            }
-          })
-        }
-      }, {
-        timeout: 10000,
-        maxWait: 2000,
-        isolationLevel: 'Serializable'
+      const txProduct = await tx.product.findUnique({
+        where: { id: placeholderProduct.id }
       })
-    } else {
-      // Mock payment for non-balance methods (card, sbp, qiwi)
-      await prisma.$transaction(async (tx) => {
-        const txProduct = await tx.product.findUnique({
-          where: { id: placeholderProduct.id }
+      if (!txProduct || !txProduct.isActive || txProduct.stock <= 0) {
+        throw new Error('STEAM_PRODUCT_NOT_FOUND')
+      }
+
+      if (data.promocode) {
+        const txPromocode = await tx.promocode.findUnique({
+          where: { code: data.promocode.toUpperCase() }
         })
-        if (!txProduct || !txProduct.isActive) {
-          throw new Error('STEAM_PRODUCT_NOT_FOUND')
+        if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
+          throw new Error('PROMOCODE_NOT_FOUND')
         }
+      }
 
-        if (data.promocode) {
-          const txPromocode = await tx.promocode.findUnique({
-            where: { code: data.promocode.toUpperCase() }
-          })
-          if (!txPromocode || !txPromocode.isActive || (txPromocode.maxUses - txPromocode.usesCount) <= 0) {
-            throw new Error('PROMOCODE_NOT_FOUND')
-          }
+      // Deduct balance
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          balance: { decrement: finalPrice },
+          spent: { increment: finalPrice }
         }
-
-        await tx.order.create({
-          data: {
-            userId: userId,
-            productId: placeholderProduct.id,
-            email: `${data.steamLogin}@steam.topup`,
-            promo: data.promocode || null,
-            status: 'PROCESSING'
-          }
-        })
-
-        if (data.promocode) {
-          await tx.promocode.update({
-            where: { code: data.promocode.toUpperCase() },
-            data: {
-              usesCount: { increment: 1 }
-            }
-          })
-        }
-      }, {
-        timeout: 10000,
-        maxWait: 2000,
-        isolationLevel: 'Serializable'
       })
-    }
+
+      // Create order
+      await tx.order.create({
+        data: {
+          userId: userId,
+          productId: placeholderProduct.id,
+          email: `${data.steamLogin}@steam.topup`,
+          promo: data.promocode || null,
+          status: 'PROCESSING'
+        }
+      })
+
+      // Decrement placeholder product stock
+      await tx.product.update({
+        where: { id: placeholderProduct.id },
+        data: {
+          stock: { decrement: 1 }
+        }
+      })
+
+      if (data.promocode) {
+        await tx.promocode.update({
+          where: { code: data.promocode.toUpperCase() },
+          data: {
+            usesCount: { increment: 1 }
+          }
+        })
+      }
+    }, {
+      timeout: 10000,
+      maxWait: 2000,
+      isolationLevel: 'Serializable'
+    })
 
     revalidatePath('/orders')
     revalidatePath('/profile')

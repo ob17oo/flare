@@ -206,16 +206,18 @@ export async function POST(req: Request) {
               }
 
               // Generate digital product key
-              const productKey = generateProductKey()
+              if (!email.endsWith('@steam.topup')) {
+                const productKey = generateProductKey()
 
-              // Create digital ticket
-              await tx.ticket.create({
-                data: {
-                  userId,
-                  orderId: order.id,
-                  productKey,
-                }
-              })
+                // Create digital ticket
+                await tx.ticket.create({
+                  data: {
+                    userId,
+                    orderId: order.id,
+                    productKey,
+                  }
+                })
+              }
             }, {
               timeout: 10000,
               maxWait: 2000,

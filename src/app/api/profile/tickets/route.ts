@@ -82,15 +82,17 @@ export async function GET(req: Request) {
                     });
                   }
 
-                  // Generate product key and create ticket
-                  const productKey = generateProductKey();
-                  await tx.ticket.create({
-                    data: {
-                      userId,
-                      orderId: order.id,
-                      productKey
-                    }
-                  });
+                  // Generate product key and create ticket (only if not a steam topup)
+                  if (!email.endsWith('@steam.topup')) {
+                    const productKey = generateProductKey();
+                    await tx.ticket.create({
+                      data: {
+                        userId,
+                        orderId: order.id,
+                        productKey
+                      }
+                    });
+                  }
                 }
               }, {
                 timeout: 10000,
