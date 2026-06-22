@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { ImageUploadDropzone } from './components/ImageUploadDropzone';
 import { getAllProducts } from '@/entities/admin/api/products.action';
 import { ErrorMessage } from '@/shared/components';
+import { DbLauncher } from "@/entities/game/api/getLaunchers.api";
 
 const productSchema = z.object({
   title: z.string().min(1, 'Обязательное поле'),
@@ -30,13 +31,32 @@ const productSchema = z.object({
   productType: z.string().default('GAME'),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
-  tags: z.string().optional()
+  tags: z.string().optional(),
+  launcherId: z.string().optional().nullable(),
+  genre: z.string().optional().nullable()
+}).superRefine((data, ctx) => {
+  if (data.productType === 'GAME') {
+    if (!data.launcherId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Выберите лаунчер',
+        path: ['launcherId']
+      });
+    }
+    if (!data.genre || data.genre.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Укажите жанр игры',
+        path: ['genre']
+      });
+    }
+  }
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 type ProductType = Awaited<ReturnType<typeof getAllProducts>>[number];
 
-export function ProductsClient({ initialData }: { initialData: ProductType[] }) {
+export function ProductsClient({ initialData, launchers = [] }: { initialData: ProductType[], launchers: DbLauncher[] }) {
   const { data: products } = useAdminProducts(initialData);
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -67,7 +87,16 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
   }, [watchTitle, editingId, setValue, isDirty]);
 
   const openCreateModal = () => {
-    reset({ isActive: true, stock: 100, productType: 'GAME', productEdition: 'Standard', currency: 'RUB', slug: `product-${Date.now()}` });
+    reset({ 
+      isActive: true, 
+      stock: 100, 
+      productType: 'GAME', 
+      productEdition: 'Standard', 
+      currency: 'RUB', 
+      slug: `product-${Date.now()}`,
+      launcherId: '',
+      genre: ''
+    });
     setEditingId(null);
     setSaveStatus('idle');
     setErrorMessage('');
@@ -76,6 +105,7 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
 
   const openEditModal = (product: ProductType) => {
     const rawProduct = product as unknown as Record<string, unknown>;
+    const game = rawProduct.game as Record<string, unknown> | undefined;
     reset({
       title: product.title,
       slug: (rawProduct.slug as string) || '',
@@ -94,7 +124,9 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
       productType: product.productType,
       seoTitle: product.seoTitle || '',
       seoDescription: product.seoDescription || '',
-      tags: product.tags?.join(', ') || ''
+      tags: product.tags?.join(', ') || '',
+      launcherId: game?.launcherId ? String(game.launcherId) : '',
+      genre: game?.genre ? String(game.genre) : ''
     });
     setEditingId(product.id);
     setSaveStatus('idle');
@@ -331,6 +363,26 @@ export function ProductsClient({ initialData }: { initialData: ProductType[] }) 
                       <input {...register('productEdition')} placeholder="Standard, Premium, Key..." className="w-full bg-[#1A1A1A] border border-[#333] focus:border-blue-500 rounded-lg px-4 py-2.5 text-white outline-none" />
                     </div>
                   </div>
+
+                  {watchProductType === 'GAME' && (
+                    <div className="grid grid-cols-2 gap-5 pt-2 border-t border-[#1F1F1F]/60">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-[#A1A1AA]">Лаунчер <span className="text-red-500">*</span></label>
+                        <select {...register('launcherId')} className="w-full bg-[#1A1A1A] border border-[#333] focus:border-blue-500 rounded-lg px-4 py-2.5 text-white outline-none">
+                          <option value="">Выберите лаунчер</option>
+                          {launchers.map((l) => (
+                            <option key={l.id} value={l.id.toString()}>{l.title}</option>
+                          ))}
+                        </select>
+                        {errors.launcherId && <p className="text-red-500 text-xs">{String(errors.launcherId.message)}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-[#A1A1AA]">Жанр игры <span className="text-red-500">*</span></label>
+                        <input {...register('genre')} placeholder="Например: Action, RPG" className="w-full bg-[#1A1A1A] border border-[#333] focus:border-blue-500 rounded-lg px-4 py-2.5 text-white outline-none" />
+                        {errors.genre && <p className="text-red-500 text-xs">{String(errors.genre.message)}</p>}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3 bg-[#1A1A1A] p-4 rounded-lg border border-[#333]">
                     <div className="relative flex items-start">

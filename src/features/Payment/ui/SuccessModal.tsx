@@ -2,6 +2,7 @@ import { Check, Copy } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useLockScroll } from "@/shared/hooks"
 import { useState } from "react"
+import { copyToClipboard } from "@/shared/lib/utils"
 
 interface SuccessModalProps {
     showModal: boolean,
@@ -18,11 +19,13 @@ export function SuccessModal({showModal, setShowModal, successMsg, activationKey
         return null
     }
 
-    const handleCopy = () => {
+    const handleCopy = async () => {
         if (activationKey) {
-            navigator.clipboard.writeText(activationKey)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
+            const success = await copyToClipboard(activationKey)
+            if (success) {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+            }
         }
     }
 

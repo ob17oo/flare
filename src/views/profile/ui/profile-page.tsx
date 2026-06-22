@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { copyToClipboard } from "@/shared/lib/utils"
 import { ButtonComponent, InputComponent, ErrorMessage } from "@/shared/components"
 import { useLockScroll } from "@/shared/hooks"
 import { Session } from "next-auth"
@@ -117,12 +118,14 @@ export function ProfilePage({ session }: ProfileProps) {
     enabled: activeTab === 'referrals'
   })
 
-  const handleCopyRef = () => {
+  const handleCopyRef = async () => {
     if (!referralsData?.referralCode) return;
     const link = `${window.location.origin}/register?ref=${referralsData.referralCode}`;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const success = await copyToClipboard(link);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -472,11 +475,13 @@ export function ProfilePage({ session }: ProfileProps) {
                       <div className="flex items-center gap-2 bg-[var(--bg-layer-0)] border border-[var(--border-muted)] p-2.5 rounded-xl justify-between group">
                         <code className="text-[13px] font-mono font-bold text-[var(--text-primary)] select-all tracking-wider break-all">{order.ticket.productKey}</code>
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(order.ticket!.productKey);
-                            setCopiedKeyId(order.id);
-                            setTimeout(() => setCopiedKeyId(null), 2000);
+                            const success = await copyToClipboard(order.ticket!.productKey);
+                            if (success) {
+                              setCopiedKeyId(order.id);
+                              setTimeout(() => setCopiedKeyId(null), 2000);
+                            }
                           }}
                           className="p-2 rounded-lg bg-[var(--bg-layer-2)] hover:bg-[var(--accent)] hover:text-white border border-[var(--border-muted)] text-[var(--text-secondary)] transition-all cursor-pointer flex items-center justify-center shrink-0"
                           title="Копировать ключ"

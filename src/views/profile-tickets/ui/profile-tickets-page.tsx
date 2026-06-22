@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { copyToClipboard } from "@/shared/lib/utils"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Key, Copy, Check, ArrowLeft, Ticket as TicketIcon } from "lucide-react"
@@ -52,10 +53,12 @@ function ProfileTicketsContent() {
     }
   })
 
-  const handleCopyKey = (key: string, ticketId: string) => {
-    navigator.clipboard.writeText(key)
-    setCopiedKeyId(ticketId)
-    setTimeout(() => setCopiedKeyId(null), 2000)
+  const handleCopyKey = async (key: string, ticketId: string) => {
+    const success = await copyToClipboard(key)
+    if (success) {
+      setCopiedKeyId(ticketId)
+      setTimeout(() => setCopiedKeyId(null), 2000)
+    }
   }
 
   return (

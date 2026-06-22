@@ -15,7 +15,9 @@ export function RegisterForm(){
     const [serverError, setServerError] = useState<string | null>(null)
     const router = useRouter()
     const searchParams = useSearchParams()
-    const refCode = searchParams.get('ref')
+    const urlRefCode = searchParams.get('ref')
+    const [showRefInput, setShowRefInput] = useState(!!urlRefCode)
+    const [manualRefCode, setManualRefCode] = useState(urlRefCode || '')
 
     const { 
         register,
@@ -37,7 +39,7 @@ export function RegisterForm(){
      const onSubmit = async (data: RegisterFormData) => {
         try{
             setServerError(null)
-            await registerAction({ ...data, refCode })
+            await registerAction({ ...data, refCode: manualRefCode || urlRefCode })
             reset()
         } catch(error: unknown){
             if(error instanceof Error){
@@ -115,6 +117,39 @@ export function RegisterForm(){
                                 <p className="text-xs text-[var(--error)] font-medium mt-0.5">{errors.confirmPassword.message}</p>
                             )}
                         </div>
+
+                        {/* Referral Section */}
+                        {!showRefInput ? (
+                            <button 
+                                type="button" 
+                                onClick={() => setShowRefInput(true)} 
+                                className="text-[13px] font-semibold text-[var(--accent)] hover:underline hover:text-[var(--accent-hover)] transition-colors cursor-pointer self-start mt-1"
+                            >
+                                Есть реферальный код?
+                            </button>
+                        ) : (
+                            <div className="flex flex-col gap-1.5 mt-1 animate-in fade-in duration-200">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Реферальный код или ссылка</label>
+                                    {!urlRefCode && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setShowRefInput(false); setManualRefCode(''); }} 
+                                            className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                                        >
+                                            Скрыть
+                                        </button>
+                                    )}
+                                </div>
+                                <InputComponent 
+                                    sizeVariant="medium" 
+                                    type="text" 
+                                    value={manualRefCode} 
+                                    onChange={(e) => setManualRefCode(e.target.value)} 
+                                    placeholder="Вставьте код или ссылку"
+                                />
+                            </div>
+                        )}
                         
                         <div className="flex flex-col gap-2.5 mt-2">
                             <button 

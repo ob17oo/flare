@@ -28,6 +28,15 @@ export async function GET() {
       return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
     }
 
+    let referralCode = user.referralCode;
+    if (!referralCode) {
+      referralCode = `ref-${Math.random().toString(36).substring(2, 11)}`;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { referralCode }
+      });
+    }
+
     const totalReferrals = user.referrals.length;
     const activeReferrals = user.referrals.filter(ref => ref.orders.length > 0).length;
 
@@ -51,7 +60,7 @@ export async function GET() {
     else if (activeReferrals < 20) { nextThreshold = 20; nextDiscount = 20; }
 
     return NextResponse.json({
-      referralCode: user.referralCode,
+      referralCode,
       totalReferrals,
       activeReferrals,
       discount: calculatedDiscount,

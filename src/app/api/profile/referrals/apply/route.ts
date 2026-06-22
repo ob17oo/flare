@@ -18,7 +18,8 @@ export async function POST(req: Request) {
     // Parse the code if it's a URL
     let referralCode = code.trim();
     if (referralCode.includes('?ref=')) {
-      referralCode = referralCode.split('?ref=')[1].split('&')[0];
+      const parts = referralCode.split('?ref=');
+      referralCode = (parts[1] && parts[1].split('&')[0]) || referralCode;
     } else if (referralCode.includes('/')) {
       referralCode = referralCode.split('/').pop() || referralCode;
     }

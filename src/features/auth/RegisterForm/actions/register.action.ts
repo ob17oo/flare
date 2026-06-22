@@ -28,17 +28,27 @@ export async function registerAction(data: {
 
         let referredById = null;
         if (refCode) {
-            const referrer = await prisma.user.findUnique({ where: { referralCode: refCode } });
+            let referralCode = refCode.trim();
+            if (referralCode.includes('?ref=')) {
+                const parts = referralCode.split('?ref=');
+                referralCode = (parts[1] && parts[1].split('&')[0]) || referralCode;
+            } else if (referralCode.includes('/')) {
+                referralCode = referralCode.split('/').pop() || referralCode;
+            }
+            const referrer = await prisma.user.findUnique({ where: { referralCode } });
             if (referrer) {
                 referredById = referrer.id;
             }
         }
+
+        const newUserReferralCode = `ref-${Math.random().toString(36).substring(2, 11)}`;
 
         await prisma.user.create({
             data: {
                 email: email,
                 login: login,
                 password:await hash(password, 12),
+                referralCode: newUserReferralCode,
                 ...(referredById ? { referredById } : {})
             }
         })

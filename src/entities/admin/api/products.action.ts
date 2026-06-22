@@ -18,6 +18,8 @@ export interface ProductInput {
   tags?: string[] | undefined;
   oldPrice?: number | string | null | undefined;
   discount?: number | string | null | undefined;
+  launcherId?: number | string | null | undefined;
+  genre?: string | null | undefined;
 }
 
 export async function parseProductTags<T extends { id: number; price: number; tags: string[] }>(product: T) {
@@ -52,6 +54,13 @@ export async function parseProductTags<T extends { id: number; price: number; ta
 
 export async function getAllProducts() {
   const products = await prisma.product.findMany({
+    include: {
+      game: {
+        include: {
+          launcher: true
+        }
+      }
+    },
     orderBy: { id: 'desc' }
   });
   return Promise.all(products.map(p => parseProductTags(p)));
@@ -82,8 +91,31 @@ export async function createProduct(data: ProductInput) {
       tags: tags
     }
   });
+
+  if ((data.productType as PRODUCT_TYPE) === 'GAME' && data.launcherId && data.genre) {
+    await prisma.game.create({
+      data: {
+        productId: product.id,
+        launcherId: Number(data.launcherId),
+        genre: data.genre
+      }
+    });
+  }
+
   revalidatePath('/admin/products');
-  return await parseProductTags(product);
+  
+  const fullProduct = await prisma.product.findUnique({
+    where: { id: product.id },
+    include: {
+      game: {
+        include: {
+          launcher: true
+        }
+      }
+    }
+  });
+  
+  return await parseProductTags(fullProduct!);
 }
 
 export async function updateProduct(id: number, data: ProductInput) {
@@ -121,8 +153,43 @@ export async function updateProduct(id: number, data: ProductInput) {
     where: { id },
     data: updateData
   });
+
+  if ((data.productType as PRODUCT_TYPE) === 'GAME') {
+    if (data.launcherId && data.genre) {
+      await prisma.game.upsert({
+        where: { productId: id },
+        update: {
+          launcherId: Number(data.launcherId),
+          genre: data.genre
+        },
+        create: {
+          productId: id,
+          launcherId: Number(data.launcherId),
+          genre: data.genre
+        }
+      });
+    }
+  } else {
+    // Delete associated game record if it exists
+    await prisma.game.deleteMany({
+      where: { productId: id }
+    });
+  }
+
   revalidatePath('/admin/products');
-  return await parseProductTags(product);
+  
+  const fullProduct = await prisma.product.findUnique({
+    where: { id },
+    include: {
+      game: {
+        include: {
+          launcher: true
+        }
+      }
+    }
+  });
+  
+  return await parseProductTags(fullProduct!);
 }
 
 export async function deleteProduct(id: number) {
