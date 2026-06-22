@@ -42,12 +42,14 @@ function ProfileTicketsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isSuccess = searchParams ? searchParams.get('success') === 'true' : false
+  const sessionId = searchParams ? searchParams.get('session_id') : null
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null)
 
   const { data: tickets = [], isLoading } = useQuery<TDigitalTicket[]>({
-    queryKey: ['user-digital-tickets'],
+    queryKey: ['user-digital-tickets', sessionId],
     queryFn: async () => {
-      const res = await fetch('/api/profile/tickets')
+      const url = sessionId ? `/api/profile/tickets?session_id=${sessionId}` : '/api/profile/tickets'
+      const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch digital tickets')
       return res.json()
     }
